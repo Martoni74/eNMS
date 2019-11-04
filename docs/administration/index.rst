@@ -1,10 +1,10 @@
-========
-Security
-========
+==============
+Administration
+==============
 
 .. toctree::
    :maxdepth: 1
 
    credentials
-   access
+   RBAC
    database

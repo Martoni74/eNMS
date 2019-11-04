@@ -1,0 +1,301 @@
+{% extends "base_site.html" %} {% block title %} Workflow Builder {% endblock
+title %} {% block stylesheets %} {{ super() }} {% endblock stylesheets %} {%
+block content %}
+<div class="right_col" role="main">
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+      <nav class="navbar navbar-default" role="navigation">
+        <center>
+          <ul
+            class="pagination pagination-lg"
+            style="margin: 0px; padding-top: 9px;"
+          >
+            <li>
+              <a onclick="menu('Edit Workflow')" data-tooltip="Edit Workflow"
+                ><span class="glyphicon glyphicon-edit"></span
+              ></a>
+            </li>
+            <li>
+              <a
+                onclick="menu('Create Workflow')"
+                data-tooltip="Create Workflow"
+                ><span class="glyphicon glyphicon-plus"></span
+              ></a>
+            </li>
+            <li>
+              <a
+                onclick="menu('Add to Workflow')"
+                data-tooltip="Add to Workflow"
+                ><span class="glyphicon glyphicon-book"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="menu('Create Label')" data-tooltip="Create Label"
+                ><span class="glyphicon glyphicon-font"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="menu('Skip')" data-tooltip="Skip"
+                ><span class="glyphicon glyphicon-ban-circle"></span
+              ></a>
+            </li>
+
+            <li>
+              <a onclick="menu('Delete')" data-tooltip="Delete"
+                ><span class="glyphicon glyphicon-trash"></span
+              ></a>
+            </li>
+          </ul>
+          <ul
+            class="pagination pagination-lg"
+            style="margin: 0px; padding-left: 30px; padding-top: 9px"
+          >
+            <li>
+              <a onclick="menu('Run Workflow')" data-tooltip="Run Workflow"
+                ><span class="glyphicon glyphicon-play"></span
+              ></a>
+            </li>
+            <li>
+              <a
+                onclick="menu('Parametrized Workflow Run')"
+                data-tooltip="Parametrized Run"
+                ><span class="glyphicon glyphicon-play-circle"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="menu('Stop Workflow')" data-tooltip="Stop Workflow"
+                ><span class="glyphicon glyphicon-pause"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="menu('Workflow Logs')" data-tooltip="Workflow Logs"
+                ><span class="glyphicon glyphicon-list"></span
+              ></a>
+            </li>
+            <li>
+              <a
+                onclick="menu('Workflow Results')"
+                data-tooltip="Workflow Results"
+                ><span class="glyphicon glyphicon-list-alt"></span
+              ></a>
+            </li>
+          </ul>
+          <ul
+            class="pagination pagination-lg"
+            style="margin: 0px; padding-left: 30px; padding-top: 9px"
+          >
+            <li>
+              <a onclick="getWorkflowState()" data-tooltip="Refresh"
+                ><span class="glyphicon glyphicon-refresh"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="menu('Zoom In')" data-tooltip="Zoom In"
+                ><span class="glyphicon glyphicon-zoom-in"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="menu('Zoom Out')" data-tooltip="Zoom Out"
+                ><span class="glyphicon glyphicon-zoom-out"></span
+              ></a>
+            </li>
+            <li id="left-arrow">
+              <a onclick="menu('Backward')" data-tooltip="Previous Workflow"
+                ><span class="glyphicon glyphicon-chevron-left"></span
+              ></a>
+            </li>
+            <li id="right-arrow">
+              <a onclick="menu('Forward')" data-tooltip="Next Workflow"
+                ><span class="glyphicon glyphicon-chevron-right"></span
+              ></a>
+            </li>
+            <li>
+              <a onclick="switchToSubworkflow()" data-tooltip="Display Workflow"
+                ><span class="glyphicon glyphicon-chevron-down"></span
+              ></a>
+            </li>
+          </ul>
+        </center>
+      </nav>
+      <div class="x_panel">
+        <div class="x_content">
+          <div
+            class="btn-group"
+            style="width: 10vw; z-index:2; position: absolute;"
+          >
+            <table
+              class="table table-bordered dt-responsive nowrap"
+              cellspacing="0"
+              width="100%"
+            >
+              <tbody>
+                <tr>
+                  <td style="text-align: center; vertical-align: middle;">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      onclick="menu('Create New Service')"
+                      data-tooltip="Create New Service"
+                    >
+                      <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                  </td>
+                  <td style="min-width: 10vw">
+                    <select
+                      id="service-type"
+                      class="form-control"
+                      data-width="250px"
+                    ></select>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center; vertical-align: middle;">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      onclick="switchMode()"
+                      data-tooltip="Change Mode"
+                    >
+                      <span
+                        id="mode-icon"
+                        class="glyphicon glyphicon-move"
+                      ></span>
+                    </button>
+                  </td>
+                  <td style="min-width: 10vw">
+                    <select id="edge-type" class="form-control">
+                      <option value="success">Success</option>
+                      <option value="failure">Failure</option>
+                      <option value="prerequisite">Prerequisite</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="btn-group"
+            style="z-index:2; position: absolute; right: 0vw;"
+          >
+            <table
+              class="table table-bordered dt-responsive nowrap"
+              cellspacing="0"
+              width="100%"
+            >
+              <tbody>
+                <tr>
+                  <td style="text-align: center; vertical-align: middle;">
+                    Workflow
+                  </td>
+                  <td>
+                    <select
+                      id="current-workflow"
+                      class="form-control"
+                      data-width="400px"
+                      data-dropdown-align-right="true"
+                    ></select>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center; vertical-align: middle;">
+                    Runtime
+                  </td>
+                  <td>
+                    <select id="current-runtime" class="form-control"></select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="btn-group"
+            style="width: 20vw; z-index:2; position: absolute; left: 25vw"
+          >
+            <strong><p id="status"></p></strong>
+            <div id="progress" class="progress" style="display: none">
+              <div
+                id="progress-success"
+                class="progress-bar progress-bar-success"
+              >
+                <span id="progress-success-span" style="color:black;"></span>
+              </div>
+              <div
+                id="progress-failure"
+                class="progress-bar progress-bar-danger"
+              >
+                <span id="progress-failure-span" style="color:black;"></span>
+              </div>
+            </div>
+          </div>
+          <div id="network" style="height:80vh; width:100%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ul id="contextMenu" class="dropdown-menu" role="menu">
+  <li class="menu-entry node-selection">
+    <a tabindex="-1" href="#">Edit</a>
+  </li>
+  <li class="menu-entry node-selection">
+    <a tabindex="-1" href="#">Duplicate</a>
+  </li>
+  <li class="menu-entry node-selection"><a tabindex="-1" href="#">Run</a></li>
+  <li class="menu-entry node-selection">
+    <a tabindex="-1" href="#">Parametrized Run</a>
+  </li>
+  <li class="menu-entry node-selection">
+    <a tabindex="-1" href="#">Restart Workflow from Here</a>
+  </li>
+  <li class="menu-entry node-selection">
+    <a tabindex="-1" href="#">Results</a>
+  </li>
+  <li class="menu-entry node-selection edge-selection">
+    <a tabindex="-1" href="#">Delete</a>
+  </li>
+  <li class="menu-entry edge-selection">
+    <a tabindex="-1" href="#">Edit Edge</a>
+  </li>
+  <li class="menu-entry label-selection">
+    <a tabindex="-1" href="#">Edit Label</a>
+  </li>
+  <li class="menu-entry label-selection">
+    <a tabindex="-1" href="#">Delete Label</a>
+  </li>
+  <li class="dropdown-submenu menu-entry global">
+    <a class="menu-submenu menu-layer" tabindex="-1" href="#"
+      >Change Mode<span class="caret-right"></span
+    ></a>
+    <ul class="dropdown-menu">
+      <li><a tabindex="-1" href="#">Move Nodes</a></li>
+      <li><a tabindex="-1" href="#">Create 'Success' edge</a></li>
+      <li><a tabindex="-1" href="#">Create 'Failure' edge</a></li>
+      <li><a tabindex="-1" href="#">Create 'Prerequisite' edge</a></li>
+    </ul>
+  </li>
+  <li class="dropdown-submenu menu-entry global">
+    <a class="menu-submenu menu-layer" tabindex="-1" href="#"
+      >Workflow<span class="caret-right"></span
+    ></a>
+    <ul class="dropdown-menu">
+      <li><a tabindex="-1" href="#">Edit Workflow</a></li>
+      <li><a tabindex="-1" href="#">Create Workflow</a></li>
+      <li><a tabindex="-1" href="#">Add to Workflow</a></li>
+      <li><a tabindex="-1" href="#">Run Workflow</a></li>
+      <li><a tabindex="-1" href="#">Parametrized Workflow Run</a></li>
+      <li><a tabindex="-1" href="#">Stop Workflow</a></li>
+      <li><a tabindex="-1" href="#">Workflow Results</a></li>
+      <li><a tabindex="-1" href="#">Workflow Logs</a></li>
+    </ul>
+  </li>
+  <li class="menu-entry global">
+    <a tabindex="-1" href="#">Create Label</a>
+  </li>
+</ul>
+{% endblock content %} {% block javascripts %} {{ super()}}
+<script>
+  let workflow = {{ workflow|tojson|safe }};
+</script>
+<script src="{{ url_for('static', filename='lib/echarts/echarts.min.js') }}"></script>
+<script src="{{ url_for('static', filename='workflowBuilder.js') }}"></script>
+{% endblock javascripts %}

@@ -42,18 +42,18 @@ A dashboard provides a graphical overview of all objects with dynamic charts.
 Network visualization
 *********************
 
-Once created, eNMS can display your network:
-  - geographically on a 2D or 3D world map (with the tile layer of your choice: Open Street Map, Google Map...)
+Once created, eNMS can display your network geographically on a 2D or 3D world map (with the tile layer of your choice: Open Street Map, Google Map...):
+  - Network View: each device is displayed on the map at its GPS coordinates.
 
   .. image:: /_static/base/enms.png
     :alt: Geographical View
     :align: center
 
-  - logically with a force-based algorithm (`d3.js`).
+  - Site View: colocated devices can be grouped into geographical sites (building, campus, ...). eNMS then uses a force-based algorithm to display a "logical" view of the site's internal devices.
 
-  .. image:: /_static/base/logical_view.png
-    :alt: Logical View
-    :align: center
+.. image:: /_static/views/site_view/site_view.png
+   :alt: Logical view
+   :align: center
 
 You can click on a device to display its properties or start a Web SSH terminal session.
 
@@ -120,13 +120,13 @@ Event-driven automation
 ***********************
 
 Event-driven automation in eNMS has two aspects:
-  - eNMS has a ReST API that can be used to create, update and delete any type of objects (services, workflows, tasks), but also to trigger the execution of a service or a workflow with a GET request to the appropriate URL. 
+  - eNMS has a ReST API that can be used to create, update and delete any type of objects (services, workflows, tasks), but also to trigger the execution of a service or a workflow. 
   - eNMS can be configured as a Syslog server: all logs are stored in the database, and rules can be created to trigger the execution of a service or a workflow upon receiving a log matched by the rule.
 
 Application stack
 -----------------
 
-eNMS is built on the :guilabel:`Flask` Python framework and utilizes either a :guilabel:`SQLite` database, or a :guilabel:`PostgreSQL` database. It runs as a WSGI service behind your choice of HTTP server.
+eNMS is built on the :guilabel:`Flask` Python framework and utilizes either a :guilabel:`SQLite`, :guilabel:`MySQL`, or a :guilabel:`PostgreSQL` database. It runs as a WSGI service behind your choice of HTTP server.
 
 +----------------------------------------+------------------------------------+
 |Function                                |Component                           |
@@ -137,7 +137,7 @@ eNMS is built on the :guilabel:`Flask` Python framework and utilizes either a :g
 +----------------------------------------+------------------------------------+
 |Application                             |Flask/Python 3.6+                   |
 +----------------------------------------+------------------------------------+
-|Database                                |SQLite or PostgreSQL                |
+|Database                                |SQLite, MySQL or PostgreSQL                |
 +----------------------------------------+------------------------------------+
 |Credentials storage                     |Hashicorp vault                     |
 +----------------------------------------+------------------------------------+

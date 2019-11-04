@@ -6,14 +6,6 @@ General
 
    base/index
 
-Administration
-==============
-
-.. toctree::
-   :maxdepth: 2
-
-   administration/index
-
 Inventory
 =========
 
@@ -46,21 +38,37 @@ Workflows
 
    workflows/index
 
-Scheduling
-==========
+Runs
+====
 
 .. toctree::
    :maxdepth: 2
 
-   scheduling/index
+   runs/index
 
-Event-driven automation
-=======================
+Events
+======
 
 .. toctree::
    :maxdepth: 2
 
-   event_driven/index
+   events/index
+
+Administration
+==============
+
+.. toctree::
+   :maxdepth: 2
+
+   administration/index
+
+Advanced
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   advanced/index
 
 License
 =======

@@ -4,7 +4,6 @@ __pycache__/
 
 # tests and coverage
 *.pytest_cache
-.mypy_cache
 .coverage
 
 # database & logs
@@ -14,17 +13,17 @@ __pycache__/
 *.log.*
 /eNMS/database.*
 
+# created by eNMS
+logs
+network_data
+files/services
+
 # venv
 env
 venv
 
 # other
 .DS_Store
-
-# sub-repositories
-/git/*
-!git/automation/.gitkeep
-!git/configurations/.gitkeep
 
 # ansible retry files
 *.retry
@@ -42,3 +41,14 @@ node_modules/
 
 # AP Scheduler
 *.sqlite
+
+# VS Code
+*.code-workspace
+.vscode
+eNMS/.vscode
+
+# Pycharm files
+.idea/
+
+# Apple files
+._*
