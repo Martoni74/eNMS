@@ -425,3 +425,7 @@
 - {destination: '[Shared] End', label: success, source: '[Regression Workflow 9: Operational
     Data Backup] Push Configurations to Git', subtype: success, workflow: 'Regression
     Workflow 9: Operational Data Backup'}
+- {destination: '[Regression Workflow F: Workflow of Workflows] Regression Workflow
+    5: VRF creation and deletion with Napalm', label: failure, source: '[Regression
+    Workflow F: Workflow of Workflows] Show interfaces with Netmiko', subtype: failure,
+  workflow: 'Regression Workflow F: Workflow of Workflows'}

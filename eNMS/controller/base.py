@@ -115,7 +115,7 @@ class BaseController:
         "get",
         "get_all",
         "get_cluster_status",
-        "get_device_data",
+        "get_device_network_data",
         "get_device_logs",
         "get_exported_services",
         "get_git_content",
@@ -381,7 +381,7 @@ class BaseController:
                 if arg in kwargs:
                     kwargs[arg] = kwargs[arg].strip()
             kwargs["last_modified"] = self.get_time()
-            kwargs["creator"] = getattr(current_user, "name", "admin")
+            kwargs["creator"] = kwargs["user"] = getattr(current_user, "name", "admin")
             instance = factory(cls, must_be_new=must_be_new, **kwargs)
             Session.flush()
             return instance.serialized
@@ -463,8 +463,10 @@ class BaseController:
         results = Session.query(model).filter(model.name.contains(params.get("term")))
         return {
             "items": [
-                {"text": r.ui_name, "id": str(r.id)}
-                for r in results.limit(10).offset((int(params["page"]) - 1) * 10).all()
+                {"text": result.ui_name, "id": str(result.id)}
+                for result in results.limit(10)
+                .offset((int(params["page"]) - 1) * 10)
+                .all()
             ],
             "total_count": results.count(),
         }
@@ -480,14 +482,17 @@ class BaseController:
             order_function = None
         constraints = self.build_filtering_constraints(table, **kwargs)
         if table == "result":
-            constraints.append(
-                getattr(
-                    models["result"],
-                    "service"
-                    if "service" in kwargs["instance"]["type"]
-                    else kwargs["instance"]["type"],
-                ).has(id=kwargs["instance"]["id"])
-            )
+            if kwargs["instance"]["type"] == "workflow":
+                constraints.append(
+                    or_(
+                        models["result"].service.has(id=kwargs["instance"]["id"]),
+                        models["result"].workflow.has(id=kwargs["instance"]["id"]),
+                    )
+                )
+            else:
+                constraints.append(
+                    models["result"].service.has(id=kwargs["instance"]["id"])
+                )
             if kwargs.get("runtime"):
                 constraints.append(models["result"].parent_runtime == kwargs["runtime"])
         result = Session.query(model).filter(operator(*constraints))
@@ -541,7 +546,8 @@ class BaseController:
         server = SMTP(self.config["mail"]["server"], self.config["mail"]["port"])
         if self.config["mail"]["use_tls"]:
             server.starttls()
-            server.login(self.config["mail"]["username"], environ.get("MAIL_PASSWORD"))
+            password = environ.get("MAIL_PASSWORD", "")
+            server.login(self.config["mail"]["username"], password)
         server.sendmail(sender, recipients.split(","), message.as_string())
         server.close()
 
@@ -572,7 +578,6 @@ class BaseController:
                 with open(Path(dir.path) / "data.yml") as data:
                     parameters = yaml.load(data)
                     device.update(**{"dont_update_pools": True, **parameters})
-
                 for data in ("configuration", "operational_data"):
                     filepath = Path(dir.path) / dir.name / data
                     if not filepath.exists():

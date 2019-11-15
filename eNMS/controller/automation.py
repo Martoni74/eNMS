@@ -25,8 +25,8 @@ class AutomationController(BaseController):
     run_logs = defaultdict(list)
 
     def stop_workflow(self, runtime):
-        run = fetch("run", runtime=runtime)
-        if run.run_state["status"] == "Running":
+        run = fetch("run", allow_none=True, runtime=runtime)
+        if run and run.run_state["status"] == "Running":
             run.run_state["status"] = "stop"
             return True
 
@@ -109,16 +109,15 @@ class AutomationController(BaseController):
     def duplicate_workflow(self, workflow_id, **kwargs):
         return fetch("workflow", id=workflow_id).duplicate(**kwargs).serialized
 
-    def get_service_logs(self, runtime, **kwargs):
+    def get_service_logs(self, runtime):
         run = fetch("run", allow_none=True, runtime=runtime)
         result = run.result() if run else None
         logs = result["logs"] if result else self.run_logs.get(runtime, [])
-        filtered_logs = (log for log in logs if kwargs["filter"] in log)
-        return {"logs": "\n".join(filtered_logs), "refresh": not bool(result)}
+        return {"logs": "\n".join(logs), "refresh": not bool(result)}
 
     def get_runtimes(self, type, id):
         runs = fetch("run", allow_none=True, all_matches=True, service_id=id)
-        return sorted(set((run.runtime, run.name) for run in runs if not run.parent))
+        return sorted(set((run.parent_runtime, run.name) for run in runs))
 
     def get_result(self, id):
         return fetch("result", id=id).result
@@ -178,11 +177,12 @@ class AutomationController(BaseController):
                 workflow.last_modified = now
         return now
 
-    def skip_services(self, service_ids):
+    def skip_services(self, workflow_id, service_ids):
         services = [fetch("service", id=id) for id in service_ids.split("-")]
         skip = not all(service.skip for service in services)
         for service in services:
             service.skip = skip
+        fetch("workflow", id=workflow_id).last_modified = self.get_time()
         return "skip" if skip else "unskip"
 
     def get_service_state(self, service_id, runtime="latest"):
@@ -190,11 +190,11 @@ class AutomationController(BaseController):
         runs = fetch_all("run", service_id=service_id)
         if runs and runtime != "normal":
             if runtime == "latest":
-                runtime = runs[-1].runtime
+                runtime = runs[-1].parent_runtime
             state = self.run_db.get(runtime) or fetch("run", runtime=runtime).state
         return {
             "service": service.to_dict(include=["services", "edges"]),
-            "runtimes": [(r.runtime, r.creator) for r in runs],
+            "runtimes": [(r.parent_runtime, r.creator) for r in runs],
             "state": state,
             "runtime": runtime,
         }

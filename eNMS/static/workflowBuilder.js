@@ -148,7 +148,7 @@ function displayWorkflow(workflowData) {
   });
   displayWorkflowState(workflowData);
   rectangleSelection($("#network"), graph, nodes);
-  currentMode = "motion";
+  switchMode(currentMode, true);
   return graph;
 }
 
@@ -375,7 +375,7 @@ function deleteEdge(edgeId) {
 function stopWorkflow() {
   call(`/stop_workflow/${currentRuntime}`, (result) => {
     if (!result) {
-      alertify.notify("The workflow is not currently running", "error", 5);
+      alertify.notify("The workflow is not currently running.", "error", 5);
     } else {
       alertify.notify(
         "Workflow will stop after current service...",
@@ -389,13 +389,9 @@ function stopWorkflow() {
 // eslint-disable-next-line
 function skipServices() {
   const selectedNodes = graph.getSelectedNodes().filter((x) => !isNaN(x));
-  call(`/skip_services/${selectedNodes.join("-")}`, (skip) => {
-    workflow.services
-      .filter((j) => selectedNodes.includes(j.id))
-      .map((j) => {
-        j.skip = skip == "skip";
-      });
-    resetDisplay();
+  if (!selectedNodes.length) return;
+  call(`/skip_services/${workflow.id}/${selectedNodes.join("-")}`, (skip) => {
+    getWorkflowState();
     alertify.notify(`Services ${skip}ped.`, "success", 5);
   });
 }
@@ -675,7 +671,7 @@ function runWorkflow(withUpdates) {
 function showRestartWorkflowPanel(workflow, service) {
   createPanel(
     "restart_workflow",
-    `Restart Workflow '${workflow.name}' from '${service.scoped_name}'`,
+    `Restart Workflow '${workflow.name}' from '${service.name}'`,
     workflow.id,
     function() {
       $("#start_services").append(new Option(service.name, service.id));

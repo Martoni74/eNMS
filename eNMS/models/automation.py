@@ -36,7 +36,6 @@ class Service(AbstractBase):
     operating_system = Column(SmallString)
     waiting_time = Column(Integer, default=0)
     creator = Column(SmallString, default="admin")
-    push_to_git = Column(Boolean, default=False)
     workflows = relationship(
         "Workflow", secondary=service_workflow_table, back_populates="services"
     )
@@ -55,6 +54,7 @@ class Service(AbstractBase):
     send_notification_method = Column(SmallString, default="mail")
     notification_header = Column(LargeString, default="")
     display_only_failed_nodes = Column(Boolean, default=True)
+    include_device_results = Column(Boolean, default=True)
     include_link_in_summary = Column(Boolean, default=True)
     mail_recipient = Column(SmallString)
     color = Column(SmallString, default="#D2E5FF")

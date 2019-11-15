@@ -46,6 +46,7 @@ class ServiceForm(BaseForm):
         choices=(("mail", "Mail"), ("slack", "Slack"), ("mattermost", "Mattermost")),
     )
     notification_header = StringField(widget=TextArea(), render_kw={"rows": 5})
+    include_device_results = BooleanField("Include Device Results")
     include_link_in_summary = BooleanField("Include Result Link in Summary")
     display_only_failed_nodes = BooleanField("Display only Failed Devices")
     mail_recipient = StringField("Mail Recipients (separated by comma)")
@@ -183,9 +184,21 @@ class NetmikoForm(ConnectionForm):
     )
     config_mode = BooleanField("Config mode", default=False)
     fast_cli = BooleanField()
-    timeout = IntegerField(default=10)
-    delay_factor = FloatField(default=1.0)
-    global_delay_factor = FloatField(default=1.0)
+    timeout = FloatField(default=10.0)
+    delay_factor = FloatField(
+        (
+            "Delay Factor (Changing from default of 1"
+            " will nullify Netmiko Timeout setting)"
+        ),
+        default=1.0,
+    )
+    global_delay_factor = FloatField(
+        (
+            "Global Delay Factor (Changing from default of 1"
+            " will nullify Netmiko Timeout setting)"
+        ),
+        default=1.0,
+    )
     groups = {
         "Netmiko Parameters": {
             "commands": [
@@ -234,8 +247,8 @@ class RestartWorkflowForm(BaseForm):
 
 
 class LogsForm(BaseForm):
-    template = "logs"
-    form_type = HiddenField(default="logs")
+    template = "log"
+    form_type = HiddenField(default="log")
     filter = StringField("Filter")
     logs_runtime = NoValidationSelectField("Runtime", choices=())
 

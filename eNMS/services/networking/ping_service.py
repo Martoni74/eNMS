@@ -1,7 +1,6 @@
 from socket import error, gaierror, socket, timeout
 from subprocess import check_output
 from sqlalchemy import ForeignKey, Integer
-from subprocess import CalledProcessError
 from wtforms import HiddenField, IntegerField, SelectField, StringField
 
 from eNMS.database.dialect import Column, SmallString
@@ -37,10 +36,7 @@ class PingService(Service):
                     command.extend(f"-{x} {value}".split())
             command.append(device.ip_address)
             run.log("info", f"Running PING ({command})", device)
-            try:
-                output = check_output(command).decode().strip().splitlines()
-            except CalledProcessError:
-                return {"success": False, "error": "Device not pingable"}
+            output = check_output(command).decode().strip().splitlines()
             total = output[-2].split(",")[3].split()[1]
             loss = output[-2].split(",")[2].split()[0]
             timing = output[-1].split()[3].split("/")

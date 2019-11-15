@@ -51,11 +51,13 @@ $(function() {
     }
   });
 
-  $.each(defaultProperties, function(type, property) {
-    $(`#${type}-properties`).on("change", function() {
-      call(`/counters/${this.value}/${type}`, function(objects) {
-        drawDiagrams(diagrams[type], parseData(objects));
+  $.each(defaultProperties, function(type) {
+    $(`#${type}-properties`)
+      .selectpicker()
+      .on("change", function() {
+        call(`/counters/${this.value}/${type}`, function(objects) {
+          drawDiagrams(diagrams[type], parseData(objects));
+        });
       });
-    });
   });
 });

@@ -2,6 +2,7 @@
 global
 alertify: false
 call: false
+CodeMirror: false
 config: true
 createPanel: false
 fCall: false
@@ -38,6 +39,7 @@ function sshConnection(id) {
 // eslint-disable-next-line
 function savePoolObjects(id) {
   fCall(`/save_pool_objects/${id}`, `#pool-objects-form-${id}`, function() {
+    tables["pool"].ajax.reload(null, false);
     alertify.notify("Changes saved.", "success", 5);
     $(`#pool_objects-${id}`).remove();
   });
@@ -75,8 +77,8 @@ function updatePools(pool) {
 }
 
 // eslint-disable-next-line
-function showDeviceConfiguration(device) {
-  call(`/get_device_data/${device.id}`, (result) => {
+function showDeviceNetworkData(device) {
+  call(`/get_device_network_data/${device.id}`, (result) => {
     if (!result.configuration && !result.operational_data) {
       alertify.notify("No data stored.", "error", 5);
     } else {
@@ -85,11 +87,20 @@ function showDeviceConfiguration(device) {
         `Device Data - ${device.name}`,
         device.id,
         function() {
+          const content = document.getElementById(`content-${device.id}`);
+          // eslint-disable-next-line new-cap
+          const editor = CodeMirror(content, {
+            lineWrapping: true,
+            lineNumbers: true,
+            readOnly: true,
+            theme: "cobalt",
+            extraKeys: { "Ctrl-F": "findPersistent" },
+            scrollbarStyle: "overlay",
+          });
+          editor.setSize("100%", "100%");
           $(`#data_type-${device.id}`)
             .on("change", function() {
-              $(`#content-${device.id}`).html(
-                `<pre style="height:100%">${result[this.value]}</pre>`
-              );
+              editor.setValue(result[this.value]);
             })
             .change();
         }

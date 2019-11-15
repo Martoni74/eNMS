@@ -43,10 +43,11 @@ class Result(AbstractBase):
     run_id = Column(Integer, ForeignKey("run.id"))
     run = relationship("Run", back_populates="results", foreign_keys="Result.run_id")
     parent_runtime = Column(SmallString)
+    parent_device_id = Column(Integer, ForeignKey("device.id"))
+    parent_device = relationship("Device", uselist=False, foreign_keys=parent_device_id)
+    parent_device_name = association_proxy("parent_device", "name")
     device_id = Column(Integer, ForeignKey("device.id"))
-    device = relationship(
-        "Device", back_populates="results", foreign_keys="Result.device_id"
-    )
+    device = relationship("Device", uselist=False, foreign_keys=device_id)
     device_name = association_proxy("device", "name")
     service_id = Column(Integer, ForeignKey("service.id"))
     service = relationship("Service", foreign_keys="Result.service_id")
@@ -73,7 +74,7 @@ class Result(AbstractBase):
         btn = "success" if self.success else "danger"
         label = "Success" if self.success else "Failure"
         return (
-            f'<button type="button" class="btn btn-{btn}"'
+            f'<button type="button" class="btn btn-{btn} btn-sm"'
             f'style="width:100%">{label}</button>'
         )
 
@@ -224,7 +225,7 @@ class Run(AbstractBase):
             for pool in self.service.pools:
                 devices |= set(pool.devices)
         self.run_state["progress"]["device"]["total"] += len(devices)
-        return devices
+        return list(devices)
 
     def init_state(self):
         state = {
@@ -292,8 +293,6 @@ class Run(AbstractBase):
             }
             if self.send_notification:
                 results = self.notify(results)
-            if self.push_to_git:
-                self.git_push(results)
             if self.runtime == self.parent_runtime:
                 self.create_result(results)
             Session.commit()
@@ -326,36 +325,42 @@ class Run(AbstractBase):
         return derived_run.run(payload)["success"]
 
     def device_run(self, payload):
-        devices, success = self.compute_devices(payload), True
-        if not devices:
+        self.devices, success = self.compute_devices(payload), True
+        if not self.devices:
             results = [self.get_results(payload)]
         else:
             if self.iteration_devices and not self.parent_device:
                 success = all(
-                    self.device_iteration(payload, device) for device in devices
+                    self.device_iteration(payload, device) for device in self.devices
                 )
                 return {"success": success, "runtime": self.runtime}
-            if self.multiprocessing and len(devices) > 1:
+            if self.multiprocessing and len(self.devices) > 1:
                 results = []
-                processes = min(len(devices), self.max_processes)
+                processes = min(len(self.devices), self.max_processes)
                 process_args = [
-                    (device.id, self.runtime, payload, results) for device in devices
+                    (device.id, self.runtime, payload, results)
+                    for device in self.devices
                 ]
                 pool = ThreadPool(processes=processes)
                 pool.map(self.get_device_result, process_args)
                 pool.close()
                 pool.join()
             else:
-                results = [self.get_results(payload, device) for device in devices]
+                results = [self.get_results(payload, device) for device in self.devices]
         return {"success": all(results), "runtime": self.runtime}
 
     def create_result(self, results, device=None):
         self.success = results["success"]
-        result_kw = {"run": self, "result": results, "service": self.service_id}
-        if self.service.type == "workflow":
-            result_kw["workflow"] = self.service_id
-        elif self.workflow_id:
+        result_kw = {
+            "run": self,
+            "result": results,
+            "service": self.service_id,
+            "parent_runtime": self.parent_runtime,
+        }
+        if self.workflow_id:
             result_kw["workflow"] = self.workflow_id
+        if self.parent_device_id:
+            result_kw["parent_device"] = self.parent_device_id
         if device:
             result_kw["device"] = device.id
         factory("result", **result_kw)
@@ -442,36 +447,44 @@ class Run(AbstractBase):
         app.run_logs[self.parent_runtime].append(log)
 
     def build_notification(self, results):
-        notification = [
-            f"Service: {self.service.name} ({self.service.type})",
-            f"Runtime: {self.runtime}",
-            f'Status: {"PASS" if results["success"] else "FAILED"}',
-        ]
-        notification.append(self.notification_header)
+        notification = {
+            "Service": f"{self.service.name} ({self.service.type})",
+            "Runtime": self.runtime,
+            "Status": "PASS" if results["success"] else "FAILED",
+        }
+        if self.notification_header:
+            notification["Header"] = self.notification_header
         if self.include_link_in_summary:
             address = app.config["app"]["address"]
-            link = f"Results: {address}/view_service_results/{self.id}"
-            notification.append(link)
-        summary = self.run_state["summary"]
-        failed, passed = "\n".join(summary["failed"]), "\n".join(summary["passed"])
-        if failed:
-            notification.append(f"FAILED :\n{failed}")
-        if not self.display_only_failed_nodes:
-            notification.append(f"PASSED :\n{passed}")
-        return "\n\n".join(notification)
+            notification["Link"] = f"{address}/view_service_results/{self.id}"
+        if self.run_state["summary"]["failed"]:
+            notification["FAILED"] = self.run_state["summary"]["failed"]
+        if self.run_state["summary"]["passed"] and not self.display_only_failed_nodes:
+            notification["PASSED"] = self.run_state["summary"]["passed"]
+        return notification
 
     def notify(self, results):
         notification = self.build_notification(results)
-        results["notification"] = {"content": notification}
+        file_content = deepcopy(notification)
+        if self.include_device_results:
+            file_content["Device Results"] = {
+                device.name: fetch(
+                    "result",
+                    service_id=self.service_id,
+                    parent_runtime=self.parent_runtime,
+                    device_id=device.id,
+                ).result
+                for device in self.devices
+            }
         try:
             if self.send_notification_method == "mail":
                 filename = self.runtime.replace(".", "").replace(":", "")
                 result = app.send_email(
                     f"{self.name} ({'PASS' if results['success'] else 'FAILED'})",
-                    notification,
+                    app.str_dict(notification),
                     recipients=self.mail_recipient,
                     filename=f"results-{filename}.txt",
-                    file_content=app.str_dict(results),
+                    file_content=app.str_dict(file_content),
                 )
             elif self.send_notification_method == "slack":
                 result = SlackClient(environ.get("SLACK_TOKEN")).api_call(
@@ -489,10 +502,13 @@ class Run(AbstractBase):
                             "text": notification,
                         }
                     ),
-                )
-            results["notification"].update({"success": True, "result": result})
-        except Exception as exc:
-            results["notification"].update({"success": False, "result": str(exc)})
+                ).text
+            results["notification"] = {"success": True, "result": result}
+        except Exception:
+            results["notification"] = {
+                "success": False,
+                "error": "\n".join(format_exc().splitlines()),
+            }
         return results
 
     def get_credentials(self, device):
@@ -609,7 +625,7 @@ class Run(AbstractBase):
             if not run:
                 return None
             query = Session.query(models["run"]).filter(
-                models["run"].parent_id == run.parent_id
+                models["run"].parent_runtime == run.parent_runtime
             )
             if workflow or self.workflow:
                 name = workflow or self.workflow.name
