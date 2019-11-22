@@ -11,16 +11,13 @@ gunicorn
 hvac
 jinja2
 ldap3
-mysqlclient
 napalm
 netmiko
 pathlib
 psutil
-psycopg2
 pynetbox
 ruamel.yaml
 slackclient>=1.3,<2
-simplekml
 sqlalchemy
 tacacs_plus
 textfsm

@@ -1,9 +1,8 @@
-from os import environ
 from sqlalchemy import Column as SQLA_Column, PickleType, String, Text
 from sqlalchemy.dialects.mysql.base import MSMediumBlob
 from sqlalchemy.ext.mutable import MutableDict, MutableList
-from typing import Any
 
+from eNMS.config import config
 from eNMS.database import DIALECT
 
 
@@ -14,8 +13,8 @@ class CustomPickleType(PickleType):
 
 MutableDict = MutableDict.as_mutable(CustomPickleType)
 MutableList = MutableList.as_mutable(CustomPickleType)
-LargeString = Text(int(environ.get("LARGE_STRING_LENGTH", 2 ** 15)))
-SmallString = String(int(environ.get("SMALL_STRING_LENGTH", 255)))
+LargeString = Text(config["database"]["large_string_length"])
+SmallString = String(config["database"]["small_string_length"])
 
 
 default_ctypes = {
@@ -28,7 +27,7 @@ default_ctypes = {
 
 
 class Column(SQLA_Column):
-    def __init__(self, ctype: Any, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, ctype, *args, **kwargs):
         if "default" not in kwargs and ctype in default_ctypes:
             kwargs["default"] = default_ctypes[ctype]
         super().__init__(ctype, *args, **kwargs)

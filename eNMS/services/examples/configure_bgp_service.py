@@ -2,17 +2,16 @@ from sqlalchemy import ForeignKey, Integer
 from wtforms import HiddenField, IntegerField, StringField
 
 from eNMS.database.dialect import Column, SmallString
-from eNMS.forms.automation import ServiceForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.forms.automation import NapalmForm
+from eNMS.models.automation import ConnectionService
 
 
-class ConfigureBgpService(Service):
+class ConfigureBgpService(ConnectionService):
 
-    __tablename__ = "ConfigureBgpService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
+    __tablename__ = "configure_bgp_service"
+    pretty_name = "Configure BGP"
+    parent_type = "connection_service"
+    id = Column(Integer, ForeignKey("connection_service.id"), primary_key=True)
     local_as = Column(Integer, default=0)
     loopback = Column(SmallString)
     loopback_ip = Column(SmallString)
@@ -21,9 +20,9 @@ class ConfigureBgpService(Service):
     vrf_name = Column(SmallString)
     driver = "ios"
 
-    __mapper_args__ = {"polymorphic_identity": "ConfigureBgpService"}
+    __mapper_args__ = {"polymorphic_identity": "configure_bgp_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         napalm_connection = run.napalm_connection(device)
         config = f"""
             ip vrf {run.vrf_name}
@@ -44,17 +43,31 @@ class ConfigureBgpService(Service):
             exit-address-family
         """
         config = "\n".join(config.splitlines())
-        run.log("info", f"Pushing BGP configuration on {device.name} (Napalm)")
-        getattr(napalm_connection, "load_merge_candidate")(config=config)
+        run.log("info", "Pushing BGP configuration with Napalm", device)
+        napalm_connection.load_merge_candidate(config=config)
         napalm_connection.commit_config()
         return {"success": True, "result": f"Config push ({config})"}
 
 
-class ConfigureBgpForm(ServiceForm):
-    form_type = HiddenField(default="ConfigureBgpService")
+class ConfigureBgpForm(NapalmForm):
+    form_type = HiddenField(default="configure_bgp_service")
     local_as = IntegerField("Local AS", default=0)
     loopback = StringField("Loopback", default="Lo42")
     loopback_ip = StringField("Loopback IP")
     neighbor_ip = StringField("Neighbor IP")
     remote_as = IntegerField("Remote AS")
     vrf_name = StringField("VRF Name")
+    groups = {
+        "Main Parameters": {
+            "commands": [
+                "local_as",
+                "loopback",
+                "loopback_ip",
+                "neighbor_ip",
+                "remote_as",
+                "vrf_name",
+            ],
+            "default": "expanded",
+        },
+        **NapalmForm.groups,
+    }

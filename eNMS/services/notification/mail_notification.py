@@ -1,31 +1,28 @@
-from sqlalchemy import Boolean, ForeignKey, Integer
-from typing import Optional
+from sqlalchemy import ForeignKey, Integer
 from wtforms import HiddenField, StringField
 from wtforms.widgets import TextArea
 
-from eNMS.controller import controller
+from eNMS import app
 from eNMS.database.dialect import Column, LargeString, SmallString
 from eNMS.forms.automation import ServiceForm
 from eNMS.forms.fields import SubstitutionField
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.models.automation import Service
 
 
 class MailNotificationService(Service):
 
-    __tablename__ = "MailNotificationService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = Column(Boolean, default=False)
+    __tablename__ = "mail_notification_service"
+    pretty_name = "Mail Notification"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     title = Column(SmallString)
     sender = Column(SmallString)
     recipients = Column(SmallString)
     body = Column(LargeString, default="")
 
-    __mapper_args__ = {"polymorphic_identity": "MailNotificationService"}
+    __mapper_args__ = {"polymorphic_identity": "mail_notification_service"}
 
-    def job(self, run: "Run", payload: dict, device: Optional[Device] = None) -> dict:
-        controller.send_email(
+    def job(self, run, payload, device=None):
+        app.send_email(
             run.sub(run.title, locals()),
             run.sub(run.body, locals()),
             sender=run.sender,
@@ -35,7 +32,7 @@ class MailNotificationService(Service):
 
 
 class MailNotificationForm(ServiceForm):
-    form_type = HiddenField(default="MailNotificationService")
+    form_type = HiddenField(default="mail_notification_service")
     title = SubstitutionField()
     sender = StringField()
     recipients = StringField()

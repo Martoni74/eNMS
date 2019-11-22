@@ -1,21 +1,20 @@
 from sqlalchemy import Boolean, Float, ForeignKey, Integer
 from wtforms import HiddenField
 
-from eNMS.database.dialect import Column, LargeString, MutableDict, SmallString
-from eNMS.forms.automation import ServiceForm
+from eNMS.database.dialect import Column, LargeString, SmallString
 from eNMS.forms.fields import SubstitutionField
-from eNMS.forms.services import NetmikoForm, ValidationForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.forms.automation import NetmikoForm
+from eNMS.models.automation import ConnectionService
 
 
-class NetmikoPromptsService(Service):
+class NetmikoPromptsService(ConnectionService):
 
-    __tablename__ = "NetmikoPromptsService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
-    privileged_mode = Column(Boolean, default=False)
+    __tablename__ = "netmiko_prompts_service"
+    pretty_name = "Netmiko Prompts"
+    parent_type = "connection_service"
+    id = Column(Integer, ForeignKey("connection_service.id"), primary_key=True)
+    enable_mode = Column(Boolean, default=True)
+    config_mode = Column(Boolean, default=False)
     command = Column(SmallString)
     confirmation1 = Column(LargeString, default="")
     response1 = Column(SmallString)
@@ -23,13 +22,6 @@ class NetmikoPromptsService(Service):
     response2 = Column(SmallString)
     confirmation3 = Column(LargeString, default="")
     response3 = Column(SmallString)
-    conversion_method = Column(SmallString, default="none")
-    validation_method = Column(SmallString, default="text")
-    content_match = Column(LargeString, default="")
-    content_match_regex = Column(Boolean, default=False)
-    dict_match = Column(MutableDict)
-    negative_logic = Column(Boolean, default=False)
-    delete_spaces_before_matching = Column(Boolean, default=False)
     driver = Column(SmallString)
     use_device_driver = Column(Boolean, default=True)
     fast_cli = Column(Boolean, default=False)
@@ -37,12 +29,12 @@ class NetmikoPromptsService(Service):
     delay_factor = Column(Float, default=1.0)
     global_delay_factor = Column(Float, default=1.0)
 
-    __mapper_args__ = {"polymorphic_identity": "NetmikoPromptsService"}
+    __mapper_args__ = {"polymorphic_identity": "netmiko_prompts_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         netmiko_connection = run.netmiko_connection(device)
         command = run.sub(run.command, locals())
-        run.log("info", f"Sending '{command}' on {device.name} (Netmiko)")
+        run.log("info", f"Sending '{command}' with Netmiko", device)
         commands = [command]
         results = {"commands": commands}
         result = netmiko_connection.send_command_timing(
@@ -84,18 +76,11 @@ class NetmikoPromptsService(Service):
                     result = netmiko_connection.send_command_timing(
                         response3, delay_factor=run.delay_factor
                     )
-        match = run.sub(run.content_match, locals())
-        return {
-            "commands": commands,
-            "expected": match if run.validation_method == "text" else run.dict_match,
-            "negative_logic": run.negative_logic,
-            "result": result,
-            "success": run.match_content(result, match),
-        }
+        return {"commands": commands, "result": result}
 
 
-class NetmikoPromptsForm(ServiceForm, NetmikoForm, ValidationForm):
-    form_type = HiddenField(default="NetmikoPromptsService")
+class NetmikoPromptsForm(NetmikoForm):
+    form_type = HiddenField(default="netmiko_prompts_service")
     command = SubstitutionField()
     confirmation1 = SubstitutionField()
     response1 = SubstitutionField()
@@ -104,15 +89,17 @@ class NetmikoPromptsForm(ServiceForm, NetmikoForm, ValidationForm):
     confirmation3 = SubstitutionField()
     response3 = SubstitutionField()
     groups = {
-        "Main Parameters": [
-            "command",
-            "confirmation1",
-            "response1",
-            "confirmation2",
-            "response2",
-            "confirmation3",
-            "response3",
-        ],
-        "Netmiko Parameters": NetmikoForm.group,
-        "String Validation Parameters": ValidationForm.group,
+        "Main Parameters": {
+            "commands": [
+                "command",
+                "confirmation1",
+                "response1",
+                "confirmation2",
+                "response2",
+                "confirmation3",
+                "response3",
+            ],
+            "default": "expanded",
+        },
+        **NetmikoForm.groups,
     }

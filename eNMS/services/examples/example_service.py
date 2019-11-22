@@ -36,15 +36,14 @@ from wtforms.validators import (
 from eNMS.database.dialect import Column, MutableDict, MutableList, SmallString
 from eNMS.forms.automation import ServiceForm
 from eNMS.forms.fields import DictField
-from eNMS.models.automation import Run, Service
+from eNMS.models.automation import Service
 
 
 class ExampleService(Service):
 
-    __tablename__ = "ExampleService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = False
+    __tablename__ = "example_service"
+    pretty_name = "Example"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     # The following fields will be stored in the database as:
     # - String
     string1 = Column(SmallString)
@@ -69,23 +68,27 @@ class ExampleService(Service):
     boolean1 = Column(Boolean, default=False)
     boolean2 = Column(Boolean, default=False)
 
-    __mapper_args__ = {"polymorphic_identity": "ExampleService"}
+    __mapper_args__ = {"polymorphic_identity": "example_service"}
 
     # Some services will take action or interrogate a device. The job method
     # can also take device as a parameter for these types of services.
     # def job(self, device, payload):
-    def job(self, run: "Run", payload: dict) -> dict:
-        run.log("info", f"Real-time logs displayed when the service is running.")
+    def job(self, run, payload, device=None):
+        run.log("info", "Logs displayed in real-time as service runs", device)
         # The "job" function is called when the service is executed.
+        # If the service is running on devices, you must add a "device" argument.
+        # If it isn't, this "device" argument should be omitted.
+        # If the service can run both with and without a device, this key must
+        # be made an keyword argument set to None, like here.
         # The parameters of the service can be accessed with self (self.string1,
         # self.boolean1, etc)
         # You can look at how default services (netmiko, napalm, etc.) are
         # implemented in other folders.
         # The resulting dictionary will be displayed in the logs.
-        # It must contain at least a key "success" that indicates whether
+        # It can contain a key "success" that indicates whether
         # the execution of the service was a success or a failure.
-        # In a workflow, the "success" value will determine whether to move
-        # forward with a "Success" edge or a "Failure" edge.
+        # That "success" value will determine whether to move forward with
+        # a "Success" edge or a "Failure" edge.
         return {"success": True, "result": "example"}
 
 
@@ -98,7 +101,7 @@ class ExampleForm(ServiceForm):
 
     # The following line is mandatory: the default value must point
     # to the service.
-    form_type = HiddenField(default="ExampleService")
+    form_type = HiddenField(default="example_service")
 
     # string1 is defined as a "SelectField": it will be displayed as a
     # drop-down list in the UI.
@@ -183,7 +186,7 @@ class ExampleForm(ServiceForm):
     boolean1 = BooleanField()
     boolean2 = BooleanField("Boolean N°1")
 
-    def validate_custom_integer(self, field: IntegerField) -> None:
+    def validate_custom_integer(self, field):
         product = self.an_integer.data * self.a_float.data
         if field.data > product:
             raise ValidationError(

@@ -1,6 +1,3 @@
-from os import environ
-from pathlib import Path
+from eNMS.framework import create_app
 
-from eNMS import create_app
-
-app = create_app(Path.cwd(), environ.get("ENMS_CONFIG_MODE", "Debug"))
+app = create_app()

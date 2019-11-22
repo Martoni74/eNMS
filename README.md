@@ -184,7 +184,7 @@ ___
 
 # Getting started
 
-## Quick start
+## Installation
     Install python 3.6+ (earlier versions not supported)
     git clone https://github.com/afourmy/eNMS.git
     cd eNMS
@@ -193,39 +193,6 @@ ___
     flask run --host=0.0.0.0
     Log in (default credentials: admin / admin)
 
-## Quick start as a docker container
-
-### With a SQLite database
-
-    sudo docker build -t enms -f docker/Dockerfile .
-    sudo docker run -it -d -p 5000:5000 --name enms enms
-    Log in (default credentials: admin / admin)
-
-### With a PostgreSQL database
-
-    sudo docker-compose -f docker/docker-compose.yml up -d
-    Log in (default credentials: admin / admin)
-
-## Deploy eNMS in production
-
-In production, eNMS is configured to use a PostgreSQL database and a Hashicorp Vault (storage of network credentials).
-
-Check out the `Installation` section of the docs: _[Install eNMS](https://enms.readthedocs.io/en/latest/base/installation.html)_
-
 # Contact
 
 For any feedback, advice, feature request, join us on the [Network to Code slack](http://networktocode.herokuapp.com "Network to Code slack"), channel **#enms**.
-
-___
-
-# Coming up next
-
-- RADIUS authentication
-- Database clustering architecture
-- Training Videos
-
-# Other projects you might be interested in
-
-- _[Flask Gentelella](https://github.com/afourmy/flask-gentelella)_: The Flask/Bootstrap template eNMS is built upon.
-- _[pyNMS](https://github.com/afourmy/pyNMS)_: A PyQt software for network simulation and optimization.
-- _[SWAP](https://github.com/afourmy/SWAP)_: A solver for the Wavelength Assignment Problem in optical networks.

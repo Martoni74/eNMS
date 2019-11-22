@@ -1,21 +1,18 @@
 from socket import error, gaierror, socket, timeout
 from subprocess import check_output
 from sqlalchemy import ForeignKey, Integer
-from subprocess import CalledProcessError
 from wtforms import HiddenField, IntegerField, SelectField, StringField
 
 from eNMS.database.dialect import Column, SmallString
 from eNMS.forms.automation import ServiceForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.models.automation import Service
 
 
 class PingService(Service):
 
-    __tablename__ = "PingService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
+    __tablename__ = "ping_service"
+    pretty_name = "ICMP / TCP Ping"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     protocol = Column(SmallString)
     ports = Column(SmallString)
     count = Column(Integer, default=5)
@@ -23,9 +20,9 @@ class PingService(Service):
     ttl = Column(Integer, default=60)
     packet_size = Column(Integer, default=56)
 
-    __mapper_args__ = {"polymorphic_identity": "PingService"}
+    __mapper_args__ = {"polymorphic_identity": "ping_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         if run.protocol == "ICMP":
             command = ["ping"]
             for x, property in (
@@ -38,11 +35,8 @@ class PingService(Service):
                 if value:
                     command.extend(f"-{x} {value}".split())
             command.append(device.ip_address)
-            run.log("info", f"Running ping ({command})")
-            try:
-                output = check_output(command).decode().strip().splitlines()
-            except CalledProcessError:
-                return {"success": False, "error": "Device not pingable"}
+            run.log("info", f"Running PING ({command})", device)
+            output = check_output(command).decode().strip().splitlines()
             total = output[-2].split(",")[3].split()[1]
             loss = output[-2].split(",")[2].split()[0]
             timing = output[-1].split()[3].split("/")
@@ -73,8 +67,8 @@ class PingService(Service):
             return {"success": all(result.values()), "result": result}
 
 
-class PingServiceForm(ServiceForm):
-    form_type = HiddenField(default="PingService")
+class PingForm(ServiceForm):
+    form_type = HiddenField(default="ping_service")
     protocol = SelectField(choices=(("ICMP", "ICMP Ping"), ("TCP", "TCP Ping")))
     ports = StringField()
     count = IntegerField(default=5)

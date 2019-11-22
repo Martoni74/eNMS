@@ -1,16 +1,15 @@
 /*
 global
-action: false
 alertify: false
 call: false
+CodeMirror: false
+config: true
 createPanel: false
-diffview: false
 fCall: false
-getRuntimes: false
+initSelect: false
+initTable: false
 openUrl: false
-showPanel: false
-showTypePanel: false
-table: false
+tables: false
 */
 
 // eslint-disable-next-line
@@ -18,7 +17,7 @@ function sshConnection(id) {
   fCall(`/connection/${id}`, `#connection-parameters-form-${id}`, function(
     result
   ) {
-    let url = result.server_addr;
+    let url = config.app.address;
     if (!url) {
       url = `${window.location.protocol}//${window.location.hostname}`;
     }
@@ -38,77 +37,9 @@ function sshConnection(id) {
 }
 
 // eslint-disable-next-line
-function showConfigurationPanel(id, name) {
-  createPanel(
-    `configuration`,
-    `Configuration - Device ${name}`,
-    id,
-    function() {
-      configureCallbacks(id);
-      displayConfigurations(id);
-    }
-  );
-}
-
-function displayConfigurations(id) {
-  call(`/get_configurations/${id}`, (configurations) => {
-    $(`#display-${id},#compare_with-${id}`).empty();
-    const times = Object.keys(configurations);
-    times.forEach((option) => {
-      $(`#display-${id},#compare_with-${id}`).append(
-        $("<option></option>")
-          .attr("value", option)
-          .text(option)
-      );
-    });
-    $(`#display-${id},#compare_with-${id}`).val(times[times.length - 1]);
-    $(`#display-${id},#compare_with-${id}`).selectpicker("refresh");
-    $(`#configurations-${id}`).text(configurations[$(`#display-${id}`).val()]);
-  });
-}
-
-// eslint-disable-next-line
-function clearConfigurations(id) {
-  call(`/clear_configurations/${id}`, () => {
-    $(`#configurations-${id},#compare_with-${id},#display-${id}`).empty();
-    alertify.notify("Configurations cleared.", "success", 5);
-    $(`#configuration-${id}`).remove();
-  });
-}
-
-// eslint-disable-next-line
-function configureCallbacks(id) {
-  $(`#display-${id}`).on("change", function() {
-    call(`/get_configurations/${id}`, (configurations) => {
-      $(`#configurations-${id}`).text(
-        configurations[$(`#display-${id}`).val()]
-      );
-    });
-  });
-
-  $(`#compare_with-${id}`).on("change", function() {
-    $(`#configurations-${id}`).empty();
-    const v1 = $(`#display-${id}`).val();
-    const v2 = $(`#compare_with-${id}`).val();
-    call(`/get_configuration_diff/${id}/${v1}/${v2}`, function(data) {
-      $(`#configurations-${id}`).append(
-        diffview.buildView({
-          baseTextLines: data.first,
-          newTextLines: data.second,
-          opcodes: data.opcodes,
-          baseTextName: `${v1}`,
-          newTextName: `${v2}`,
-          contextSize: null,
-          viewType: 0,
-        })
-      );
-    });
-  });
-}
-
-// eslint-disable-next-line
 function savePoolObjects(id) {
   fCall(`/save_pool_objects/${id}`, `#pool-objects-form-${id}`, function() {
+    tables["pool"].ajax.reload(null, false);
     alertify.notify("Changes saved.", "success", 5);
     $(`#pool_objects-${id}`).remove();
   });
@@ -118,8 +49,19 @@ function savePoolObjects(id) {
 function showPoolObjectsPanel(id) {
   createPanel("pool_objects", "Pool Objects", id, function() {
     call(`/get/pool/${id}`, function(pool) {
-      $(`#devices-${id}`).selectpicker("val", pool.devices.map((n) => n.id));
-      $(`#links-${id}`).selectpicker("val", pool.links.map((l) => l.id));
+      if (pool.devices.length > 1000 || pool.links.length > 1000) {
+        alertify.notify("Too many objects to display.", "error", 5);
+      } else {
+        for (const type of ["device", "link"]) {
+          initSelect($(`#${type}s-${id}`), type, `pool_objects-${id}`);
+          pool[`${type}s`].forEach((o) => {
+            $(`#${type}s-${id}`).append(new Option(o.name, o.id));
+          });
+          $(`#${type}s-${id}`)
+            .val(pool[`${type}s`].map((n) => n.id))
+            .trigger("change");
+        }
+      }
     });
   });
 }
@@ -129,42 +71,47 @@ function updatePools(pool) {
   alertify.notify("Update starting...", "success", 5);
   const endpoint = pool ? `/update_pool/${pool}` : "/update_all_pools";
   call(endpoint, function() {
-    table.ajax.reload(null, false);
+    tables["pool"].ajax.reload(null, false);
     alertify.notify("Update successful.", "success", 5);
   });
 }
 
 // eslint-disable-next-line
-function showDeviceResultsPanel(id, name, type) {
-  createPanel("device_results", `Results - ${name}`, id, function() {
-    configureCallbacks(id, type);
-    getRuntimes(id, type);
+function showDeviceNetworkData(device) {
+  call(`/get_device_network_data/${device.id}`, (result) => {
+    if (!result.configuration && !result.operational_data) {
+      alertify.notify("No data stored.", "error", 5);
+    } else {
+      createPanel(
+        "device_data",
+        `Device Data - ${device.name}`,
+        device.id,
+        function() {
+          const content = document.getElementById(`content-${device.id}`);
+          // eslint-disable-next-line new-cap
+          const editor = CodeMirror(content, {
+            lineWrapping: true,
+            lineNumbers: true,
+            readOnly: true,
+            theme: "cobalt",
+            extraKeys: { "Ctrl-F": "findPersistent" },
+            scrollbarStyle: "overlay",
+          });
+          editor.setSize("100%", "100%");
+          $(`#data_type-${device.id}`)
+            .on("change", function() {
+              editor.setValue(result[this.value]);
+            })
+            .change();
+        }
+      );
+    }
   });
 }
 
 // eslint-disable-next-line
-function copyResultsToClipboard(id) {
-  let node = document.getElementById(`configurations-${id}`);
-  if (document.body.createTextRange) {
-    const range = document.body.createTextRange();
-    range.moveToElementText(node);
-    range.select();
-  } else if (window.getSelection) {
-    const selection = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  } else {
-    alertify.notify("Selection not supported by your browser", "error", 5);
-  }
-  document.execCommand("copy");
+function showDeviceResultsPanel(device) {
+  createPanel("result", `Results - ${device.name}`, null, function() {
+    initTable("result", device);
+  });
 }
-
-Object.assign(action, {
-  "Device properties": (d) => showTypePanel("device", d.id),
-  "Link properties": (l) => showTypePanel("link", l.id),
-  "Pool properties": (p) => showTypePanel("pool", p.id),
-  Connect: (d) => showPanel("connection", d.id),
-  Configuration: (d) => showConfigurationPanel(d.id, d.name),
-});

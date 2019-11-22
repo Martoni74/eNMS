@@ -1,9 +1,9 @@
 /*
 global
 alertify: false
+config: true
+creationMode: true
 csrf_token: false
-documentationUrl: false
-filteringPanel: false
 filteringProperties: false
 formProperties: false
 job: false
@@ -11,52 +11,56 @@ jsPanel: false
 NProgress: false
 page: false
 panelCode: false
+processWorkflowData: false
 Promise: false
-properties: false
 relations: false
-saveService: false
-saveWorkflow: false
-table: false
-type: false
-workflowRunMode: false
+relationships: false
+tableProperties: false
+workflow: true
 */
 
 const currentUrl = window.location.href.split("#")[0].split("?")[0];
+let tables = {};
+let userIsActive = true;
+let topZ = 1000;
 
 const panelSize = {
-  add_jobs: "800 500",
+  add_service: "800 500",
   changelog: "700 300",
   changelog_filtering: "700 300",
-  cluster: "700 200",
-  connection: "400 500",
-  configuration: "1200 700",
-  configuration_filtering: "700 600",
+  compare: "auto 700",
+  configuration: "800 auto",
   database_deletion: "700 400",
   database_migration: "700 300",
   device: "700 500",
+  device_connection: "400 500",
   device_filtering: "700 600",
   device_results: "1200 700",
+  display: "700 700",
+  display_configuration: "1200 800",
   event_filtering: "700 400",
   excel_import: "400 150",
   excel_export: "400 150",
   git: "900 200",
   google_earth_export: "700 200",
-  import_jobs: "500 400",
+  import_service: "500 400",
   instance_deletion: "400 130",
   librenms: "700 250",
   link: "700 400",
   link_filtering: "700 600",
+  log: "800 auto",
   log_filtering: "700 350",
   notifications: "1100 400",
   netbox: "700 250",
   opennms: "700 300",
   pool: "800 600",
-  pool_filtering: "700 500",
+  pool_filtering: "1000 700",
   pool_objects: "700 550",
+  result: "1200 700",
   service_results: "1200 700",
   server: "600 250",
   server_filtering: "700 450",
-  service: "1000 600",
+  service: "1300 600",
   service_filtering: "1000 600",
   ssh: "700 200",
   task: "900 500",
@@ -64,22 +68,21 @@ const panelSize = {
   user: "600 300",
   user_filtering: "700 250",
   view: "700 300",
-  workflow: "1000 600",
+  workflow: "1300 600",
   workflow_filtering: "1000 600",
   workflow_results: "1200 700",
 };
 
 const panelName = {
-  add_jobs: "Add jobs",
+  add_service: "Add service",
   configuration: "Configuration",
-  configuration_filtering: "Configuration Filtering",
-  connection: "Connect to device",
   database_deletion: "Database Deletion",
   database_migration: "Database Migration",
+  device_connection: "Connect to device",
   device_filtering: "Device Filtering",
   event_filtering: "Event Filtering",
   excel_export: "Export Topology as an Excel file",
-  import_jobs: "Import Jobs",
+  import_service: "Import Service",
   server_filtering: "Server Filtering",
   link_filtering: "Link Filtering",
   changelog_filtering: "Changelog Filtering",
@@ -90,8 +93,6 @@ const panelName = {
   user_filtering: "User Filtering",
   workflow_filtering: "Workflow Filtering",
 };
-
-let topZ = 1000;
 
 // eslint-disable-next-line
 function doc(page) {
@@ -111,11 +112,10 @@ function doc(page) {
     "table/service": "services/index.html",
     "table/task": "events/tasks.html",
     "table/user": "administration/index.html",
-    "table/workflow": "workflows/index.html",
     view: "views/geographical_view.html",
     workflow_builder: "workflows/index.html",
   }[page];
-  $("#doc-link").attr("href", `${documentationUrl}${endpoint}`);
+  $("#doc-link").attr("href", `${config.app.documentation_url}${endpoint}`);
 }
 
 $.ajaxSetup({
@@ -169,10 +169,36 @@ const loadScript = (source, beforeEl, async = true, defer = true) => {
   });
 };
 
+function detectUserInactivity() {
+  let timer;
+  window.onload = resetTimer;
+  window.onmousemove = resetTimer;
+  window.onmousedown = resetTimer;
+  window.ontouchstart = resetTimer;
+  window.onclick = resetTimer;
+  window.onkeypress = resetTimer;
+  window.addEventListener("scroll", resetTimer, true);
+
+  function setUserInactive() {
+    userIsActive = false;
+  }
+
+  function resetTimer() {
+    clearTimeout(timer);
+    userIsActive = true;
+    timer = setTimeout(setUserInactive, 180000);
+  }
+}
+
 // eslint-disable-next-line
 function openUrl(url) {
   let win = window.open(url, "_blank");
   win.focus();
+}
+
+// eslint-disable-next-line
+function cantorPairing(x, y) {
+  return ((x + y) * (x + y + 1)) / 2 + y;
 }
 
 function processResults(callback, results) {
@@ -200,20 +226,14 @@ function call(url, callback) {
 }
 
 function fCall(url, form, callback) {
-  if (
-    $(form)
-      .parsley()
-      .validate()
-  ) {
-    $.ajax({
-      type: "POST",
-      url: url,
-      data: $(form).serialize(),
-      success: function(results) {
-        processResults(callback, results);
-      },
-    });
-  }
+  $.ajax({
+    type: "POST",
+    url: url,
+    data: $(form).serialize(),
+    success: function(results) {
+      processResults(callback, results);
+    },
+  });
 }
 
 function serializeForm(form) {
@@ -224,7 +244,7 @@ function serializeForm(form) {
       if (!(property.name in result)) result[property.name] = [];
       result[property.name].push(property.value);
     } else {
-      result[property.name] = property.value;
+      if (property.value) result[property.name] = property.value;
     }
   });
   return result;
@@ -234,7 +254,8 @@ function serializeForm(form) {
 function deleteInstance(type, id) {
   call(`/delete_instance/${type}/${id}`, function(result) {
     $(`#instance_deletion-${id}`).remove();
-    table
+    if (type.includes("service") || type == "workflow") type = "service";
+    tables[type]
       .row($(`#${id}`))
       .remove()
       .draw(false);
@@ -246,6 +267,29 @@ function deleteInstance(type, id) {
   });
 }
 
+function createTooltips() {
+  $("[data-tooltip]").each(function() {
+    jsPanel.tooltip.create({
+      id: `tooltip-${$(this)
+        .attr("data-tooltip")
+        .replace(/\s/g, "")}`,
+      content: `<p style="margin-right: 10px; margin-left: 10px; color: black">
+        <b>${$(this).attr("data-tooltip")}</b></p>`,
+      contentSize: "auto",
+      connector: true,
+      delay: 800,
+      header: false,
+      position: {
+        my: "center-bottom",
+        at: "center-top",
+        of: this,
+      },
+      target: this,
+      theme: "primary filledlight",
+    });
+  });
+}
+
 // eslint-disable-next-line
 function createPanel(name, title, id, processing, type, duplicate) {
   const panelId = id ? `${name}-${id}` : name;
@@ -253,7 +297,6 @@ function createPanel(name, title, id, processing, type, duplicate) {
     $(`#${panelId}`).css("zIndex", ++topZ);
     return;
   }
-  const isFilteringPanel = panelId.includes("filtering");
   return jsPanel.create({
     id: panelId,
     border: "2px solid #2A3F52",
@@ -267,8 +310,8 @@ function createPanel(name, title, id, processing, type, duplicate) {
       url: `../form/${name}`,
       done: function(panel) {
         panel.content.innerHTML = this.responseText;
-        configureForm(name);
         preprocessForm(panel, id, type, duplicate);
+        configureForm(name, id, panelId);
         if (processing) processing(panel);
       },
     },
@@ -279,11 +322,6 @@ function createPanel(name, title, id, processing, type, duplicate) {
     resizeit: {
       containment: 0,
     },
-    onbeforeclose: function(panel, status) {
-      if (isFilteringPanel) panel.minimize();
-      return !isFilteringPanel;
-    },
-    setStatus: isFilteringPanel ? "minimized" : "normalized",
   });
 }
 
@@ -293,18 +331,28 @@ function showPanel(type, id, processing) {
 }
 
 // eslint-disable-next-line
-function showFilteringPanel() {
-  filteringPanel.normalize();
+function showFilteringPanel(panelType) {
+  showPanel(panelType);
 }
 
 // eslint-disable-next-line
-function showDeletionPanel(type, id, name) {
-  createPanel("instance_deletion", `Delete ${name}`, id, () => {}, type);
+function showDeletionPanel(instance) {
+  createPanel(
+    "instance_deletion",
+    `Delete ${instance.name}`,
+    instance.id,
+    () => {},
+    instance.type
+  );
 }
 
 function preprocessForm(panel, id, type, duplicate) {
   panel.querySelectorAll(".add-id").forEach((el) => {
-    if (duplicate && ["name", "id"].includes(el.name)) return;
+    if (duplicate) {
+      const property =
+        type.includes("service") || type == "workflow" ? "scoped_name" : "name";
+      if ([property, "id"].includes(el.name)) return;
+    }
     if (id) $(el).prop("id", `${$(el).attr("id")}-${id}`);
   });
   panel.querySelectorAll(".btn-id").forEach((el) => {
@@ -319,12 +367,41 @@ function preprocessForm(panel, id, type, duplicate) {
   });
 }
 
-function configureForm(form, id) {
+function initSelect(el, model, parentId, single) {
+  el.select2({
+    multiple: !single,
+    closeOnSelect: single ? true : false,
+    dropdownParent: parentId ? $(`#${parentId}`) : $(document.body),
+    ajax: {
+      url: `/multiselect_filtering/${model}`,
+      type: "POST",
+      delay: 250,
+      contentType: "application/json",
+      data: function(params) {
+        return JSON.stringify({
+          term: params.term || "",
+          page: params.page || 1,
+        });
+      },
+      processResults: function(data, params) {
+        params.page = params.page || 1;
+        return {
+          results: data.items,
+          pagination: {
+            more: params.page * 10 < data.total_count,
+          },
+        };
+      },
+    },
+  });
+}
+
+function configureForm(form, id, panelId) {
   if (!formProperties[form]) return;
-  for (const [property, type] of Object.entries(formProperties[form])) {
+  for (const [property, field] of Object.entries(formProperties[form])) {
     let el = $(id ? `#${form}-${property}-${id}` : `#${form}-${property}`);
     if (!el.length) el = $(`#${property}`);
-    if (type == "date") {
+    if (field.type == "date") {
       el.datetimepicker({
         format: "DD/MM/YYYY HH:mm:ss",
         widgetPositioning: {
@@ -333,47 +410,54 @@ function configureForm(form, id) {
         },
         useCurrent: false,
       });
-    } else {
+    } else if (["list", "multiselect"].includes(field.type)) {
       const elClass = el.attr("class");
       el.selectpicker({
         liveSearch: elClass ? !elClass.includes("no-search") : false,
         actionsBox: true,
+        selectedTextFormat: "count > 3",
       });
+    } else if (["object", "object-list"].includes(field.type)) {
+      let model;
+      if (relationships[form]) {
+        model = relationships[form][property].model;
+      } else {
+        model = field.model;
+      }
+      initSelect(el, model, panelId, field.type == "object");
     }
   }
 }
 
 // eslint-disable-next-line
 function showTypePanel(type, id, mode) {
-  if (type == "Workflow") type = "workflow";
   createPanel(
     type,
     "",
     id,
     function(panel) {
-      if (type == "workflow" || type.includes("Service")) {
+      if (type == "workflow" || type.includes("service")) {
         panelCode(type, id, mode);
       }
       if (id) {
         const properties = type === "pool" ? "_properties" : "";
         call(`/get${properties}/${type}/${id}`, function(instance) {
-          const title = mode == "duplicate" ? "Duplicate" : "Edit";
-          panel.setHeaderTitle(`${title} ${type} - ${instance.name}`);
+          const action = mode ? mode.toUpperCase() : "EDIT";
+          panel.setHeaderTitle(`${action} ${type} - ${instance.name}`);
           processInstance(type, instance);
-          if (type == "workflow" && mode == "duplicate") {
-            $(`#workflow-btn-${id}`).attr(
-              "onclick",
-              `duplicateWorkflow(${id})`
-            );
-          }
-          if (type == "workflow" && mode == "run") {
-            workflowRunMode(instance);
-          }
         });
       } else {
         panel.setHeaderTitle(`Create a New ${type}`);
+        if (workflow && creationMode == "service") {
+          $(`#${type}-workflows`).append(
+            new Option(workflow.name, workflow.id)
+          );
+          $(`#${type}-workflows`)
+            .val(workflow.id)
+            .trigger("change");
+        }
       }
-      if (type.includes("Service")) {
+      if (type.includes("service")) {
         loadScript(`../static/services/${type}.js`).then(() => {
           try {
             job(id);
@@ -388,29 +472,38 @@ function showTypePanel(type, id, mode) {
   );
 }
 
-function updateProperty(el, property, value, type) {
-  const propertyType = formProperties[type][property] || "str";
-  if (propertyType.includes("bool") || property.includes("regex")) {
+function updateProperty(instance, el, property, value, type) {
+  let propertyType;
+  if (formProperties[type][property]) {
+    propertyType = formProperties[type][property].type;
+  } else {
+    propertyType = "str";
+  }
+  if (propertyType.includes("bool")) {
     el.prop("checked", value);
   } else if (propertyType.includes("dict") || propertyType == "json") {
     el.val(value ? JSON.stringify(value) : "{}");
-  } else if (
-    ["list", "multiselect", "object", "object-list"].includes(propertyType)
-  ) {
+  } else if (["list", "multiselect"].includes(propertyType)) {
     try {
       el.selectpicker("deselectAll");
     } catch (e) {
       // ignore
     }
-    el.selectpicker(
-      "val",
-      propertyType === "object"
-        ? value.id
-        : propertyType === "object-list"
-        ? value.map((p) => p.id)
-        : value
-    );
+    el.selectpicker("val", value);
     el.selectpicker("render");
+  } else if (propertyType == "object-list") {
+    value.forEach((o) => el.append(new Option(o.name, o.id)));
+    el.val(value.map((p) => p.id)).trigger("change");
+  } else if (propertyType == "object") {
+    el.append(new Option(value.name, value.id))
+      .val(value.id)
+      .trigger("change");
+  } else if (propertyType == "field-list") {
+    for (let [index, form] of value.entries()) {
+      for (const [key, value] of Object.entries(form)) {
+        $(`#${type}-${property}-${index}-${key}-${instance.id}`).val(value);
+      }
+    }
   } else {
     el.val(value);
   }
@@ -421,20 +514,28 @@ function processInstance(type, instance) {
     const el = $(
       instance ? `#${type}-${property}-${instance.id}` : `#${type}-${property}`
     );
-    updateProperty(el, property, value, type);
+    updateProperty(instance, el, property, value, type);
   }
 }
 
 // eslint-disable-next-line
-function processData(type, id) {
+function processData(type, id, duplicate) {
+  if (type.includes("service") || type == "workflow") {
+    $(id ? `#${type}-workflows-${id}` : `#${type}-workflows`).prop(
+      "disabled",
+      false
+    );
+    if (id) $(`#${type}-shared-${id}`).prop("disabled", false);
+  }
   fCall(
     `/update/${type}`,
     id ? `#edit-${type}-form-${id}` : `#edit-${type}-form`,
     (instance) => {
-      if (typeof table != "undefined") table.ajax.reload(null, false);
+      const tableType =
+        type.includes("service") || type == "workflow" ? "service" : type;
+      if (page.includes("table")) tables[tableType].ajax.reload(null, false);
       $(id ? `#${type}-${id}` : `#${type}`).remove();
-      if (type.includes("Service")) saveService(instance, id);
-      if (type === "workflow" && !id) saveWorkflow(instance);
+      if (page == "workflow_builder") processWorkflowData(instance, id);
       alertify.notify(
         `${type.toUpperCase()} ${instance.name ? `'${instance.name}' ` : ""}${
           id ? "updated" : "created"
@@ -447,63 +548,72 @@ function processData(type, id) {
 }
 
 // eslint-disable-next-line
-function createSearchHeaders() {
-  properties.forEach((property) => {
-    if (!filteringProperties.includes(property)) return;
-    $(`#search-${property}`).on("keyup change", function() {
-      $(`#${type}_filtering-${property}`).val($(this).val());
-      table.ajax.reload(null, false);
+function createSearchHeaders(type) {
+  tableProperties[type || "result"].forEach((property) => {
+    if (!filteringProperties[type || "result"].includes(property)) return;
+    $(`#${type}_filtering-${property}`).on("keyup change", function() {
+      tables[type].ajax.reload(null, false);
     });
   });
 }
 
 // eslint-disable-next-line
-function initTable(type) {
-  const filteringPanel = showPanel(`${type}_filtering`);
-  createSearchHeaders();
+function initTable(type, instance, runtime) {
   // eslint-disable-next-line new-cap
-  const table = $("#table").DataTable({
+  tables[type] = $(`#${type}-table`).DataTable({
     serverSide: true,
     orderCellsTop: true,
+    autoWidth: false,
     scrollX: true,
     fnDrawCallback: () => {
       $(".paginate_button > a").on("focus", function() {
         $(this).blur();
       });
+      createTooltips();
     },
     sDom: "<'top'i>rt<'bottom'lp><'clear'>",
     ajax: {
-      url: `/filtering/${type}`,
+      url: `/table_filtering/${type}`,
       type: "POST",
+      contentType: "application/json",
       data: (d) => {
-        d.form = serializeForm(`#${type}_filtering-form`);
+        const form = $(`#${type}_filtering`).length
+          ? `#${type}_filtering-form`
+          : `#search-${type}-form`;
+        d.form = serializeForm(form);
+        d.instance = instance;
+        if (runtime) {
+          d.runtime = $(`#results_runtime-${instance.id}`).val() || runtime;
+        }
+        return JSON.stringify(d);
       },
     },
   });
-  if (["changelog", "syslog", "run"].includes(type)) {
-    table.order([0, "desc"]).draw();
+  createSearchHeaders(type);
+  if (["changelog", "syslog", "run", "result"].includes(type)) {
+    tables[type].order([0, "desc"]).draw();
   }
-  return [table, filteringPanel];
+  if (["run", "service", "task", "workflow"].includes(type)) {
+    refreshTablePeriodically(type, 3000);
+  }
 }
 
 // eslint-disable-next-line
 function filter(formType) {
-  table.ajax.reload(null, false);
+  tables[formType].ajax.reload(null, false);
   alertify.notify("Filter applied.", "success", 5);
 }
 
 // eslint-disable-next-line
-function undoFilter(formType) {
-  $(`#${formType}-form`)[0].reset();
-  filteringPanel.minimize();
-  table.ajax.reload(null, false);
-  alertify.notify("Filter removed.", "success", 5);
+function refreshTable(tableType, displayNotification) {
+  tables[tableType].ajax.reload(null, false);
+  if (displayNotification) alertify.notify("Table refreshed.", "success", 5);
 }
 
 // eslint-disable-next-line
-function refreshTable(interval) {
-  table.ajax.reload(null, false);
-  setTimeout(() => refreshTable(interval), interval);
+function refreshTablePeriodically(tableType, interval) {
+  if (userIsActive) refreshTable(tableType, false);
+  setTimeout(() => refreshTablePeriodically(tableType, interval), interval);
 }
 
 function initSidebar() {
@@ -558,6 +668,8 @@ function initSidebar() {
 
   $("#menu_toggle").on("click", function() {
     if ($("body").hasClass("nav-md")) {
+      $("#eNMS").css({ "font-size": "20px" });
+      $("#eNMS-version").css({ "font-size": "15px" });
       $("#sidebar-menu")
         .find("li.active ul")
         .hide();
@@ -568,6 +680,8 @@ function initSidebar() {
         .find("li.active")
         .removeClass("active");
     } else {
+      $("#eNMS").css({ "font-size": "30px" });
+      $("#eNMS-version").css({ "font-size": "20px" });
       $("#sidebar-menu")
         .find("li.active-sm ul")
         .show();
@@ -587,7 +701,6 @@ function initSidebar() {
     });
   });
 
-  // check active menu
   const url = "a[href='" + currentUrl + "']";
   $("#sidebar-menu")
     .find(url)
@@ -678,6 +791,9 @@ if (typeof NProgress != "undefined") {
 
 $(document).ready(function() {
   initSidebar();
+  if (page.includes("table")) initTable(page.split("/")[1]);
   configureForm(page);
   doc(page);
+  detectUserInactivity();
+  createTooltips();
 });

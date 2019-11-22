@@ -1,7 +1,6 @@
 /*
 global
 action: false
-alertify: false
 call: false
 jsPanel: false
 vis: false
@@ -15,7 +14,7 @@ function deviceToNode(device) {
   const logicalDevice = {
     id: device.id,
     label: device.name,
-    image: `/static/images/2D/${device.icon}.gif`,
+    image: `/static/images/view/${device.icon}.gif`,
     shape: "image",
   };
   logicalDevices[device.id] = device;
@@ -38,7 +37,7 @@ function showPoolView(poolId) {
     id: `pool-view-${poolId}`,
     theme: "none",
     border: "medium",
-    headerTitle: "Pool view",
+    headerTitle: "Site view",
     position: "center-top 0 58",
     contentSize: "1000 600",
     content: `
@@ -88,8 +87,4 @@ function displayPool(poolId, nodes, edges) {
       $(".insite-menu").show();
     }
   });
-  alertify.notify(
-    `Loading the view...<br/>
-    Scroll to zoom in/out. Right-click on a node to display the menu.`
-  );
 }

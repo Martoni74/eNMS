@@ -1,56 +1,51 @@
-from typing import Dict, List
-
-import_classes = [
-    "User",
-    "Device",
-    "Link",
-    "Pool",
-    "Service",
-    "Workflow",
-    "WorkflowEdge",
-    "Task",
-]
+import_classes = ["user", "device", "link", "pool", "service", "workflow_edge", "task"]
 
 dont_track_changes = [
-    "configurations",
-    "current_configuration",
+    "configuration",
     "current_device",
-    "current_job",
+    "current_service",
+    "labels",
     "last_modified",
+    "operational_data",
+    "parent_id",
     "positions",
+    "running",
+    "runtime",
+    "endtime",
     "state",
+    "status",
+    "success",
 ]
 
-dont_migrate: Dict[str, List[str]] = {
-    "Device": [
+dont_migrate = {
+    "device": [
         "id",
-        "configurations",
-        "current_configuration",
-        "jobs",
+        "configuration",
+        "operational_data",
+        "services",
         "source",
         "destination",
         "pools",
     ],
-    "Link": ["id", "pools"],
-    "Pool": ["id", "jobs", "object_number"],
-    "Service": [
+    "link": ["id", "pools"],
+    "pool": ["id", "services", "object_number"],
+    "service": [
         "id",
         "sources",
         "destinations",
         "tasks",
         "workflows",
         "tasks",
-        "start_workflows",
+        "edges",
     ],
-    "Task": [
+    "task": [
         "id",
-        "job_name",
+        "service_name",
         "next_run_time",
         "is_active",
         "time_before_next_run",
         "status",
     ],
-    "User": ["id", "pools"],
-    "Workflow": ["edges", "id", "sources", "destinations", "workflows", "tasks"],
-    "WorkflowEdge": ["id", "source_id", "destination_id", "workflow_id"],
+    "user": ["id", "pools"],
+    "workflow_edge": ["id", "source_id", "destination_id", "workflow_id"],
 }

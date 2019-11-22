@@ -1,6 +1,5 @@
 from wtforms import (
     BooleanField,
-    FloatField,
     HiddenField,
     IntegerField,
     PasswordField,
@@ -8,66 +7,15 @@ from wtforms import (
     StringField,
     SelectMultipleField,
 )
+from wtforms.validators import InputRequired
 
 from eNMS.forms import BaseForm, configure_relationships
-from eNMS.forms.fields import JsonField, NoValidationSelectMultipleField
 from eNMS.properties.database import import_classes
 
 
-class ParametersForm:
-    action = "saveParameters"
-
-
-class GeneralForm(BaseForm, ParametersForm):
-    form_type = HiddenField(default="general")
-    custom_config = JsonField("Custom Configuration")
-
-
-class ViewParametersForm(BaseForm, ParametersForm):
-    form_type = HiddenField(default="view")
-    default_longitude = StringField("Default Longitude")
-    default_latitude = StringField("Default Latitude")
-    default_zoom_level = IntegerField("Default Zoom Level")
-    default_view = SelectField(
-        choices=(("2D", "2D"), ("2DC", "Clusterized 2D"), ("3D", "3D"))
-    )
-    default_marker = SelectField(
-        choices=(
-            ("Image", "Image"),
-            ("Circle", "Circle"),
-            ("Circle Marker", "Circle Marker"),
-        )
-    )
-
-
-class ClusterParametersForm(BaseForm, ParametersForm):
-    form_type = HiddenField(default="cluster")
-    cluster_scan_protocol = SelectField(choices=(("http", "HTTP"), ("https", "HTTPS")))
-    cluster_scan_subnet = StringField("Cluster Scan Subnet")
-    cluster_scan_timeout = FloatField("Cluster Scan Timeout")
-
-
-class GitParametersForm(BaseForm, ParametersForm):
-    form_type = HiddenField(default="git")
-    git_configurations = StringField("Git Configurations Repository")
-    git_automation = StringField("Git Automation Repository")
-
-
-class SshParametersForm(BaseForm, ParametersForm):
-    form_type = HiddenField(default="ssh")
-    gotty_start_port = FloatField("Start port")
-    gotty_end_port = FloatField("End port")
-
-
-class NotificationsParametersForm(BaseForm, ParametersForm):
-    form_type = HiddenField(default="notifications")
-    mail_sender = StringField("Mail Sender Address")
-    mail_recipients = StringField("Mail Recipients (separated by comma)")
-    mattermost_url = StringField("Mattermost URL")
-    mattermost_channel = StringField("Mattermost Channel")
-    mattermost_verify_certificate = BooleanField("Mattermost: verify certificate")
-    slack_token = StringField("Slack Token")
-    slack_channel = StringField("Slack Channel")
+class ConfigurationForm(BaseForm):
+    action = "saveConfiguration"
+    form_type = HiddenField(default="configuration")
 
 
 class DatabaseDeletionForm(BaseForm):
@@ -88,7 +36,7 @@ class ServerForm(BaseForm):
     template = "object"
     form_type = HiddenField(default="server")
     id = HiddenField()
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     description = StringField("Description")
     ip_address = StringField("IP address")
     weight = IntegerField("Weigth")
@@ -97,7 +45,7 @@ class ServerForm(BaseForm):
 class LoginForm(BaseForm):
     form_type = HiddenField(default="login")
     authentication_method = SelectField("Authentication Method", choices=())
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     password = PasswordField("Password")
 
 
@@ -111,10 +59,10 @@ class DatabaseMigrationsForm(BaseForm):
     )
 
 
-class ImportJobs(BaseForm):
-    action = "importJobs"
-    form_type = HiddenField(default="import_jobs")
-    jobs_to_import = NoValidationSelectMultipleField("Jobs to import", choices=())
+class ImportService(BaseForm):
+    action = "importService"
+    form_type = HiddenField(default="import_service")
+    service = SelectField("Service", choices=())
 
 
 @configure_relationships
@@ -122,7 +70,7 @@ class UserForm(BaseForm):
     template = "object"
     form_type = HiddenField(default="user")
     id = HiddenField()
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     password = PasswordField("Password")
     email = StringField("Email")
     permission_choices = [

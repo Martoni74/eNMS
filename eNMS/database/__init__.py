@@ -1,35 +1,26 @@
-from os import environ
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-from typing import Any
 
+from eNMS.config import config
 
-DATABASE_URL = environ.get(
-    "ENMS_DATABASE_URL", "sqlite:///database.db?check_same_thread=False"
-)
+DATABASE_URL = config["database"]["url"]
 DIALECT = DATABASE_URL.split(":")[0]
 
+engine_parameters = {
+    "convert_unicode": True,
+    "pool_pre_ping": True,
+    "pool_recycle": 3600,
+}
 
-def session_factory() -> Any:
-    kwargs = {}
-    if DIALECT == "mysql":
-        kwargs.update(
-            {
-                "max_overflow": int(environ.get("MAX_OVERFLOW", 10)),
-                "pool_size": int(environ.get("POOL_SIZE", 1000)),
-            }
-        )
-    engine = create_engine(
-        environ.get(
-            "ENMS_DATABASE_URL", "sqlite:///database.db?check_same_thread=False"
-        ),
-        convert_unicode=True,
-        pool_pre_ping=True,
-        **kwargs
+if DIALECT == "mysql":
+    engine_parameters.update(
+        {
+            "max_overflow": config["database"]["max_overflow"],
+            "pool_size": config["database"]["pool_size"],
+        }
     )
-    return engine, scoped_session(sessionmaker(autoflush=False, bind=engine))
 
-
-engine, Session = session_factory()
+engine = create_engine(DATABASE_URL, **engine_parameters)
+Session = scoped_session(sessionmaker(autoflush=False, bind=engine))
 Base = declarative_base()

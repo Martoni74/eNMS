@@ -1,33 +1,31 @@
+from os import environ
 from slackclient import SlackClient
-from sqlalchemy import Boolean, ForeignKey, Integer
-from typing import Optional
+from sqlalchemy import ForeignKey, Integer
 from wtforms import HiddenField, StringField
 from wtforms.widgets import TextArea
 
-from eNMS.controller import controller
+from eNMS import app
 from eNMS.database.dialect import Column, LargeString, SmallString
 from eNMS.forms.automation import ServiceForm
 from eNMS.forms.fields import SubstitutionField
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.models.automation import Service
 
 
 class SlackNotificationService(Service):
 
-    __tablename__ = "SlackNotificationService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = Column(Boolean, default=False)
+    __tablename__ = "slack_notification_service"
+    pretty_name = "Slack Notification"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     channel = Column(SmallString)
     token = Column(SmallString)
     body = Column(LargeString, default="")
 
-    __mapper_args__ = {"polymorphic_identity": "SlackNotificationService"}
+    __mapper_args__ = {"polymorphic_identity": "slack_notification_service"}
 
-    def job(self, run: "Run", payload: dict, device: Optional[Device] = None) -> dict:
-        slack_client = SlackClient(run.token or controller.slack_token)
-        channel = run.sub(run.channel, locals()) or controller.slack_channel
-        run.log("info", f"Sending Slack notification on {channel}")
+    def job(self, run, payload, device=None):
+        slack_client = SlackClient(run.token or environ.get("SLACK_TOKEN"))
+        channel = run.sub(run.channel, locals()) or app.config["slack"]["channel"]
+        run.log("info", f"Sending SLACK notification on {channel}", device)
         result = slack_client.api_call(
             "chat.postMessage", channel=channel, text=run.sub(run.body, locals())
         )
@@ -35,7 +33,7 @@ class SlackNotificationService(Service):
 
 
 class SlackNotificationForm(ServiceForm):
-    form_type = HiddenField(default="SlackNotificationService")
+    form_type = HiddenField(default="slack_notification_service")
     channel = SubstitutionField()
     token = StringField()
     body = SubstitutionField(widget=TextArea(), render_kw={"rows": 5})

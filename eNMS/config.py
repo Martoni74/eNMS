@@ -1,29 +1,5 @@
-from os import environ
+from pathlib import Path
+from json import load
 
-
-class DebugConfig:
-    MODE = "debug"
-    DEBUG = True
-    JSON_SORT_KEYS = False
-    SECRET_KEY = environ.get("ENMS_SECRET_KEY", "get-a-real-key")
-    WTF_CSRF_TIME_LIMIT = None
-    ERROR_404_HELP = False
-
-
-class ProductionConfig:
-    MODE = "production"
-    DEBUG = False
-    SECRET_KEY = environ.get("ENMS_SECRET_KEY")
-    WTF_CSRF_TIME_LIMIT = None
-
-
-class TestConfig(DebugConfig):
-    MODE = "test"
-    WTF_CSRF_ENABLED = False
-
-
-config_mapper: dict = {
-    "Debug": DebugConfig,
-    "Production": ProductionConfig,
-    "Test": TestConfig,
-}
+with open(Path.cwd() / "config.json", "r") as file:
+    config = load(file)

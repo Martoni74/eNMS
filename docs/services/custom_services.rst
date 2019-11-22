@@ -59,9 +59,9 @@ This file contains the following code :
 
   class ExampleService(Service):
 
-      __tablename__ = "ExampleService"
+      __tablename__ = "example_service"
 
-      id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
+      id = Column(Integer, ForeignKey("service.id"), primary_key=True)
       # The following fields will be stored in the database as:
       # - String
       string1 = Column(String(SMALL_STRING_LENGTH), default="")
@@ -86,14 +86,14 @@ This file contains the following code :
       boolean1 = Column(Boolean, default=False)
       boolean2 = Column(Boolean, default=False)
 
-      __mapper_args__ = {"polymorphic_identity": "ExampleService"}
+      __mapper_args__ = {"polymorphic_identity": "example_service"}
 
       # Some services will take action or interrogate a device. The job method
       # can also take device as a parameter for these types of services.
       # def job(self, device, payload):
       def job(self, run: "Run", payload: dict) -> dict:
           run.log("info", f"Real-time logs displayed when the service is running.")
-          # The "job" function is called when the service is executed.
+          # The "service" function is called when the service is executed.
           # The parameters of the service can be accessed with self (self.string1,
           # self.boolean1, etc)
           # You can look at how default services (netmiko, napalm, etc.) are
@@ -115,7 +115,7 @@ This file contains the following code :
 
       # The following line is mandatory: the default value must point
       # to the service.
-      form_type = HiddenField(default="ExampleService")
+      form_type = HiddenField(default="example_service")
 
       # string1 is defined as a "SelectField": it will be displayed as a
       # drop-down list in the UI.
@@ -200,7 +200,7 @@ This file contains the following code :
       boolean1 = BooleanField()
       boolean2 = BooleanField("Boolean N°1")
 
-      def validate_custom_integer(self, field: IntegerField) -> None:
+      def validate_custom_integer(self, field: IntegerField):
           product = self.an_integer.data * self.a_float.data
           if field.data > product:
               raise ValidationError(
@@ -224,7 +224,7 @@ Another use-case is to implement a service that will only exist as a single inst
 This can be done with the ``Swiss Army Knife Service``.
 
 A "Swiss Army Knife Service" has only one parameter: a name. The function that will run when this service is scheduled is the one that carries the same name as the service itself.
-The "Swiss Army Knife Service" ``job`` function can be seen as a "job multiplexer".
+The "Swiss Army Knife Service" ``job`` function can be seen as a "service multiplexer".
 
 Let's take a look at how the ``Swiss Army Knife Service`` is implemented:
 
@@ -232,12 +232,12 @@ Let's take a look at how the ``Swiss Army Knife Service`` is implemented:
 
  class SwissArmyKnifeService(Service):
 
-     __tablename__ = "SwissArmyKnifeService"
+     __tablename__ = "swiss_army_knife_service"
 
-     id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
+     id = Column(Integer, ForeignKey("service.id"), primary_key=True)
      has_targets = Column(Boolean, default=False)
 
-     __mapper_args__ = {"polymorphic_identity": "SwissArmyKnifeService"}
+     __mapper_args__ = {"polymorphic_identity": "swiss_army_knife_service"}
 
      def job(self, *args):
          return getattr(self, self.name)(*args)

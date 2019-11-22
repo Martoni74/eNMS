@@ -4,20 +4,19 @@ from wtforms import BooleanField, HiddenField, SelectField, StringField
 from wtforms.validators import InputRequired
 
 from eNMS.database.dialect import Column, SmallString
-from eNMS.forms.automation import ServiceForm
 from eNMS.forms.fields import SubstitutionField
-from eNMS.forms.services import NetmikoForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.forms.automation import NetmikoForm
+from eNMS.models.automation import ConnectionService
 
 
-class NetmikoFileTransferService(Service):
+class NetmikoFileTransferService(ConnectionService):
 
-    __tablename__ = "NetmikoFileTransferService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
-    privileged_mode = Column(Boolean, default=False)
+    __tablename__ = "netmiko_file_transfer_service"
+    pretty_name = "Netmiko File Transfer"
+    parent_type = "connection_service"
+    id = Column(Integer, ForeignKey("connection_service.id"), primary_key=True)
+    enable_mode = Column(Boolean, default=True)
+    config_mode = Column(Boolean, default=False)
     source_file = Column(SmallString)
     destination_file = Column(SmallString)
     direction = Column(SmallString)
@@ -31,13 +30,13 @@ class NetmikoFileTransferService(Service):
     timeout = Column(Integer, default=1)
     global_delay_factor = Column(Float, default=1.0)
 
-    __mapper_args__ = {"polymorphic_identity": "NetmikoFileTransferService"}
+    __mapper_args__ = {"polymorphic_identity": "netmiko_file_transfer_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         netmiko_connection = run.netmiko_connection(device)
         source = run.sub(run.source_file, locals())
         destination = run.sub(run.destination_file, locals())
-        run.log("info", f"Transferring file {source} on {device.name}")
+        run.log("info", f"Transferring file {source}", device)
         transfer_dict = file_transfer(
             netmiko_connection,
             source_file=source,
@@ -51,8 +50,8 @@ class NetmikoFileTransferService(Service):
         return {"success": True, "result": transfer_dict}
 
 
-class NetmikoFileTransferForm(ServiceForm, NetmikoForm):
-    form_type = HiddenField(default="NetmikoFileTransferService")
+class NetmikoFileTransferForm(NetmikoForm):
+    form_type = HiddenField(default="netmiko_file_transfer_service")
     source_file = SubstitutionField(validators=[InputRequired()])
     destination_file = SubstitutionField(validators=[InputRequired()])
     file_system = StringField()
@@ -61,14 +60,17 @@ class NetmikoFileTransferForm(ServiceForm, NetmikoForm):
     inline_transfer = BooleanField()
     overwrite_file = BooleanField()
     groups = {
-        "Main Parameters": [
-            "source_file",
-            "destination_file",
-            "file_system",
-            "direction",
-            "disable_md5",
-            "inline_transfer",
-            "overwrite_file",
-        ],
-        "Netmiko Parameters": NetmikoForm.group,
+        "Main Parameters": {
+            "commands": [
+                "source_file",
+                "destination_file",
+                "file_system",
+                "direction",
+                "disable_md5",
+                "inline_transfer",
+                "overwrite_file",
+            ],
+            "default": "expanded",
+        },
+        **NetmikoForm.groups,
     }

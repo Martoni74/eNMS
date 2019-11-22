@@ -2,17 +2,18 @@ from re import search
 from sqlalchemy import Boolean, Float, ForeignKey, Integer
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref, relationship
-from typing import Any, Dict, List, Union
 
-from eNMS.controller import controller
-from eNMS.database.dialect import Column, LargeString, MutableDict, SmallString
+from eNMS import app
+from eNMS.database.dialect import Column, LargeString, SmallString
 from eNMS.database.functions import fetch, fetch_all
 from eNMS.database.associations import (
     pool_device_table,
     pool_link_table,
     pool_user_table,
-    job_device_table,
-    job_pool_table,
+    run_pool_table,
+    run_device_table,
+    service_device_table,
+    service_pool_table,
     task_device_table,
     task_pool_table,
 )
@@ -22,11 +23,10 @@ from eNMS.properties.objects import pool_link_properties, pool_device_properties
 
 class Object(AbstractBase):
 
-    __tablename__ = "Object"
+    __tablename__ = "object"
     type = Column(SmallString)
-    __mapper_args__ = {"polymorphic_identity": "Object", "polymorphic_on": type}
+    __mapper_args__ = {"polymorphic_identity": "object", "polymorphic_on": type}
     id = Column(Integer, primary_key=True)
-    hidden = Column(Boolean, default=False)
     name = Column(SmallString, unique=True)
     subtype = Column(SmallString)
     description = Column(SmallString)
@@ -35,14 +35,14 @@ class Object(AbstractBase):
     vendor = Column(SmallString)
 
 
-CustomDevice: Any = type(
+CustomDevice = type(
     "CustomDevice",
     (Object,),
     {
-        "__tablename__": "CustomDevice",
-        "__mapper_args__": {"polymorphic_identity": "CustomDevice"},
-        "parent_cls": "Object",
-        "id": Column(Integer, ForeignKey("Object.id"), primary_key=True),
+        "__tablename__": "custom_device",
+        "__mapper_args__": {"polymorphic_identity": "custom_device"},
+        "parent_type": "object",
+        "id": Column(Integer, ForeignKey("object.id"), primary_key=True),
         **{
             property: Column(
                 {
@@ -53,7 +53,7 @@ CustomDevice: Any = type(
                 }[values["type"]],
                 default=values["default"],
             )
-            for property, values in controller.custom_properties.items()
+            for property, values in app.custom_properties.items()
         },
     },
 )
@@ -61,10 +61,10 @@ CustomDevice: Any = type(
 
 class Device(CustomDevice):
 
-    __tablename__ = "Device"
-    __mapper_args__ = {"polymorphic_identity": "Device"}
+    __tablename__ = "device"
+    __mapper_args__ = {"polymorphic_identity": "device"}
     class_type = "device"
-    parent_cls = "CustomDevice"
+    parent_type = "custom_device"
     id = Column(Integer, ForeignKey(CustomDevice.id), primary_key=True)
     icon = Column(SmallString, default="router")
     operating_system = Column(SmallString)
@@ -78,89 +78,107 @@ class Device(CustomDevice):
     enable_password = Column(SmallString)
     netmiko_driver = Column(SmallString, default="cisco_ios")
     napalm_driver = Column(SmallString, default="ios")
-    configurations = Column(MutableDict)
-    current_configuration = Column(LargeString)
+    configuration = Column(LargeString)
+    operational_data = Column(LargeString)
     last_failure = Column(SmallString, default="Never")
     last_status = Column(SmallString, default="Never")
     last_update = Column(SmallString, default="Never")
-    last_runtime = Column(Float)
-    jobs = relationship("Job", secondary=job_device_table, back_populates="devices")
-    results = relationship("Result", back_populates="device")
+    last_runtime = Column(SmallString)
+    last_duration = Column(SmallString)
+    services = relationship(
+        "Service", secondary=service_device_table, back_populates="devices"
+    )
+    runs = relationship("Run", secondary=run_device_table, back_populates="devices")
     tasks = relationship("Task", secondary=task_device_table, back_populates="devices")
     pools = relationship("Pool", secondary=pool_device_table, back_populates="devices")
 
     @property
-    def view_properties(self) -> Dict[str, Any]:
+    def view_properties(self):
         return {
             property: getattr(self, property)
             for property in ("id", "name", "icon", "latitude", "longitude")
         }
 
-    def update(self, **kwargs: Any) -> None:
+    @property
+    def ui_name(self):
+        return f"{self.name} ({self.model})" if self.model else self.name
+
+    def update(self, **kwargs):
         super().update(**kwargs)
         if kwargs.get("dont_update_pools", False):
             return
-        for pool in fetch_all("Pool"):
+        for pool in fetch_all("pool"):
             if pool.never_update:
                 continue
-            if pool.object_match(self):
+            match = pool.object_match(self)
+            if match and self not in pool.devices:
                 pool.devices.append(self)
-            elif self in pool.devices:
+                pool.device_number += 1
+            if self in pool.devices and not match:
                 pool.devices.remove(self)
+                pool.device_number -= 1
 
-    def get_configurations(self) -> dict:
-        return {
-            str(date): configuration
-            for date, configuration in self.configurations.items()
-        }
+    def generate_row(self, table):
+        return [
+            f"""
+            <ul class="pagination pagination-lg" style="margin: 0px; width: 300px">
+          <li>
+            <button type="button" class="btn btn-info"
+            onclick="showDeviceNetworkData({self.row_properties})"
+            data-tooltip="Network Data"
+              ><span class="glyphicon glyphicon-cog"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-info"
+            onclick="showDeviceResultsPanel({self.row_properties})"
+            data-tooltip="Results"
+              ><span class="glyphicon glyphicon-list-alt"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-success"
+            onclick="showPanel('device_connection', '{self.id}')"
+            data-tooltip="Connection"
+              ><span class="glyphicon glyphicon-console"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showTypePanel('device', '{self.id}')" data-tooltip="Edit"
+              ><span class="glyphicon glyphicon-edit"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showTypePanel('device', '{self.id}', 'duplicate')"
+            data-tooltip="Duplicate"
+              ><span class="glyphicon glyphicon-duplicate"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-danger"
+            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
+              ><span class="glyphicon glyphicon-trash"></span
+            ></button>
+          </li>
+        </ul>"""
+        ]
 
-    def generate_row(self, table: str) -> List[str]:
-        if table == "device":
-            return [
-                f"""<button type="button" class="btn btn-info btn-xs"
-                onclick="showResultsPanel('{self.id}', '{self.name}', 'device')">
-                </i>Results</a></button>""",
-                f"""<button type="button" class="btn btn-success btn-xs"
-                onclick="showPanel('connection', '{self.id}')">Connect</button>""",
-                f"""<button type="button" class="btn btn-primary btn-xs"
-                onclick="showTypePanel('device', '{self.id}')">Edit</button>""",
-                f"""<button type="button" class="btn btn-primary btn-xs"
-                onclick="showTypePanel('device', '{self.id}', 'duplicate')">
-                Duplicate</button>""",
-                f"""<button type="button" class="btn btn-danger btn-xs"
-                onclick="showDeletionPanel('device', '{self.id}', '{self.name}')">
-                Delete</button>""",
-            ]
-        else:
-            return [
-                f"""<button type="button" class="btn btn-primary btn-xs"
-                onclick="showConfigurationPanel('{self.id}', '{self.name}')">
-                Configuration</button>"""
-                if self.configurations
-                else "",
-                f"""<label class="btn btn-default btn-xs btn-file"
-                style="width:100%;"><a href="/download_configuration/{self.name}">
-                Download</a></label>"""
-                if self.configurations
-                else "",
-                f"""<button type="button" class="btn btn-primary btn-xs"
-                onclick="showTypePanel('device', '{self.id}')">Edit</button>""",
-            ]
-
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"{self.name} ({self.model})" if self.model else self.name
 
 
 class Link(Object):
 
-    __tablename__ = "Link"
-    __mapper_args__ = {"polymorphic_identity": "Link"}
+    __tablename__ = "link"
+    __mapper_args__ = {"polymorphic_identity": "link"}
     class_type = "link"
-    parent_cls = "Object"
-    id = Column(Integer, ForeignKey("Object.id"), primary_key=True)
+    parent_type = "object"
+    id = Column(Integer, ForeignKey("object.id"), primary_key=True)
     color = Column(SmallString, default="#000000")
-    source_id = Column(Integer, ForeignKey("Device.id"))
-    destination_id = Column(Integer, ForeignKey("Device.id"))
+    source_id = Column(Integer, ForeignKey("device.id"))
+    destination_id = Column(Integer, ForeignKey("device.id"))
     source = relationship(
         Device,
         primaryjoin=source_id == Device.id,
@@ -175,11 +193,11 @@ class Link(Object):
     destination_name = association_proxy("destination", "name")
     pools = relationship("Pool", secondary=pool_link_table, back_populates="links")
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs):
         self.update(**kwargs)
 
     @property
-    def view_properties(self) -> Dict[str, Any]:
+    def view_properties(self):
         node_properties = ("id", "longitude", "latitude")
         return {
             **{
@@ -196,11 +214,11 @@ class Link(Object):
             },
         }
 
-    def update(self, **kwargs: Any) -> None:
+    def update(self, **kwargs):
         if "source_name" in kwargs:
-            kwargs["source"] = fetch("Device", name=kwargs.pop("source_name")).id
+            kwargs["source"] = fetch("device", name=kwargs.pop("source_name")).id
             kwargs["destination"] = fetch(
-                "Device", name=kwargs.pop("destination_name")
+                "device", name=kwargs.pop("destination_name")
             ).id
         kwargs.update(
             {"source_id": kwargs["source"], "destination_id": kwargs["destination"]}
@@ -208,7 +226,7 @@ class Link(Object):
         super().update(**kwargs)
         if kwargs.get("dont_update_pools", False):
             return
-        for pool in fetch_all("Pool"):
+        for pool in fetch_all("pool"):
             if pool.never_update:
                 continue
             if pool.object_match(self):
@@ -216,26 +234,40 @@ class Link(Object):
             elif self in pool.links:
                 pool.links.remove(self)
 
-    def generate_row(self, table: str) -> List[str]:
+    def generate_row(self, table):
         return [
-            f"""<button type="button" class="btn btn-primary btn-xs"
-            onclick="showTypePanel('link', '{self.id}')">Edit</button>""",
-            f"""<button type="button" class="btn btn-primary btn-xs"
-            onclick="showTypePanel('link', '{self.id}', 'duplicate')">Duplicate
-            </button>""",
-            f"""<button type="button" class="btn btn-danger btn-xs"
-            onclick="showDeletionPanel('link', '{self.id}'), '{self.name}'">
-            Delete</button>""",
+            f"""
+            <ul class="pagination pagination-lg" style="margin: 0px; width: 150px">
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showTypePanel('link', '{self.id}')" data-tooltip="Edit"
+              ><span class="glyphicon glyphicon-edit"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showTypePanel('link', '{self.id}', 'duplicate')"
+            data-tooltip="Duplicate"
+              ><span class="glyphicon glyphicon-duplicate"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-danger"
+            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
+              ><span class="glyphicon glyphicon-trash"></span
+            ></button>
+          </li>
+        </ul>"""
         ]
 
 
-AbstractPool: Any = type(
+AbstractPool = type(
     "AbstractPool",
     (AbstractBase,),
     {
-        "__tablename__": "AbstractPool",
-        "type": "AbstractPool",
-        "__mapper_args__": {"polymorphic_identity": "AbstractPool"},
+        "__tablename__": "abstract_pool",
+        "type": "abstract_pool",
+        "__mapper_args__": {"polymorphic_identity": "abstract_pool"},
         "id": Column(Integer, primary_key=True),
         **{
             **{
@@ -261,9 +293,9 @@ AbstractPool: Any = type(
 
 class Pool(AbstractPool):
 
-    __tablename__ = type = "Pool"
-    parent_cls = "AbstractPool"
-    id = Column(Integer, ForeignKey("AbstractPool.id"), primary_key=True)
+    __tablename__ = type = "pool"
+    parent_type = "abstract_pool"
+    id = Column(Integer, ForeignKey("abstract_pool.id"), primary_key=True)
     name = Column(SmallString, unique=True)
     last_modified = Column(SmallString)
     description = Column(SmallString)
@@ -271,43 +303,71 @@ class Pool(AbstractPool):
     devices = relationship(
         "Device", secondary=pool_device_table, back_populates="pools"
     )
+    device_number = Column(Integer, default=0)
     links = relationship("Link", secondary=pool_link_table, back_populates="pools")
+    link_number = Column(Integer, default=0)
     latitude = Column(SmallString, default="0.0")
     longitude = Column(SmallString, default="0.0")
-    jobs = relationship("Job", secondary=job_pool_table, back_populates="pools")
+    services = relationship(
+        "Service", secondary=service_pool_table, back_populates="pools"
+    )
+    runs = relationship("Run", secondary=run_pool_table, back_populates="pools")
     tasks = relationship("Task", secondary=task_pool_table, back_populates="pools")
     users = relationship("User", secondary=pool_user_table, back_populates="pools")
-    never_update = Column(Boolean, default=True)
+    never_update = Column(Boolean, default=False)
 
-    def update(self, **kwargs: Any) -> None:
+    def update(self, **kwargs):
         super().update(**kwargs)
         self.compute_pool()
 
-    def generate_row(self, table: str) -> List[str]:
+    def generate_row(self, table):
         return [
-            f"""<button type="button" class="btn btn-info btn-xs"
-            onclick="showPoolView('{self.id}')">
-            Visualize</button>""",
-            f"""<button type="button" class="btn btn-primary btn-xs"
-            onclick="showTypePanel('pool', '{self.id}')">
-            Edit</button>""",
-            f"""<button type="button" class="btn btn-primary btn-xs"
-            onclick="updatePools('{self.id}')">Update</button>""",
-            f"""<button type="button" class="btn btn-primary btn-xs"
-            onclick="showTypePanel('pool', '{self.id}', 'duplicate')">
-            Duplicate</button>""",
-            f"""<button type="button" class="btn btn-primary btn-xs"
-            onclick="showPoolObjectsPanel('{self.id}')">Edit objects</button>""",
-            f"""<button type="button" class="btn btn-danger btn-xs"
-            onclick="showDeletionPanel('pool', '{self.id}', '{self.name}')"
-            >Delete</button>""",
+            f"""
+            <ul class="pagination pagination-lg" style="margin: 0px; width: 300px">
+          <li>
+            <button type="button" class="btn btn-info"
+            onclick="showPoolView('{self.id}')" data-tooltip="Internal View"
+              ><span class="glyphicon glyphicon-eye-open"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showPoolObjectsPanel('{self.id}')" data-tooltip="Pool Objects"
+              ><span class="glyphicon glyphicon-wrench"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="updatePools('{self.id}')" data-tooltip="Update"
+              ><span class="glyphicon glyphicon-refresh"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showTypePanel('pool', '{self.id}')" data-tooltip="Edit"
+              ><span class="glyphicon glyphicon-edit"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary"
+            onclick="showTypePanel('pool', '{self.id}', 'duplicate')"
+            data-tooltip="Duplicate"
+              ><span class="glyphicon glyphicon-duplicate"></span
+            ></button>
+          </li>
+          <li>
+            <button type="button" class="btn btn-danger"
+            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
+              ><span class="glyphicon glyphicon-trash"></span
+            ></button>
+          </li></ul>"""
         ]
 
     @property
-    def object_number(self) -> str:
-        return f"{len(self.devices)} devices - {len(self.links)} links"
+    def object_number(self):
+        return f"{self.device_number} devices - {self.link_number} links"
 
-    def property_match(self, obj: Union[Device, Link], property: str) -> bool:
+    def property_match(self, obj, property):
         pool_value = getattr(self, f"{obj.class_type}_{property}")
         object_value = str(getattr(obj, property))
         match = getattr(self, f"{obj.class_type}_{property}_match")
@@ -320,7 +380,7 @@ class Pool(AbstractPool):
         else:
             return bool(search(pool_value, object_value))
 
-    def object_match(self, obj: Union[Device, Link]) -> bool:
+    def object_match(self, obj):
         properties = (
             pool_device_properties
             if obj.class_type == "device"
@@ -329,8 +389,10 @@ class Pool(AbstractPool):
         operator = all if self.operator == "all" else any
         return operator(self.property_match(obj, property) for property in properties)
 
-    def compute_pool(self) -> None:
+    def compute_pool(self):
         if self.never_update:
             return
-        self.devices = list(filter(self.object_match, fetch_all("Device")))
-        self.links = list(filter(self.object_match, fetch_all("Link")))
+        self.devices = list(filter(self.object_match, fetch_all("device")))
+        self.device_number = len(self.devices)
+        self.links = list(filter(self.object_match, fetch_all("link")))
+        self.link_number = len(self.links)

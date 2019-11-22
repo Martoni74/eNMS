@@ -55,6 +55,14 @@
       rel="stylesheet"
     />
     <link
+      href="{{ url_for('static', filename='lib/base/codemirror/codemirror.min.css') }}"
+      rel="stylesheet"
+    />
+    <link
+      href="{{ url_for('static', filename='lib/base/select2/select2.min.css') }}"
+      rel="stylesheet"
+    />
+    <link
       href="{{ url_for('static', filename='lib/base/gentelella/gentelella.min.css') }}"
       rel="stylesheet"
     />
@@ -85,12 +93,16 @@
     {% block javascripts %}
     <script>
       const page = "{{ endpoint }}";
-      const documentationUrl = "{{ documentation_url }}";
-      const parameters = {{ parameters|tojson|safe }};
+      const propertyTypes = {{ property_types|tojson|safe }};
       const formProperties = {{ form_properties|tojson|safe }};
+      const tableProperties = {{ table_properties|tojson|safe }};
+      const filteringProperties = {{ filtering_properties|tojson|safe }};
       const names = {{ names|tojson|safe }};
       const relations = {{ relations|tojson|safe }};
+      const relationships = {{ relationships|tojson|safe }};
+      const serviceTypes = {{ service_types|tojson|safe }};
       let action = {};
+      let config = {{ config|tojson|safe }};
       let csrf_token = "{{ csrf_token() }}";
     </script>
     <script src="{{ url_for('static', filename='lib/base/jquery/jquery.min.js') }}"></script>
@@ -102,12 +114,14 @@
     <script src="{{ url_for('static', filename='lib/base/datatables/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/nprogress/nprogress.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/alertify/alertify.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='lib/base/parsley/parsley.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/smart-wizard/smart-wizard.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/diffview/diffview.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/vis/vis.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/jspanel/jspanel.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/base/jspanel/jspanel.tooltip.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/base/jsoneditor/jsoneditor.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/base/codemirror/codemirror.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/base/select2/select2.min.js') }}"></script>
     <script src="{{ url_for('static', filename='base.js') }}"></script>
     <script src="{{ url_for('static', filename='inventory.js') }}"></script>
     <script src="{{ url_for('static', filename='automation.js') }}"></script>

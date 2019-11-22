@@ -1,22 +1,15 @@
 from sqlalchemy import Boolean, event, Float, inspect, Integer, PickleType
-from sqlalchemy.engine.base import Connection
-from sqlalchemy.ext.declarative.api import DeclarativeMeta
 from sqlalchemy.orm.collections import InstrumentedList
-from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.types import JSON
-from typing import Any
 
-from eNMS.controller import controller
+from eNMS.database import Base
 from eNMS.models import model_properties, models, property_types, relationships
-from eNMS.database.base import Base
-from eNMS.database.functions import fetch_all
-from eNMS.models.automation import Workflow
 from eNMS.properties import private_properties
 from eNMS.properties.database import dont_track_changes
 
 
 @event.listens_for(Base, "mapper_configured", propagate=True)
-def model_inspection(mapper: Mapper, cls: DeclarativeMeta) -> None:
+def model_inspection(mapper, cls):
     name = cls.__tablename__
     for col in cls.__table__.columns:
         model_properties[name].append(col.key)
@@ -32,10 +25,10 @@ def model_inspection(mapper: Mapper, cls: DeclarativeMeta) -> None:
             }.get(type(col.type), "str")
             if col.key not in property_types:
                 property_types[col.key] = column_type
-    if hasattr(cls, "parent_cls"):
-        model_properties[name].extend(model_properties[cls.parent_cls])
-    if "Service" in name and name != "Service":
-        model_properties[name].extend(model_properties["Service"])
+    if hasattr(cls, "parent_type"):
+        model_properties[name].extend(model_properties[cls.parent_type])
+    if "service" in name and name != "service":
+        model_properties[name].extend(model_properties["service"])
     model = {name: cls, name.lower(): cls}
     models.update(model)
     for relation in mapper.relationships:
@@ -48,26 +41,19 @@ def model_inspection(mapper: Mapper, cls: DeclarativeMeta) -> None:
         }
 
 
-def configure_events() -> None:
-    @event.listens_for(Base, "init", propagate=True)
-    def log_instance_creation(target: Base, args: tuple, kwargs: dict) -> None:
-        if "type" not in target.__dict__ or "log" in target.type:
-            return
-        controller.log(
-            "info", f"CREATION: {target.__dict__['type']} '{kwargs['name']}'"
-        )
+def configure_events(app):
+    @event.listens_for(Base, "after_insert", propagate=True)
+    def log_instance_creation(mapper, connection, target):
+        if hasattr(target, "name"):
+            app.log("info", f"CREATION: {target.type} '{target.name}'")
 
     @event.listens_for(Base, "before_delete", propagate=True)
-    def log_instance_deletion(
-        mapper: Mapper, connection: Connection, target: Base
-    ) -> None:
+    def log_instance_deletion(mapper, connection, target):
         name = getattr(target, "name", target.id)
-        controller.log("info", f"DELETION: {target.type} '{name}'")
+        app.log("info", f"DELETION: {target.type} '{name}'")
 
     @event.listens_for(Base, "before_update", propagate=True)
-    def log_instance_update(
-        mapper: Mapper, connection: Connection, target: Base
-    ) -> None:
+    def log_instance_update(mapper, connection, target):
         state, changelog = inspect(target), []
         for attr in state.attrs:
             if attr.key in private_properties or attr.key in dont_track_changes:
@@ -89,12 +75,4 @@ def configure_events() -> None:
             changelog.append(change)
         if changelog:
             name, changes = getattr(target, "name", target.id), " | ".join(changelog)
-            controller.log("info", f"UPDATE: {target.type} '{name}': ({changes})")
-
-    @event.listens_for(Workflow.name, "set")
-    def workflow_name_update(
-        workflow: Base, new_name: str, old_name: str, *args: Any
-    ) -> None:
-        for job in fetch_all("Job"):
-            if old_name in job.positions:
-                job.positions[new_name] = job.positions.pop(old_name)
+            app.log("info", f"UPDATE: {target.type} '{name}': ({changes})")

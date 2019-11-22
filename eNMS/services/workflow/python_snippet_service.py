@@ -1,25 +1,22 @@
-from sqlalchemy import Boolean, ForeignKey, Integer
-from typing import Optional
-from wtforms import BooleanField, HiddenField, StringField
+from sqlalchemy import ForeignKey, Integer
+from wtforms import HiddenField, StringField
 from wtforms.widgets import TextArea
 
 from eNMS.database.dialect import Column, LargeString
 from eNMS.forms.automation import ServiceForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.models.automation import Service
 
 
 class PythonSnippetService(Service):
 
-    __tablename__ = "PythonSnippetService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = Column(Boolean, default=False)
+    __tablename__ = "python_snippet_service"
+    pretty_name = "Python Snippet"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     source_code = Column(LargeString)
 
-    __mapper_args__ = {"polymorphic_identity": "PythonSnippetService"}
+    __mapper_args__ = {"polymorphic_identity": "python_snippet_service"}
 
-    def job(self, run: "Run", payload: dict, device: Optional[Device] = None) -> dict:
+    def job(self, run, payload, device=None):
 
         try:
             code_object = compile(run.source_code, "user_python_code", "exec")
@@ -70,8 +67,7 @@ class PythonSnippetService(Service):
 
 
 class PythonSnippetForm(ServiceForm):
-    form_type = HiddenField(default="PythonSnippetService")
-    has_targets = BooleanField("Has Target Devices")
+    form_type = HiddenField(default="python_snippet_service")
     source_code = StringField(
         widget=TextArea(),
         render_kw={"rows": 15},

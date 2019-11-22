@@ -1,0 +1,4581 @@
+- color: pink
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Start point of a workflow
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-01 01:36:02.097383'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] Start'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    Iteration Services Test Workflow: ['-359', '-163']
+    'Regression Workflow 1: Netmiko with validation and retries': [-432, -14]
+    'Regression Workflow 2: Separate Failure - Success paths': [-424, 53]
+    'Regression Workflow 3: Napalm getters (postprocessing)': [-412, 74]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-483, -109]
+    'Regression Workflow 5: VRF creation and deletion with Napalm': !!python/tuple [
+      0, 0]
+    'Regression Workflow 6: Ansible with Validation': [-651, -26]
+    'Regression Workflow 7: Payload Extraction & Validation': !!python/tuple [0, 0]
+    'Regression Workflow 8: Payload Extraction with Operations': !!python/tuple [
+      0, 0]
+    'Regression Workflow 9: Operational Data Backup': [-712, 159]
+    'Regression Workflow A: get_var, set_var, get_result': [-630, -54]
+    'Regression Workflow B: Napalm getters validation': !!python/tuple [0, 0]
+    'Regression Workflow C: Advanced multiprocessing': [-638, -8]
+    'Regression Workflow D: Prompts': [-219, 32]
+    'Regression Workflow E: Iteration Targets': [-431, -65]
+    'Regression Workflow F S1: Subworkflow of Workflow': !!python/tuple [0, 0]
+    'Regression Workflow F S2: Access Variables from Parent Workflow': !!python/tuple [
+      0, 0]
+    'Regression Workflow F: Workflow of Workflows': [-882, 246]
+    Workflow with device and value iteration: [0, 0]
+    Workflow with iteration target subworkflows: [-118, 4]
+    Workflow with iteration targets: [0, 0]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm': [
+      -611, 2]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow': [
+      -418, -147]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2: Access Variables from Parent Workflow': [
+      -253, -110]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [-115, -305]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [-661, -226]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [-604, 9]
+    iteration_devices_workflow: ['-164', '15']
+  result_postprocessing: ''
+  scoped_name: Start
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: swiss_army_knife_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- color: pink
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: End point of a workflow
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-01 11:40:22.000682'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] End'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    Iteration Services Test Workflow: ['-9', '294']
+    'Regression Workflow 1: Netmiko with validation and retries': [69, -3]
+    'Regression Workflow 2: Separate Failure - Success paths': [735, 286]
+    'Regression Workflow 3: Napalm getters (postprocessing)': [676, 108]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-530, 107]
+    'Regression Workflow 5: VRF creation and deletion with Napalm': !!python/tuple [
+      0, 0]
+    'Regression Workflow 6: Ansible with Validation': [600, 4]
+    'Regression Workflow 7: Payload Extraction & Validation': !!python/tuple [0, 0]
+    'Regression Workflow 8: Payload Extraction with Operations': !!python/tuple [
+      0, 0]
+    'Regression Workflow 9: Operational Data Backup': [469, 69]
+    'Regression Workflow A: get_var, set_var, get_result': [-609, 21]
+    'Regression Workflow B: Napalm getters validation': !!python/tuple [0, 0]
+    'Regression Workflow C: Advanced multiprocessing': [619, -40]
+    'Regression Workflow D: Prompts': [651, 0]
+    'Regression Workflow E: Iteration Targets': [-432, 24]
+    'Regression Workflow F S1: Subworkflow of Workflow': !!python/tuple [0, 0]
+    'Regression Workflow F S2: Access Variables from Parent Workflow': !!python/tuple [
+      0, 0]
+    'Regression Workflow F: Workflow of Workflows': [-807, 243]
+    T: !!python/tuple [500, 0]
+    TEST: !!python/tuple [500, 0]
+    TEST2: !!python/tuple [500, 0]
+    Workflow with device and value iteration: [500, 0]
+    Workflow with iteration target subworkflows: [617, 0]
+    Workflow with iteration targets: [500, 0]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm': [
+      -623, 83]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow': [
+      -447, 191]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2: Access Variables from Parent Workflow': [
+      -274, 112]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [279, 262]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [-688, -153]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [-600, 63]
+    iteration_devices_workflow: ['651', '20']
+  result_postprocessing: ''
+  scoped_name: End
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: swiss_army_knife_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Monitor eNMS cluster
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-11 13:51:13.461232'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: cluster_monitoring
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: cluster_monitoring
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: swiss_army_knife_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Push configurations to Git
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-03 16:07:34.697578'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 9: Operational Data Backup] Push Configurations to Git'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow 9: Operational Data Backup': [207, 117]
+  result_postprocessing: ''
+  scoped_name: Push Configurations to Git
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: true
+  skip_query: ''
+  time_between_retries: 10
+  type: swiss_army_knife_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- a_dict: {}
+  a_float: 5.0
+  a_list: []
+  an_integer: 10
+  boolean1: true
+  boolean2: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  custom_integer: 0
+  delete_spaces_before_matching: false
+  description: Example
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  exclusion_field: d
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  ip_address: 10.1.1.1
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-02 10:16:48.005751'
+  mac_address: FF:FF:FF:FF:FF:FF
+  mail_address: aaa@gmail.com
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] Example Service (does nothing)'
+  negative_logic: false
+  notification_header: ''
+  number_in_range: 7
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow 2: Separate Failure - Success paths': [741, 106]
+    'Regression Workflow C: Advanced multiprocessing': [-266, -204]
+  regex: ''
+  result_postprocessing: ''
+  scoped_name: Example Service (does nothing)
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  string1: cisco
+  string2: s2
+  time_between_retries: 10
+  type: example_service
+  url: https://www.google.fr/
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: Configure BGP Peering with Napalm
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-13 20:54:58.539660'
+  local_as: 100
+  loopback: Lo100
+  loopback_ip: 100.1.1.1
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow C: Advanced multiprocessing] napalm_configure_bgp_1'
+  negative_logic: false
+  neighbor_ip: 100.1.2.1
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow C: Advanced multiprocessing': [299, -170]
+  remote_as: 200
+  result_postprocessing: ''
+  scoped_name: napalm_configure_bgp_1
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: true
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  type: configure_bgp_service
+  validation_method: none
+  vendor: ''
+  vrf_name: configure_BGP_test
+  waiting_time: 100
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: Configuration Backup using NAPALM
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: eos
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-03 16:03:29.843088'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[Regression Workflow 9: Operational Data Backup] Configuration Backup (NAPALM)'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    'Regression Workflow 9: Operational Data Backup': [-259, 351]
+  regex_pattern_1: ''
+  regex_pattern_2: ''
+  regex_pattern_3: ''
+  regex_replace_1: ''
+  regex_replace_2: ''
+  regex_replace_3: ''
+  result_postprocessing: ''
+  scoped_name: Configuration Backup (NAPALM)
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: true
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_backup_service
+  use_device_driver: true
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  commit_configuration: false
+  config_mode: false
+  config_mode_command: ''
+  content: vrf definition test
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Create a VRF "test" with Netmiko
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  exit_config_mode: true
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-04 11:01:33.553474'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 4: VRF creation and deletion with Netmiko] netmiko_create_vrf_test'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-4, -120]
+  result_postprocessing: ''
+  scoped_name: netmiko_create_vrf_test
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: false
+  strip_prompt: false
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_configuration_service
+  use_device_driver: true
+  validation_method: none
+  vendor: Arista
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: true
+  color: '#D2E5FF'
+  command: show vrf
+  config_mode: false
+  content_match: test
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Check that the vrf "test" is configured
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-10 09:46:36.865576'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 4: VRF creation and deletion with Netmiko] netmiko_check_vrf_test'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    Iteration Services Test Workflow: ['147', '-14']
+    'Regression Workflow 2: Separate Failure - Success paths': ['84', '-3']
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [445, -37]
+    'Regression Workflow 5: VRF creation and deletion with Napalm': ['0', '-50']
+    'Regression Workflow A: get_var, set_var, get_result': ['355', '-25']
+    iteration_devices_workflow: ['414', '-154']
+  result_postprocessing: ''
+  scoped_name: netmiko_check_vrf_test
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  commit_configuration: false
+  config_mode: false
+  config_mode_command: ''
+  content: no vrf definition test
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Delete VRF "test"
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  exit_config_mode: true
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-01 11:40:18.423301'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 4: VRF creation and deletion with Netmiko] netmiko_delete_vrf_test'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [476, 119]
+    'Regression Workflow 5: VRF creation and deletion with Napalm': ['0', '50']
+  result_postprocessing: ''
+  scoped_name: netmiko_delete_vrf_test
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: false
+  strip_prompt: false
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_configuration_service
+  use_device_driver: true
+  validation_method: none
+  vendor: Arista
+  waiting_time: 1
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf
+  config_mode: false
+  content_match: test
+  content_match_regex: true
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Check that the vrf "test" is NOT configured
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin, Columbus]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-10 09:49:57.713796'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] Netmiko: Check VRF (test) does not exist'
+  negative_logic: true
+  notification_header: ''
+  number_of_retries: 2
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow 2: Separate Failure - Success paths': [-194, 225]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-35, 151]
+    'Regression Workflow 5: VRF creation and deletion with Napalm': ['0', '150']
+    iteration_devices_workflow: ['337', '-145']
+  result_postprocessing: ''
+  scoped_name: 'Netmiko: Check VRF (test) does not exist'
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  start_new_connection: true
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 1
+  timeout: 3
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- action: load_merge_candidate
+  close_connection: false
+  color: '#D2E5FF'
+  content: "vrf definition napalm\r\n"
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: Create a VRF "test" with Napalm
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: eos
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-10 13:35:44.715460'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF
+    creation and deletion with Napalm] napalm_create_vrf_test'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  optional_args: {}
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm': [
+      -301, -128]
+  result_postprocessing: ''
+  scoped_name: napalm_create_vrf_test
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 10
+  type: napalm_configuration_service
+  use_device_driver: true
+  validation_method: none
+  vendor: Arista
+  waiting_time: 0
+- call_type: GET
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Use REST call is_alive
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Columbus]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  headers: {}
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-02 10:15:31.918007'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[Shared] REST API: call *is_alive* endpoint'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  params: {verify: 'false'}
+  payload:
+    a: b
+    c: ['1', '2', '3']
+  pools: []
+  positions:
+    'Regression Workflow 2: Separate Failure - Success paths': [374, 278]
+    'Regression Workflow 3: Napalm getters (postprocessing)': ['-50', '0']
+    'Regression Workflow A: get_var, set_var, get_result': [-10, 157]
+    'Regression Workflow C: Advanced multiprocessing': [340, 109]
+    'Regression Workflow D: Prompts': [405, -103]
+  rest_url: http://127.0.0.1:5000/rest/is_alive
+  result_postprocessing: ''
+  scoped_name: 'REST API: call *is_alive* endpoint'
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  timeout: 15
+  type: rest_call_service
+  username: admin
+  validation_method: text
+  vendor: ''
+  verify_ssl_certificate: true
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: 'Getter: get_facts'
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: eos
+  events: []
+  getters: [get_facts]
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-02 10:14:48.331142'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] NAPALM: Get Facts'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    'Regression Workflow 2: Separate Failure - Success paths': [-102, -130]
+    'Regression Workflow 3: Napalm getters (postprocessing)': [-154, -70]
+    'Regression Workflow A: get_var, set_var, get_result': ['39', '-32']
+    'Regression Workflow F: Workflow of Workflows': [3, -51]
+  result_postprocessing: ''
+  scoped_name: 'NAPALM: Get Facts'
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 1
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: 'Getter: get_interfaces'
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: eos
+  events: []
+  getters: [get_interfaces]
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-02 10:14:58.959163'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] NAPALM: Get interfaces'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    'Regression Workflow 2: Separate Failure - Success paths': [611, -72]
+    'Regression Workflow 3: Napalm getters (postprocessing)': [-111, 213]
+    'Regression Workflow F: Workflow of Workflows': [-336, 217]
+  result_postprocessing: ''
+  scoped_name: 'NAPALM: Get interfaces'
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: true
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 1
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: 'Getter: get_interfaces_ip'
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: eos
+  events: []
+  getters: [get_interfaces_ip]
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-09-18 19:04:51.055911'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 3: Napalm getters (postprocessing)] get_interfaces_ip'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    'Regression Workflow 3: Napalm getters (postprocessing)': [221, -78]
+    'Regression Workflow F: Workflow of Workflows': [3, -51]
+  result_postprocessing: "# Will change the IPv6 of the Management Interface to ::1\r\
+    \nresults[\"result\"][\"get_interfaces_ip\"][\"Management1\"][\"ipv6\"] = \"::1\""
+  scoped_name: get_interfaces_ip
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: 'Getter: get_config'
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: eos
+  events: []
+  getters: [get_config]
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-24 14:38:04.482568'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 3: Napalm getters (postprocessing)] get_config'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    'Regression Workflow 3: Napalm getters (postprocessing)': [531, -9]
+    'Regression Workflow F: Workflow of Workflows': [3, -51]
+  result_postprocessing: ''
+  scoped_name: get_config
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Process Payload in example workflow
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-24 14:38:04.818329'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 3: Napalm getters (postprocessing)] process_payload1'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow 3: Napalm getters (postprocessing)': [360, 210]
+    'Regression Workflow F: Workflow of Workflows': [3, -51]
+  result_postprocessing: ''
+  scoped_name: process_payload1
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: swiss_army_knife_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Add devices to the payload
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-21 19:20:48.247271'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow E: Iteration Targets] Modify Payload for Iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    Iteration Services Test Workflow: ['3', '-144']
+    'Regression Workflow E: Iteration Targets': [-195, -168]
+    'Regression Workflow F: Workflow of Workflows': [-790, 110]
+    Workflow with iteration target subworkflows: [283, -152]
+  result_postprocessing: ''
+  scoped_name: Modify Payload for Iteration
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  source_code: "# Interfaces 1\r\ntargets = ['Loopback101', 'Loopback15'] if device.name\
+    \ == \"Washington\" else ['Loopback9', 'Loopback1000']\r\nset_var('Interfaces\
+    \ 1', targets, device=device.name)\r\n\r\n# Derived Devices\r\nset_var(\"Derived\
+    \ Devices\", [\"Washington\", \"Austin\"], device=device.name)\r\n\r\n# Interfaces\
+    \ 2\r\nset_var('Interfaces 2', ['Loopback333', 'Loopback334'])\r\nsave_result(True,\
+    \ {})"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: true
+  color: '#D2E5FF'
+  command: show ip route
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Show IP route
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-10 13:42:39.673781'
+  mail_recipient: antoine.fourmy@gmail.com
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation]
+    netmiko_show_ip_route'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [49, -207]
+  result_postprocessing: ''
+  scoped_name: netmiko_show_ip_route
+  send_notification: true
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Payload Variables Extraction with Regex/TextFSM
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 19:12:55.870709'
+  mail_recipient: ''
+  match1: ''
+  match2: (\d.*)/32
+  match3: "Value Filldown PROTOCOL (\\S+\\s\\S+?|\\w?)\r\nValue Filldown NETWORK (\\\
+    d+.\\d+.\\d+.\\d+)\r\nValue Filldown MASK (\\d+)\r\nValue DISTANCE (\\d+)\r\n\
+    Value METRIC (\\d+)\r\nValue DIRECT (directly)\r\nValue Required NEXT_HOP (connected|\\\
+    d+\\.\\d+\\.\\d+\\.\\d+)\r\nValue INTERFACE (\\S+)\r\n\r\nStart\r\n  ^\\s+${PROTOCOL}\\\
+    s+${NETWORK}/${MASK}\\s+(?:\\[${DISTANCE}/${METRIC}\\]|is\\s+${DIRECT})(?:.+?)${NEXT_HOP},\\\
+    s+${INTERFACE}$$ -> Next.Record"
+  match_type1: none
+  match_type2: regex
+  match_type3: textfsm
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation]
+    Payload Extraction'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  operation1: set
+  operation2: set
+  operation3: set
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [130, -95]
+  query1: get_result("netmiko_show_ip_route", device.name)["success"]
+  query2: get_result("netmiko_show_ip_route", device.name)["result"]
+  query3: get_result("netmiko_show_ip_route", device=device.name)["result"]
+  result_postprocessing: ''
+  scoped_name: Payload Extraction
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_extraction_service
+  validation_method: none
+  variable1: simple_variable
+  variable2: regex_variable
+  variable3: textfsm_variable
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Payload Validate Dict
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match:
+    value: [1.1.1.1, 2.2.2.2, 3.3.3.3, 11.11.11.11, 15.15.15.15]
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-20 07:43:42.891363'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation]
+    Payload Workflow: Validate dict via results'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [-345, -11]
+  query: get_result("Payload Extraction", device.name)["result"]["regex_variable"]
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Validate dict via results'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_validation_service
+  validation_method: dict_included
+  vendor: Arista
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: (\d\.){3}\d
+  content_match_regex: true
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Payload Validate Text
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 19:40:24.996346'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation]
+    Payload Workflow: Validate text via results'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [-233, 211]
+  query: get_result("Payload Extraction", device.name)["result"]["textfsm_variable"]["value"][0][1]
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Validate text via results'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_validation_service
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: eos
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-24 20:09:49.603685'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF
+    creation and deletion with Napalm] napalm_rollback'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm': [
+      360, 172]
+  result_postprocessing: ''
+  scoped_name: napalm_rollback
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_rollback_service
+  use_device_driver: true
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf
+  config_mode: false
+  content_match: napalm
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-03 20:31:33.242467'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF
+    creation and deletion with Napalm] netmiko_check_vrf_napalm'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow A: get_var, set_var, get_result': ['266', '161']
+    'Regression Workflow C: Advanced multiprocessing': [123, -187]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm': [
+      340, -110]
+  result_postprocessing: ''
+  scoped_name: netmiko_check_vrf_napalm
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf
+  config_mode: false
+  content_match: napalm
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-24 20:09:50.574617'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF
+    creation and deletion with Napalm] netmiko_check_no_vrf_napalm'
+  negative_logic: true
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm': [
+      -275, 196]
+    iteration_devices_workflow: ['245', '32']
+  result_postprocessing: ''
+  scoped_name: netmiko_check_no_vrf_napalm
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  command: show vrf a
+  config_mode: false
+  confirmation1: Protocols
+  confirmation2: Interfaces
+  confirmation3: bipbipbop
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-09-18 18:31:59.605812'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 2
+  multiprocessing: false
+  name: '[Regression Workflow D: Prompts] Test Netmiko Prompt Service'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow D: Prompts': [22, -74]
+  response1: show vrf b
+  response2: show vrf c
+  response3: ''
+  result_postprocessing: ''
+  scoped_name: Test Netmiko Prompt Service
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_prompts_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  command: show vrf
+  config_mode: false
+  confirmation1: Protocols
+  confirmation2: Interfaces
+  confirmation3: ''
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-19 15:41:59.683776'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow D: Prompts] Test netmiko prompts pass'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow D: Prompts': [350, 108]
+  response1: show vrf
+  response2: ''
+  response3: ''
+  result_postprocessing: ''
+  scoped_name: Test netmiko prompts pass
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_prompts_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-04 00:20:05.475732'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow A: get_var, set_var, get_result] Modify payload (no
+    device)'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow A: get_var, set_var, get_result': [-376, -138]
+  result_postprocessing: ''
+  scoped_name: Modify payload (no device)
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  source_code: "set_var(\"global_variable\", value=1050)\r\nset_var(\"variable\",\
+    \ \"variable_in_variables\", section=\"variables\")\r\nsave_result(success=True,\
+    \ result={})"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Chicago]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-04 00:20:10.984436'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow A: get_var, set_var, get_result] Modify payload (per
+    device)'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow A: get_var, set_var, get_result': [0, -144]
+  result_postprocessing: ''
+  scoped_name: Modify payload (per device)
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  source_code: "set_var(\"variable1\", 999, device=device.name)\r\nset_var(\"variable2\"\
+    , \"1000\", device=device.name, section=\"variables\")\r\nset_var(\"iteration_simple\"\
+    , \"192.168.105.5\", section=\"pools\")\r\ndevices = [\"Boston\", \"Cincinnati\"\
+    ] if device.name == \"Chicago\" else [\"Cleveland\", \"Washington\"]\r\nset_var(\"\
+    iteration_device\", devices, section=\"pools\", device=device.name)\r\nsave_result(success=True,\
+    \ result={})"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf {{get_var("iteration_simple", section="pools")}}
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: get_var("iteration_device", section="pools", device=parent_device.name)
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-21 21:10:14.657271'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow A: get_var, set_var, get_result] Show vrf with payload
+    helper'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow A: get_var, set_var, get_result': [474, -11]
+  result_postprocessing: ''
+  scoped_name: Show vrf with payload helper
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 1
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf test
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: get_var("iteration_simple", section="pools")
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-07-31 13:25:41.095217'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow A: get_var, set_var, get_result] Show vrf with python
+    query'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow A: get_var, set_var, get_result': [425, 190]
+  result_postprocessing: ''
+  scoped_name: Show vrf with python query
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf {{get_result("Payload editor, with device")["endtime"]}}
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-21 21:55:59.995214'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow A: get_var, set_var, get_result] show runtime with get_result
+    helper'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow A: get_var, set_var, get_result': [-445, 128]
+  result_postprocessing: ''
+  scoped_name: show runtime with get_result helper
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match:
+    is_alive: {is_alive: true}
+  display_only_failed_nodes: false
+  driver: eos
+  events: []
+  getters: [is_alive]
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-04 10:37:14.672735'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow B: Napalm getters validation] Getters
+    Workflow: is alive'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [-405, -99]
+  result_postprocessing: ''
+  scoped_name: 'Getters Workflow: is alive'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 1
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_equal
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {fqdn: localhost, vendor: Arista}
+  display_only_failed_nodes: false
+  driver: eos
+  events: []
+  getters: [get_facts]
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-06 22:20:19.161043'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow B: Napalm getters validation] Getters
+    Workflow: get facts'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [18, -122]
+  result_postprocessing: ''
+  scoped_name: 'Getters Workflow: get facts'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match:
+    '{{device.ip_address}}': {prefix_length: 24}
+  display_only_failed_nodes: false
+  driver: eos
+  events: []
+  getters: [get_interfaces_ip]
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-08 21:45:40.369909'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Shared] Getters Workflow: Interface IP'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [-348, -240]
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [581, 136]
+  result_postprocessing: ''
+  scoped_name: 'Getters Workflow: Interface IP'
+  send_notification: false
+  send_notification_method: mail
+  shared: true
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: eos
+  events: []
+  getters: [get_mac_address_table]
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-06 23:40:55.348647'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow B: Napalm getters validation] Getters
+    Workflow: MAC address'
+  negative_logic: true
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [-45, 144]
+  result_postprocessing: ''
+  scoped_name: 'Getters Workflow: MAC address'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_equal
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {fqdn: localhost, uptime: '666', vendor: Arista}
+  display_only_failed_nodes: false
+  driver: eos
+  events: []
+  getters: [get_facts]
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-04 10:40:41.939110'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow B: Napalm getters validation] Getters
+    Workflow: get facts failed match'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  optional_args: {}
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation'
+    : [535, -147]
+  result_postprocessing: ''
+  scoped_name: 'Getters Workflow: get facts failed match'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 60
+  type: napalm_getters_service
+  use_device_driver: true
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- arguments: ''
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: json
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {host: '{{device.ip_address}}', unreachable: 0, use_ssl: true}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-09-18 18:26:58.293827'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 2
+  multiprocessing: false
+  name: '[Regression Workflow 6: Ansible with Validation] Ansible Workflow: Arista
+    show version'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  options: {}
+  pass_device_properties: true
+  playbook_path: /media/sf_VM/eNMS/files/playbooks/arista_show_version.yml
+  pools: []
+  positions:
+    'Regression Workflow 6: Ansible with Validation': [-466, 154]
+    'Regression Workflow B: Napalm getters validation': [-30, 126]
+  result_postprocessing: ''
+  scoped_name: 'Ansible Workflow: Arista show version'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: ansible_playbook_service
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- arguments: ''
+  color: '#D2E5FF'
+  content_match: ip address\s.*/32
+  content_match_regex: true
+  conversion_method: text
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-10 18:26:51.501557'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 6: Ansible with Validation] Ansible Workflow: Arista
+    show configuration (regex match)'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  options: {}
+  pass_device_properties: true
+  playbook_path: /media/sf_VM/eNMS/files/playbooks/arista_show_running_config.yml
+  pools: []
+  positions:
+    'Regression Workflow 6: Ansible with Validation': [179, -62]
+  result_postprocessing: ''
+  scoped_name: 'Ansible Workflow: Arista show configuration (regex match)'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: ansible_playbook_service
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- arguments: ''
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: json
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {action: debug, changed: false, failed: false}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-10 18:26:36.791826'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 6: Ansible with Validation] Ansible Workflow: Arista
+    show configuration (dict match)'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  options: {}
+  pass_device_properties: true
+  playbook_path: /media/sf_VM/eNMS/files/playbooks/arista_show_running_config.yml
+  pools: []
+  positions:
+    'Regression Workflow 6: Ansible with Validation': [486, 173]
+  result_postprocessing: ''
+  scoped_name: 'Ansible Workflow: Arista show configuration (dict match)'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: ansible_playbook_service
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show version
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-13 20:58:22.190268'
+  mail_recipient: ''
+  max_processes: 10
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[Regression Workflow C: Advanced multiprocessing] Show version with multiprocessing'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow C: Advanced multiprocessing': [-367, 143]
+    'Regression Workflow F: Workflow of Workflows': [678, 52]
+  result_postprocessing: ''
+  scoped_name: Show version with multiprocessing
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show interface {{get_var('non_default_iteration_value_name')}}
+  config_mode: false
+  content_match: 255.255.255.255
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Check the iteration mechanism (interfaces)
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Austin, Washington]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: '["Loopback11","Loopback15"]'
+  iteration_variable_name: non_default_iteration_value_name
+  last_modified: '2019-10-04 14:54:34.006032'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow E: Iteration Targets] Iteration Targets Workflow - Test
+    1'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow E: Iteration Targets': [240, -144]
+  result_postprocessing: ''
+  scoped_name: Iteration Targets Workflow - Test 1
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show interface {{get_var('iteration_value')}}
+  config_mode: false
+  content_match: 255.255.255.255
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Check the iteration mechanism (interfaces)
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Austin, Washington]
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: get_var('Interfaces 1', device=device.name)
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-04 14:55:17.403338'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow E: Iteration Targets] Iteration Target Workflow - Test
+    2'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow E: Iteration Targets': [572, -4]
+  result_postprocessing: ''
+  scoped_name: Iteration Target Workflow - Test 2
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show interface {{get_var('iteration_value')}}
+  config_mode: false
+  content_match: 255.255.255.255
+  content_match_regex: false
+  conversion_method: text
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: Check the iteration mechanism (interfaces)
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: get_var("Derived Devices", device=parent_device.name)
+  iteration_devices_property: name
+  iteration_values: get_var('Interfaces 2')
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-21 19:23:12.184550'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow E: Iteration Targets] Iteration Target Workflow - Test
+    3'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow E: Iteration Targets': [556, 123]
+  result_postprocessing: ''
+  scoped_name: Iteration Target Workflow - Test 3
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 3
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: (\d\.){3}\d
+  content_match_regex: true
+  conversion_method: text
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Payload Validate Text
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 19:22:23.906505'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation]
+    Payload Workflow: Validate text via payload'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [776, 146]
+  query: get_var("textfsm_variable", device=device.name)[0][1]
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Validate text via payload'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_validation_service
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Payload Validate Dict
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match:
+    value: [1.1.1.1, 2.2.2.2, 3.3.3.3]
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 19:40:32.197054'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation]
+    Payload Workflow: Validate dict via payload'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+    : [708, -114]
+  query: get_var("regex_variable", device=device.name)
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Validate dict via payload'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_validation_service
+  validation_method: text
+  vendor: Arista
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 23:42:49.512906'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with Operations]
+    Payload Workflow: Add initial variables'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [118, -243]
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Add initial variables'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  source_code: "set_var(\"list\", [1, 2], device=device.name)\r\nset_var(\"dict\"\
+    , {\"a\": [\"o\", True, 4]}, device=device.name)\r\nsave_result(success=True,\
+    \ result={})"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 23:42:55.692116'
+  mail_recipient: ''
+  match1: ''
+  match2: ''
+  match3: ''
+  match_type1: none
+  match_type2: none
+  match_type3: none
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with Operations]
+    Payload Workflow: Extraction 1'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  operation1: set
+  operation2: append
+  operation3: update
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [619, -236]
+  query1: 'get_result("Getters Workflow: Interface IP", device=device.name)["negative_logic"]'
+  query2: 'get_result("Getters Workflow: Interface IP", device=device.name)["negative_logic"]'
+  query3: 'get_result("Getters Workflow: Interface IP", device=device.name)["match"]'
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Extraction 1'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_extraction_service
+  validation_method: none
+  variable1: boolean
+  variable2: list
+  variable3: dict
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-14 23:57:00.505853'
+  mail_recipient: ''
+  match1: ''
+  match2: ''
+  match3: ''
+  match_type1: none
+  match_type2: none
+  match_type3: none
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with Operations]
+    Payload Workflow: Extraction 2'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  operation1: append
+  operation2: extend
+  operation3: update
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [600, 70]
+  query1: get_result("Start")["state"]["completed"]
+  query2: get_result("Start")["logs"]
+  query3: get_result("Start")["state"]
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Extraction 2'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_extraction_service
+  validation_method: none
+  variable1: list
+  variable2: list
+  variable3: dict
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: \[1,2,False,1.*\]
+  content_match_regex: true
+  conversion_method: text
+  creator: admin
+  delete_spaces_before_matching: true
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-15 00:09:07.776014'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: true
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with Operations]
+    Payload Workflow: Validation 1'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [62, 62]
+  query: get_var("list", device=device.name)
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Validation 1'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_validation_service
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: '{"a": ["o", True, 4], "prefix_length": 24, "failed": 0}'
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-08-15 00:11:21.018179'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with Operations]
+    Payload Workflow: Validation 2'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+    : [-565, 68]
+  query: get_var("dict", device=device.name)
+  result_postprocessing: ''
+  scoped_name: 'Payload Workflow: Validation 2'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: payload_validation_service
+  validation_method: dict_included
+  vendor: ''
+  waiting_time: 0
+- call_type: GET
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  headers: {}
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: '["Washington", "Atlanta"]'
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-21 19:21:56.505065'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow E: Iteration Targets] Iteration Targets Workflow - Test
+    4'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  params: {}
+  payload: {}
+  pools: []
+  positions:
+    'Regression Workflow E: Iteration Targets': [-135, 91]
+  rest_url: http://127.0.0.1:5000/rest/instance/device/{{get_var('iteration_value')}}
+  result_postprocessing: ''
+  scoped_name: Iteration Targets Workflow - Test 4
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  timeout: 15
+  type: rest_call_service
+  username: admin
+  validation_method: text
+  vendor: ''
+  verify_ssl_certificate: false
+  waiting_time: 0
+- color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-11-04 03:00:20.257172'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2:
+    Access Variables from Parent Workflow] Variable Access Subworkflow: Access variable
+    from snippet'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [-179, 146]
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2: Access Variables from Parent Workflow': [
+      240, -101]
+  result_postprocessing: ''
+  scoped_name: 'Variable Access Subworkflow: Access variable from snippet'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  source_code: "result = {\r\n \"get_var\": get_var(\"Interfaces 2\"),\r\n\"version\
+    \ in parent workflow\": get_result(\"Show interfaces with Netmiko\", device=device.name,\
+    \ workflow=\"Regression Workflow F: Workflow of Workflows\"),\r\n\"napalm workflow\
+    \ from parent workflow\": get_result(\"Regression Workflow 5: VRF creation and\
+    \ deletion with Napalm\", device=device.name, workflow=\"Regression Workflow F:\
+    \ Workflow of Workflows\"),\r\n\"inside napalm workflow of parent workflow\":\
+    \ get_result(\"netmiko_check_vrf_napalm\", device=device.name, workflow=\"Regression\
+    \ Workflow 5: VRF creation and deletion with Napalm\"),\r\n}\r\nsave_result(success=True,\
+    \ result=result)"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show interface {{get_var('iteration_value')}}
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: get_var("Derived Devices", device=device.name)[0]
+  iteration_devices_property: name
+  iteration_values: 'get_result("NAPALM: Get interfaces", device=device.name)["result"]["get_interfaces"]'
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-10 23:22:44.432133'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2:
+    Access Variables from Parent Workflow] Variable Access Subworkflow: Access variables
+    for iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2: Access Variables from Parent Workflow': [
+      244, 113]
+  result_postprocessing: ''
+  scoped_name: 'Variable Access Subworkflow: Access variables for iteration'
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Poll configuration and push to gitlab
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    3b9c0900-5718-4298-afcc-67bb0a7fb3af:
+      content: "This workflow calls netmiko and napalm backup services.\r\nThe devices\
+        \ must be defined in the service, not in the workflow."
+      positions: [-280, 128]
+  last_modified: '2019-10-27 14:19:06.951859'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow 9: Operational Data Backup'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow F S1: Subworkflow of Workflow': [200, -205]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 9: Operational Data Backup'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow 9: Operational
+      Data Backup] Push Configurations to Git', '[Regression Workflow 9: Operational
+      Data Backup] Configuration Backup (NAPALM)', '[Regression Workflow 9: Operational
+      Data Backup] Retrieve Operational Data']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Create and delete a VRF with Netmiko
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    6a9299b5-7ec9-40e8-955d-408344e7ea2e:
+      alignment: left
+      content: "This service is configured with \"Close connection\".\r\nIt should\
+        \ use the same connection as in the previous service, then close it.\r\nExpected\
+        \ logs:\r\n- netmiko_check_vrf_test - DEVICE Washington : Using cached Netmiko\
+        \ connection\r\n- netmiko_check_vrf_test - DEVICE Washington : Closed netmiko\
+        \ connection\r\n"
+      positions: [603, -136]
+    735baaec-e1f2-4b17-b402-11d8ae7a0d75:
+      alignment: left
+      content: "This workflow runs on two devices :\r\n- The pool \"Washington\" that\
+        \ contains Washington.\r\n- The device \"Austin\".\r\nWashington should reach\
+        \ the end and Austin fail at the first step.\r\nAt the end of the workflow,\
+        \ the cache connection should be closed.\r\nExpected log:\r\n- Regression\
+        \ Workflow 4: VRF creation and deletion with Netmiko - DEVICE Washington :\
+        \ Closed netmiko connection"
+      positions: [-50, 6]
+    a7458a18-4812-498e-857d-b885237a6525:
+      alignment: left
+      content: "This service is configured with \"Start New Connection\".\r\nIt should\
+        \ close the connection opened at the previous service,\r\nand start a new\
+        \ one.\r\nExpected Log:\r\n- Netmiko: Check VRF (test) does not exist - DEVICE\
+        \ Washington : Closed netmiko connection\r\n- Netmiko: Check VRF (test) does\
+        \ not exist - DEVICE Washington : Opening new Netmiko connection\r\n"
+      positions: [-100, 266]
+    b5dc9b96-d0bf-4092-8e60-b82ca6db2ad6:
+      alignment: left
+      content: "This service should automatically detect that there is no\r\nlonger\
+        \ a cached connection, and recreate a new one.\r\nExpected log:\r\nnetmiko_delete_vrf_test\
+        \ - DEVICE Washington : Opening new Netmiko connection\r\n"
+      positions: [611, 213]
+    e6b81854-aece-42bf-9375-bee035a29425:
+      alignment: left
+      content: "Test:\r\n- with and without multiprocessing\r\n- devices defned as\
+        \ a combination of devices and pools.\r\nThe workflow is running on \"Austin\"\
+        \ as a device and \"Washington\", as a pool."
+      positions: [51, -208]
+  last_modified: '2019-11-05 03:34:43.490671'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: true
+  name: 'Regression Workflow 4: VRF creation and deletion with Netmiko'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: [Washington]
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [-423, -31]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 4: VRF creation and deletion with Netmiko'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow 4: VRF creation
+      and deletion with Netmiko] netmiko_create_vrf_test', '[Regression Workflow 4:
+      VRF creation and deletion with Netmiko] netmiko_check_vrf_test', '[Regression
+      Workflow 4: VRF creation and deletion with Netmiko] netmiko_delete_vrf_test',
+    '[Shared] Netmiko: Check VRF (test) does not exist']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Create and delete a VRF with Napalm
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    8108225c-9e1a-4f57-af77-e8076c8641c9:
+      alignment: left
+      content: "This workflow tests :\r\n- The configuration and rollback mechanism\
+        \ with Napalm\r\n- The connection cache mechanism. Both netmiko and napalm\
+        \ connections\r\nmust be closed at the end of the workflow"
+      positions: [-217, -229]
+  last_modified: '2019-10-10 09:44:34.931818'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow F: Workflow of Workflows] Regression Workflow 5: VRF
+    creation and deletion with Napalm'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [152, 75]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 5: VRF creation and deletion with Napalm'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[[Regression Workflow F: Workflow
+      of Workflows] Regression Workflow 5: VRF creation and deletion with Napalm]
+      napalm_create_vrf_test', '[[Regression Workflow F: Workflow of Workflows] Regression
+      Workflow 5: VRF creation and deletion with Napalm] napalm_rollback', '[[Regression
+      Workflow F: Workflow of Workflows] Regression Workflow 5: VRF creation and deletion
+      with Napalm] netmiko_check_vrf_napalm', '[[Regression Workflow F: Workflow of
+      Workflows] Regression Workflow 5: VRF creation and deletion with Napalm] netmiko_check_no_vrf_napalm']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ReST call, Napalm getters, etc
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Atlanta]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    c9ee8980-a972-4ace-a596-03eb2842c4d7:
+      content: "In get_interfaces_ip, we test the python post-processing of\r\nthe\
+        \ results by setting the IPv6 address of the Mgmt1 interface\r\nto \"::1\""
+      positions: [165, -143]
+    fa4bd6ec-c736-4b7e-afb0-f4a79b477033:
+      alignment: left
+      content: "Process payload is a Swiss Army Knife service that uses the results\
+        \ of both get_facts\r\nand get_interfaces to compute its success value.\r\n\
+        Prerequisite edges are used to ensure the order in which services are run."
+      positions: [385, 283]
+  last_modified: '2019-11-05 03:34:37.439238'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow 3: Napalm getters (postprocessing)'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [464, 224]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 3: Napalm getters (postprocessing)'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Shared] NAPALM: Get Facts', '[Shared]
+      NAPALM: Get interfaces', '[Regression Workflow 3: Napalm getters (postprocessing)]
+      get_interfaces_ip', '[Regression Workflow 3: Napalm getters (postprocessing)]
+      get_config', '[Regression Workflow 3: Napalm getters (postprocessing)] process_payload1']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Test the payload extraction and validation mechanisms
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    0593f20c-240e-4846-b37e-c03bd4630516:
+      alignment: left
+      content: "After this service, we no longer use the netmiko connection,\r\nso\
+        \ we set \"Close connection\" to true for that service.\r\nCheck that when\
+        \ running the service, the connection is indeed\r\nclosed after that service.\r\
+        \nThe service is configured with notification enabled, to test service\r\n\
+        notification INSIDE a workflow."
+      positions: [-334, -185]
+    20a6a733-4b79-4390-bf2b-ad05dbd6855f:
+      alignment: center
+      content: "Validate the result with the regex :\r\n(\\d\\.){3}\\d"
+      positions: [-232, 295]
+    3844a73f-340f-4b7a-9893-50c5b79998d9:
+      alignment: center
+      content: "Check that the \"textfsm_variable\" in the payload\r\ncan be matched\
+        \ with the \"(\\d\\.){3}\\d\" regular expression."
+      positions: [794, 255]
+    52d15bff-498b-462d-843c-a23199073858:
+      alignment: center
+      content: "Check that the results contains the dictionary\r\n{\"value\":[\"1.1.1.1\"\
+        ,\"2.2.2.2\",\"3.3.3.3\"]}\r\n"
+      positions: [-352, -84]
+    55b1e05d-4d84-4227-8774-65cf7ffd992f:
+      alignment: center
+      content: "Check that the \"regex_variable\" variable\r\nin the payload contains\
+        \ the dictionary\r\n{\"value\":[\"1.1.1.1\",\"2.2.2.2\",\"3.3.3.3\"]}\r\n"
+      positions: [743, -198]
+    cf55f702-da90-466f-9ee6-9e207a0b4808:
+      alignment: left
+      content: "This workflow uses netmiko to run a \"show ip route\", and a \"Payload\
+        \ Extraction\" service to\r\nextract data with regular expression and TextFSM.\r\
+        \nThat extracted information is stored both in the workflow payload and the\
+        \ results of the extraction\r\nservice :\r\n- the left side of the workflow\
+        \ uses the \"get_result\" method to retrieve the results and validate them.\r\
+        \n- the right side uses \"get_var\" to extract data from the payload and validate\
+        \ it.\r\nThis workflow is also used to test the RESTART mechanism. It must\
+        \ be restarted from both\r\nthe left side (validate via result) and the right\
+        \ side (validate via payload) to check that\r\nan older payload / result can\
+        \ be retrieved from the database."
+      positions: [269, 71]
+  last_modified: '2019-11-05 03:34:53.146701'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 7: Payload Extraction & Validation'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow': [
+      134, -147]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 7: Payload Extraction & Validation'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[[[Regression Workflow F: Workflow
+      of Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression
+      Workflow 7: Payload Extraction & Validation] netmiko_show_ip_route', '[[[Regression
+      Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of
+      Workflow] Regression Workflow 7: Payload Extraction & Validation] Payload Extraction',
+    '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation] Payload
+      Workflow: Validate dict via results', '[[[Regression Workflow F: Workflow of
+      Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression Workflow
+      7: Payload Extraction & Validation] Payload Workflow: Validate text via results',
+    '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow 7: Payload Extraction & Validation] Payload
+      Workflow: Validate text via payload', '[[[Regression Workflow F: Workflow of
+      Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression Workflow
+      7: Payload Extraction & Validation] Payload Workflow: Validate dict via payload']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Test the inner workflow system
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: true
+  events: []
+  include_device_results: true
+  include_link_in_summary: true
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: ip_address
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    487bfaf5-77af-47a9-ade2-c4b6eaa12304:
+      alignment: left
+      content: "Runs \"show ip int br\" on a router to get the list of interfaces.\r\
+        \nResults will be queried from a subworkflow."
+      positions: [-351, -48]
+    642dd3af-055b-47d7-bfae-a9713d51da07:
+      alignment: left
+      content: "Adds per-device loopbacks and derived devices,\r\nto be used for workflow\
+        \ iteration and to check that\r\nvariables can be accessed from within a subworkflow."
+      positions: [-822, 25]
+  last_modified: '2019-11-06 07:31:05.526000'
+  mail_recipient: antoine.fourmy@gmail.com
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow F: Workflow of Workflows'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: eos
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow F: Workflow of Workflows'
+  send_notification: true
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow F: Workflow of
+      Workflows] Regression Workflow 5: VRF creation and deletion with Napalm', '[Regression
+      Workflow E: Iteration Targets] Modify Payload for Iteration', '[Regression Workflow
+      F: Workflow of Workflows] Regression Workflow F S2: Access Variables from Parent
+      Workflow', '[Regression Workflow F: Workflow of Workflows] Regression Workflow
+      F S1: Subworkflow of Workflow', '[Regression Workflow F: Workflow of Workflows]
+      Show interfaces with Netmiko', '[Shared] NAPALM: Get interfaces']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: Workflow with separate failure - success path
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Austin, Washington, Baltimore]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    63bebf9d-b5d5-47fd-9849-4177f2517be4:
+      alignment: left
+      content: "This workflow runs on 3 devices: one router and 2 dummy devices.\r\
+        \nThe router will take the upward path, the dummy devices the downward path.\r\
+        \nBoth path rejoin at the end.\r\nTo be tested both with and without multiprocessing."
+      positions: [185, 37]
+  last_modified: '2019-10-31 01:14:45.926629'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: true
+  name: 'Regression Workflow 2: Separate Failure - Success paths'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 2: Separate Failure - Success paths'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Shared] NAPALM: Get Facts', '[Shared]
+      REST API: call *is_alive* endpoint', '[Shared] Netmiko: Check VRF (test) does
+      not exist', '[Shared] Example Service (does nothing)', '[Shared] NAPALM: Get
+      interfaces']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    ce7e6857-714e-4102-a65b-ec2d67414866:
+      content: "Test of the maximum number of run of a service in a workflow.\r\n\
+        For Test Netmiko Prompt Service, it is set to 2: it should run\r\nonce more\
+        \ after the REST service.\r\n"
+      positions: [145, -168]
+  last_modified: '2019-10-24 22:42:28.694641'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow D: Prompts'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow D: Prompts'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow D: Prompts] Test
+      Netmiko Prompt Service', '[Regression Workflow D: Prompts] Test netmiko prompts
+      pass', '[Shared] REST API: call *is_alive* endpoint']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Chicago]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    30b1954f-08d6-4799-a2be-36c5b0a07c4b:
+      alignment: left
+      content: "This workflow uses \"set_var\" to modify the payload, and get_var\
+        \ to\r\nretrieve a variable.\r\nIt also uses \"get_result\" to retrieve the\
+        \ result of a previously run job."
+      positions: [-92, -34]
+    8d64652f-dbc6-4916-ba06-a49ae0ed36fb:
+      alignment: left
+      content: "Will run on 4 \"iterated devices\" in total.\r\nTests that \"parent_device\"\
+        \ and \"device\"\r\ncan both be used from the \"Service\" tab.\r\nTests sending\
+        \ multiple commands with a Netmiko service."
+      positions: [568, -123]
+    d98b7c19-9d7b-4ddf-bada-2c47e492dbef:
+      alignment: left
+      content: "Set a variable called \"iteration_device\" that we will use in the\
+        \ following service\r\nto define iteration devices.\r\ndevices = [\"Boston\"\
+        , \"Cincinnati\"] if device.name == \"Chicago\" else [\"Cleveland\", \"Washington\"\
+        ]\r\nset_var(\"iteration_device\", devices, section=\"pools\", device=device.name)"
+      positions: [103, -224]
+  last_modified: '2019-10-24 22:42:17.981520'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow A: get_var, set_var, get_result'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow A: get_var, set_var, get_result'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow A: get_var, set_var,
+      get_result] Modify payload (no device)', '[Regression Workflow A: get_var, set_var,
+      get_result] Modify payload (per device)', '[Regression Workflow A: get_var,
+      set_var, get_result] Show vrf with payload helper', '[Regression Workflow A:
+      get_var, set_var, get_result] Show vrf with python query', '[Shared] REST API:
+      call *is_alive* endpoint', '[Regression Workflow A: get_var, set_var, get_result]
+      show runtime with get_result helper']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    006272de-91a4-49e0-9b54-9cab6e6f8768:
+      alignment: center
+      content: "Dictionary Inclusion Validation + Variable substitution :\r\n{\"{{device.ip_address}}\"\
+        :{\"prefix_length\":24}}"
+      positions: [611, 218]
+    187d6918-c286-42d7-a803-e97e05978f3e:
+      alignment: center
+      content: "Dictionary Inclusion Validation:\r\n{\"fqdn\":\"localhost\",\"vendor\"\
+        :\"Arista\"}"
+      positions: [4, -188]
+    213083b1-d7f0-4638-98aa-ca097fa10603:
+      alignment: left
+      content: "Dictionary Equality Validation: {\"is_alive\":{\"is_alive\":true}}\r\
+        \nWashington must pass, but Austin will fail (napalm timeout has\r\nbeen brought\
+        \ down to 1 to not wait too long).\r\n"
+      positions: [-391, -186]
+    4d62e069-5dfd-4e6d-b418-8c273a750b06:
+      alignment: left
+      content: "This workflow is running on two devices: Washington (vEOS) and Austin\
+        \ (dummy).\r\nIt uses NAPALM to retrieve data from a device and the validation\
+        \ mechanism.\r\nTo be tested with and without multiprocessing."
+      positions: [-13, 4]
+    a5c335bc-dced-4512-b5bc-1149ea7eec73:
+      alignment: left
+      content: "Dictionary Inclusion Validation:\r\n{\"fqdn\":\"localhost\",\"uptime\"\
+        :\"666\",\"vendor\":\"Arista\"}\r\nThis service is expected to fail, because\
+        \ this uptime is different from 666."
+      positions: [584, -212]
+    f33d8c65-c691-4aef-ae87-6bcd20a69a11:
+      alignment: center
+      content: "Test the \"Negative logic\" parameter.\r\nThe validation is set to\
+        \ \"Dictionary Equality\" and the match is \r\nan empty dictionary. This shouldn't\
+        \ match, but the negative logic\r\nis set to True, so the resulting value\
+        \ is a success."
+      positions: [-79, 230]
+  last_modified: '2019-11-05 03:35:06.311631'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow B: Napalm getters validation'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow': [
+      678, 11]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow B: Napalm getters validation'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[[[Regression Workflow F: Workflow
+      of Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression
+      Workflow B: Napalm getters validation] Getters Workflow: is alive', '[[[Regression
+      Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of
+      Workflow] Regression Workflow B: Napalm getters validation] Getters Workflow:
+      get facts', '[Shared] Getters Workflow: Interface IP', '[[[Regression Workflow
+      F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow]
+      Regression Workflow B: Napalm getters validation] Getters Workflow: MAC address',
+    '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
+      of Workflow] Regression Workflow B: Napalm getters validation] Getters Workflow:
+      get facts failed match']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    1dff7d24-0b6b-4524-a07a-26ac67e1ae2c:
+      alignment: center
+      content: "Uses Ansible to do a \"show configuration\".\r\nConvert the result\
+        \ to text and check that the result matches\r\nthe following regular expression:\
+        \ \"ip address\\s.*/32\""
+      positions: [207, -160]
+    36072c59-543f-4600-b2be-f88c366ccb79:
+      alignment: center
+      content: "Uses Ansible to do a \"show configuration\".\r\nConvert the result\
+        \ to a dictionary and check that it\r\ncontains the following dictionary:\r\
+        \n{\"action\":\"debug\",\"changed\":false,\"failed\":false}"
+      positions: [512, 269]
+    813cd109-d252-4731-99b8-7a0828883b6d:
+      alignment: left
+      content: "Uses Ansible to do a \"show version\".\r\nConvert the result to a\
+        \ dictionary (JSON conversion).\r\nCheck that the results contains the following\
+        \ dictionary (dict inclusion):\r\n{\"host\":\"{{device.ip_address}}\",\"unreachable\"\
+        :0,\"use_ssl\":true}\r\n"
+      positions: [-393, 247]
+    cb3b0740-411a-4138-a54d-31a133413526:
+      alignment: left
+      content: "This workflow :\r\n- uses the Ansible Playbook Service to run playbooks\r\
+        \n- uses the conversion mechanism to turn the output into a dictionary (JSON\
+        \ conversion)\r\n- uses the \"Text with regular expression\" and \"dictionary\
+        \ inclusion\" mechanisms to validate the result."
+      positions: [-438, -117]
+  last_modified: '2019-10-26 11:00:48.098357'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow 6: Ansible with Validation'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 6: Ansible with Validation'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow 6: Ansible with
+      Validation] Ansible Workflow: Arista show version', '[Regression Workflow 6:
+      Ansible with Validation] Ansible Workflow: Arista show configuration (regex
+      match)', '[Regression Workflow 6: Ansible with Validation] Ansible Workflow:
+      Arista show configuration (dict match)']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Jackson, PaloAlto, Austin, Washington, Chicago, SanJose, SanDiego, Dallas,
+    Houston, Baltimore, Cleveland, Cincinnati, Minneapolis, Sacramento, SanFrancisco,
+    Oakland, Denver]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {mode: LAB}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    896ba039-d33f-4af7-bf9f-282884164ae7:
+      alignment: left
+      content: "This workflow runs on 17 devices with multiprocessing activated (20\
+        \ processes).\r\nWashington is expected to pass the \"show version\" service,\
+        \ but will\r\nstill reach the end through the upward path, so all 17 devices\
+        \ must\r\nreach the \"End\" service."
+      positions: [-98, -39]
+    d36009d8-ce3a-4ce6-8766-5dc3241d777b:
+      content: The service "Napalm configure BGP" is configured to be skipped.
+      positions: [329, -230]
+  last_modified: '2019-10-24 22:58:47.232741'
+  mail_recipient: ''
+  max_processes: 20
+  maximum_runs: 1
+  multiprocessing: true
+  name: 'Regression Workflow C: Advanced multiprocessing'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow C: Advanced multiprocessing'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Shared] Example Service (does nothing)',
+    '[Regression Workflow C: Advanced multiprocessing] Show version with multiprocessing',
+    '[Shared] REST API: call *is_alive* endpoint', '[Regression Workflow C: Advanced
+      multiprocessing] napalm_configure_bgp_1']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington, Austin]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    5043ff9c-79b0-4712-a706-502724ac4e31:
+      alignment: left
+      content: "The iteration values are set to [\"Loopback11\",\"Loopback15\"] (static),\
+        \ and the name\r\nof the iteration variable is set to a non-default value.\r\
+        \nThe service does a \"show interface\" over the loopback interfaces."
+      positions: [202, -224]
+    76ece5f4-54f7-4f6b-8ea0-7d2918524e92:
+      alignment: left
+      content: "This service iterates over a set of values defined\r\nat the first\
+        \ step (\"Modify Payload\").\r\nIt uses per-device iteration values.\r\nFor\
+        \ Washington, the \"get_var\" function will evaluate to\r\n['Loopback101',\
+        \ 'Loopback15'] and Loopback101 does not exist,\r\nso the service will fail.\r\
+        \n"
+      positions: [720, -125]
+    93d396cb-cc7e-47ac-ac12-8f75207dcb14:
+      alignment: left
+      content: "This service will compute derived targets for Washington: [\"Washington\"\
+        , \"Austin\"].\r\nFor each derived device, it will iterate over the \"Interface\
+        \ 2\" variable which will\r\nevaluate to ['Loopback333', 'Loopback334'] (set\
+        \ in the Modify Payload service).\r\nIn the results, check that it ran for\
+        \ both devices and for both interface for each device.\r\n"
+      positions: [579, 218]
+    b61a926f-87e4-48a6-86bd-74500e9568ab:
+      alignment: left
+      content: "Set the following variables in the payload :\r\n- Interfaces 1: ['Loopback101',\
+        \ 'Loopback15'] for \"Washington\"\r\notherwise ['Loopback9', 'Loopback1000']\r\
+        \n- Derived Devices: [\"Washington\", \"Austin\"] for any device\r\n- Interfaces\
+        \ 2: ['Loopback333', 'Loopback334'] for any device"
+      positions: [-118, -61]
+    fbd0224f-eae2-461b-bfc5-9de385e078f0:
+      alignment: left
+      content: "This service doesn't have targets: it makes a REST call to\r\nhttp://127.0.0.1:5000/rest/instance/device/{{get_var('iteration_value')}}\r\
+        \nwith the iteration set to [\"Washington\", \"Atlanta\"].\r\nCredentials\
+        \ must be updated after a database drop."
+      positions: [-99, 196]
+  last_modified: '2019-11-04 15:44:41.065109'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow E: Iteration Targets'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow E: Iteration Targets'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow E: Iteration
+      Targets] Modify Payload for Iteration', '[Regression Workflow E: Iteration Targets]
+      Iteration Target Workflow - Test 2', '[Regression Workflow E: Iteration Targets]
+      Iteration Targets Workflow - Test 1', '[Regression Workflow E: Iteration Targets]
+      Iteration Target Workflow - Test 3', '[Regression Workflow E: Iteration Targets]
+      Iteration Targets Workflow - Test 4']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels: {}
+  last_modified: '2019-10-02 10:20:38.196859'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with Operations'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow': [
+      135, 187]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 8: Payload Extraction with Operations'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Shared] Getters Workflow: Interface
+      IP', '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F
+      S1: Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with
+      Operations] Payload Workflow: Add initial variables', '[[[Regression Workflow
+      F: Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow]
+      Regression Workflow 8: Payload Extraction with Operations] Payload Workflow:
+      Extraction 1', '[[[Regression Workflow F: Workflow of Workflows] Regression
+      Workflow F S1: Subworkflow of Workflow] Regression Workflow 8: Payload Extraction
+      with Operations] Payload Workflow: Extraction 2', '[[[Regression Workflow F:
+      Workflow of Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression
+      Workflow 8: Payload Extraction with Operations] Payload Workflow: Validation
+      1', '[[[Regression Workflow F: Workflow of Workflows] Regression Workflow F
+      S1: Subworkflow of Workflow] Regression Workflow 8: Payload Extraction with
+      Operations] Payload Workflow: Validation 2']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels: {}
+  last_modified: '2019-10-05 10:12:02.348277'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S2:
+    Access Variables from Parent Workflow'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [164, 375]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow F S2: Access Variables from Parent Workflow'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[[Regression Workflow F: Workflow
+      of Workflows] Regression Workflow F S2: Access Variables from Parent Workflow]
+      Variable Access Subworkflow: Access variable from snippet', '[[Regression Workflow
+      F: Workflow of Workflows] Regression Workflow F S2: Access Variables from Parent
+      Workflow] Variable Access Subworkflow: Access variables for iteration']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: ip_address
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels: {}
+  last_modified: '2019-10-05 10:07:15.160952'
+  mail_recipient: ''
+  max_processes: 5
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1:
+    Subworkflow of Workflow'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [-655, 369]
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow F S1: Subworkflow of Workflow'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[[Regression Workflow F: Workflow
+      of Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression
+      Workflow 8: Payload Extraction with Operations', '[[Regression Workflow F: Workflow
+      of Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression
+      Workflow B: Napalm getters validation', '[[Regression Workflow F: Workflow of
+      Workflows] Regression Workflow F S1: Subworkflow of Workflow] Regression Workflow
+      7: Payload Extraction & Validation']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  color: '#D2E5FF'
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels:
+    7596d28d-4b04-4314-b81e-2123ae51172d:
+      alignment: left
+      content: In this workflow, devices are configured at SERVICE level.
+      positions: [-169, -303]
+    f865beb3-e097-45f9-917c-184a423d8249:
+      alignment: left
+      content: "Use Netmiko to run a \"show vrf\".\r\nUse the validation mechanism\
+        \ to check for the string \"NOVRF\".\r\nThere is no such VRF configured so\
+        \ the service is expected to fail.\r\nRetry twice with 2 seconds between retries."
+      positions: [-147, -217]
+  last_modified: '2019-10-24 22:58:13.326990'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow 1: Netmiko with validation and retries'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  scoped_name: 'Regression Workflow 1: Netmiko with validation and retries'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow 1: Netmiko with
+      validation and retries] Check VRF (NOVRF) exists']
+  shared: false
+  skip: false
+  skip_query: ''
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show vrf
+  config_mode: false
+  content_match: NOVRF
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-21 21:59:43.430409'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 1: Netmiko with validation and retries] Check VRF (NOVRF)
+    exists'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 2
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow 1: Netmiko with validation and retries': [-142, -137]
+  result_postprocessing: ''
+  scoped_name: Check VRF (NOVRF) exists
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 2
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: text
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  color: '#D2E5FF'
+  command: show interfaces
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-10-05 10:15:25.968061'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow F: Workflow of Workflows] Show interfaces with Netmiko'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow F: Workflow of Workflows': [-408, 34]
+  result_postprocessing: ''
+  scoped_name: Show interfaces with Netmiko
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10
+  type: netmiko_validation_service
+  use_device_driver: true
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: true
+  color: '#D2E5FF'
+  config_mode: false
+  configuration: show run
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: a10
+  enable_mode: true
+  events: []
+  fast_cli: false
+  global_delay_factor: 1.0
+  include_device_results: true
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2019-11-01 06:31:00.097217'
+  mail_recipient: ''
+  max_processes: 50
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 9: Operational Data Backup] Retrieve Operational Data'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  operational_data: "show users\r\nshow ip int br\r\nshow vrf"
+  pools: []
+  positions:
+    'Regression Workflow 9: Operational Data Backup': [-284, -43]
+  replacements:
+  - {pattern: '', replace_with: ''}
+  - {pattern: '', replace_with: ''}
+  - {pattern: '', replace_with: ''}
+  result_postprocessing: ''
+  scoped_name: Retrieve Operational Data
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  start_new_connection: false
+  time_between_retries: 10
+  timeout: 10
+  type: data_backup_service
+  use_device_driver: true
+  validation_method: none
+  vendor: ''
+  waiting_time: 0

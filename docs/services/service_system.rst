@@ -17,7 +17,7 @@ Custom Services Path
 --------------------
 
 By default, eNMS will scan the ``eNMS/eNMS/services`` folder to instantiate all services you created in that folder.
-If you want eNMS to scan another folder (e.g to not have custom services in eNMS .git directory, so that you can safely pull the latest code from Github), you can set the ``CUSTOM_SERVICES_PATH`` environment variable to the path of the folder that contains your custom services.
+If you want eNMS to scan another folder (e.g to not have custom services in eNMS .git directory, so that you can safely pull the latest code from Github), you can set the ``custom_services`` variable in the configuration.
 
 Service Management
 ------------------
@@ -33,7 +33,7 @@ From the :guilabel:`automation/service_management` page, you can:
 - Start a Service Instance (``Run`` button).
 - View and compare the results of the Service Instance.
 - Edit or duplicate the Service Instance.
-- Export the Service Instance: the service instance will be exported as a YaML file in the ``projects/exported_jobs`` directory. This allows migrating service instances from one VM to another if you are using different VM.
+- Export the Service Instance: the service instance will be exported as a YaML file in the ``files/exported_services`` directory. This allows migrating service instances from one VM to another if you are using different VM.
 - Delete the Service Instance.
 
 When running a service instance, the device progress (current device/total devices selected to run) will be displayed in the table, unless Multiprocessing is selected to run the devices in parallel, in which case eNMS cannot keep track of how many devices are completed until the service instance finishes.
@@ -51,9 +51,7 @@ When you create a new Service Instance, the form will also contain multiple sele
 There are two ways to select devices:
 
 - Directly from the "Devices" and "Pools" drop-down. The service will run on all selected devices, as well as on the devices of all selected pools.
-- From the payload when the service runs inside a workflow.
-You can tick the ``Define devices from payload`` box and write a Python query to extract devices
-(either IP address or names) from the payload.
+- With a python query to extract devices (either IP address or names) from the payload.
 The python query can use the variables and functions described in the "Advanced" section of the documentation.
 
 A service can run on its devices either sequentially, or in parallel if the ``Multiprocessing`` checkbox is ticked.

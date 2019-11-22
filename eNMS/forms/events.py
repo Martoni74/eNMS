@@ -1,11 +1,12 @@
 from wtforms import BooleanField, HiddenField, IntegerField, SelectField, StringField
+from wtforms.validators import InputRequired
 from wtforms.widgets import TextArea
 
 from eNMS.forms import BaseForm, configure_relationships
 from eNMS.forms.fields import DateField, DictField, MultipleInstanceField
 
 
-def configure_form(cls: BaseForm) -> BaseForm:
+def configure_form(cls):
     cls.properties = ("log_source", "log_content")
     for property in ("log_source", "log_content"):
         setattr(cls, property, StringField(property))
@@ -18,8 +19,8 @@ class EventForm(BaseForm):
     template = "event"
     form_type = HiddenField(default="event")
     id = HiddenField()
-    name = StringField("Name")
-    jobs = MultipleInstanceField("Jobs", instance_type="Job")
+    name = StringField("Name", [InputRequired()])
+    services = MultipleInstanceField("Services")
 
 
 @configure_relationships
@@ -27,12 +28,11 @@ class TaskForm(BaseForm):
     template = "object"
     form_type = HiddenField(default="task")
     id = HiddenField()
-    is_active = BooleanField("Is Active")
     scheduling_mode = SelectField(
         "Scheduling Mode",
         choices=(("cron", "Crontab Scheduling"), ("standard", "Standard Scheduling")),
     )
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     description = StringField("Description")
     start_date = DateField("Start Date")
     end_date = DateField("End Date")
@@ -49,23 +49,20 @@ class TaskForm(BaseForm):
     crontab_expression = StringField("Crontab Expression")
     payload = DictField("Payload")
 
-    def validate(self) -> bool:
+    def validate(self):
         valid_form = super().validate()
-        no_start_date = (
-            self.is_active.data
-            and self.scheduling_mode.data == "standard"
-            and not self.start_date.data
-        )
-        if no_start_date:
+        no_date = self.scheduling_mode.data == "standard" and not self.start_date.data
+        if no_date:
             self.start_date.errors.append("A start date must be set.")
         no_cron_expression = (
-            self.is_active.data
-            and self.scheduling_mode.data == "cron"
-            and not self.crontab_expression.data
+            self.scheduling_mode.data == "cron" and not self.crontab_expression.data
         )
         if no_cron_expression:
             self.crontab_expression.errors.append("A crontab expression must be set.")
-        return valid_form and not no_start_date and not no_cron_expression
+        no_service = not self.service.data
+        if no_service:
+            self.service.errors.append("No service set.")
+        return valid_form and not any([no_date, no_cron_expression, no_service])
 
 
 class ChangelogForm(BaseForm):

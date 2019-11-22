@@ -7,7 +7,7 @@ Backup & Restore and Database Migration
 
 From the ``Admin / Administration`` page, eNMS also supports backup and restore, as well as migration from one eNMS version to another, utilizing an Import and Export feature.
 
-By providing a directory name and selecting which eNMS object types to export/backup, eNMS serializes the stored objects in the directory ``(eNMS_HOME)/projects/migrations/directory_name``. These yaml files can then be copied into the same directory (``(eNMS_HOME)/projects/migrations/``) on a new VM instance of eNMS, and then the Import function can be used to import/restore the configuration and living data of those object types.
+By providing a directory name and selecting which eNMS object types to export/backup, eNMS serializes the stored objects in the directory ``(eNMS_HOME)/files/migrations/directory_name``. These yaml files can then be copied into the same directory (``(eNMS_HOME)/files/migrations/``) on a new VM instance of eNMS, and then the Import function can be used to import/restore the configuration and living data of those object types.
 
 .. image:: /_static/administration/migrations.png
    :alt: Migrations
@@ -32,7 +32,7 @@ Miscellaneous
 
 - ``Fetch Git Configurations and Update Devices``: this feature will retrieve configurations from the git 'configurations' repository and load those into the database for each matching inventory device. This is performed automatically when eNMS starts up: the git configurations repository is quietly cloned and loaded into the database. This feature allows for manual pulling of updated configurations data.
 - ``Pause and Resume Scheduler``: this feature will pause and resume all scheduler tasks currently waiting to run.
-- ``Reset Job Statuses``: when a service or workflow fails, it is sometimes stuck in a "Running" mode and cannot be executed. This button will reset the status of all services and workflows.
+- ``Reset Service Statuses``: when a service or workflow fails, it is sometimes stuck in a "Running" mode and cannot be executed. This button will reset the status of all services and workflows.
 
 Individual export
 *****************
@@ -40,5 +40,5 @@ Individual export
 Services and workflows can be exported and imported individually, as a .tgz archive.
 This is useful when you have multiple VMs deployed with eNMS, and you need to send a service / workflow from one VM to another.
 
-To import a job, you need to move the archive to the ``projects/exported_jobs`` folder,
-then go to the "Administration" page and click on the ``Import jobs`` button.
+To import a service, you need to move the archive to the ``files/services`` folder,
+then go to the "Administration" page and click on the ``Import services`` button.

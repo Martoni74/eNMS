@@ -12,20 +12,16 @@ title %} {% block stylesheets %} {{ super() }}
   #map {
     height: 85vh;
   }
-  #network {
-    height: 85vh;
-  }
 </style>
 {% endblock stylesheets %} {% block content %}
 <ul id="contextMenu" class="dropdown-menu" role="menu">
   <li class="menu dropdown-submenu geo-menu">
     <a class="menu-submenu menu-layer" tabindex="-1" href="#"
-      >Dimension<span class="caret-right"></span
+      >Type of View<span class="caret-right"></span
     ></a>
     <ul class="dropdown-menu">
-      <li><a tabindex="-1" href="#">2D</a></li>
-      <li><a tabindex="-1" href="#">Clustered 2D</a></li>
-      <li><a tabindex="-1" href="#">3D</a></li>
+      <li><a tabindex="-1" href="#">Normal</a></li>
+      <li><a tabindex="-1" href="#">Clustered</a></li>
     </ul>
   </li>
   <li class="menu dropdown-submenu geo-menu">
@@ -35,7 +31,6 @@ title %} {% block stylesheets %} {{ super() }}
     <ul class="dropdown-menu">
       <li><a tabindex="-1" href="#">Open Street Map</a></li>
       <li><a tabindex="-1" href="#">Google Maps</a></li>
-      <li><a tabindex="-1" href="#">NASA</a></li>
     </ul>
   </li>
   <li class="menu dropdown-submenu geo-menu">
@@ -48,23 +43,13 @@ title %} {% block stylesheets %} {{ super() }}
       <li><a tabindex="-1" href="#">Circle Marker</a></li>
     </ul>
   </li>
-  <li class="menu network-menu insite-menu">
-    <a tabindex="-1" href="#">Display sites</a>
-  </li>
-  <li class="menu rc-site-menu">
-    <a tabindex="-1" href="#">Pool properties</a>
-  </li>
   <li class="menu rc-site-menu"><a tabindex="-1" href="#">Enter site</a></li>
-  <li class="menu rc-device-menu">
-    <a tabindex="-1" href="#">Device properties</a>
+  <li class="menu rc-device-menu rc-link-menu">
+    <a tabindex="-1" href="#">Properties</a>
   </li>
   <li class="menu rc-device-menu"><a tabindex="-1" href="#">Connect</a></li>
   <li class="menu rc-device-menu">
     <a tabindex="-1" href="#">Configuration</a>
-  </li>
-  <li class="menu rc-device-menu"><a tabindex="-1" href="#">Automation</a></li>
-  <li class="menu rc-link-menu">
-    <a tabindex="-1" href="#">Link properties</a>
   </li>
 </ul>
 <div class="right_col" role="main">
@@ -72,47 +57,25 @@ title %} {% block stylesheets %} {{ super() }}
     <div class="col-md-12 col-sm-12 col-xs-12">
       <div class="x_panel">
         <div class="x_content">
-          <div class="flip-container">
-            <div class="flipper">
-              {% set earth_front = parameters.default_view == "3D" %}
-              <div
-                class="{{ 'front' if earth_front else 'back' }}"
-                id="earth"
-              ></div>
-              <div
-                class="{{ 'back' if earth_front else 'front' }}"
-                id="map"
-              ></div>
-            </div>
-          </div>
-          <div
-            class="btn-group"
-            style="z-index:500; position: absolute; left:35vw; top:10px;"
-          >
-            <strong
-              ><p
-                class="btn btn-danger"
-                style="min-width:100px; display: none;"
-                id="name-box"
-              ></p
-            ></strong>
-          </div>
-          {% if view_type == 'network' %}
+          <div style="z-index:0;" id="map"></div>
+          {% if view_type == "network" %}
           <div
             class="btn-group-horizontal"
-            style="width: 20vw; z-index:1; position: absolute; top: 10px; right:5vw;"
+            style="z-index:1; position: absolute; top: 10px; left: 5vw"
           >
             <button
-              class="btn btn-success btn-file"
+              class="btn btn-primary"
+              style="width: 5vw;"
               onclick="showViewFilteringPanel('device')"
             >
-              Filter Devices
+              <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Device
             </button>
             <button
-              class="btn btn-success btn-file"
+              class="btn btn-primary"
+              style="width: 5vw;"
               onclick="showViewFilteringPanel('link')"
             >
-              Filter Links
+              <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Link
             </button>
           </div>
           {% endif %}
@@ -123,12 +86,8 @@ title %} {% block stylesheets %} {{ super() }}
 </div>
 {% endblock content %} {% block javascripts %} {{ super()}}
 <script>
-  let view = "{{ view }}";
   let viewType = "{{ view_type }}";
-  const deviceFilteringPanel = showPanel(`device_filtering`);
-  const linkFilteringPanel = showPanel(`link_filtering`);
 </script>
-<script src="{{ url_for('static', filename='lib/webgl-earth/api.min.js') }}"></script>
 <script src="{{ url_for('static', filename='lib/leaflet/leaflet.min.js') }}"></script>
 <script src="{{ url_for('static', filename='lib/leaflet-markercluster/leaflet.markercluster.min.js') }}"></script>
 <script src="{{ url_for('static', filename='view.js') }}"></script>

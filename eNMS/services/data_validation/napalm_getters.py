@@ -2,54 +2,37 @@ from sqlalchemy import Boolean, ForeignKey, Integer
 from wtforms import HiddenField, SelectMultipleField
 
 from eNMS.database.dialect import Column, MutableDict, MutableList, SmallString
-from eNMS.forms.automation import ServiceForm
-from eNMS.forms.services import DictValidationForm, NapalmForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.forms.automation import NapalmForm
+from eNMS.models.automation import ConnectionService
 
 
-class NapalmGettersService(Service):
+class NapalmGettersService(ConnectionService):
 
-    __tablename__ = "NapalmGettersService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
-    validation_method = Column(SmallString, default="dict_included")
-    dict_match = Column(MutableDict)
+    __tablename__ = "napalm_getters_service"
+    pretty_name = "NAPALM getters"
+    parent_type = "connection_service"
+    id = Column(Integer, ForeignKey("connection_service.id"), primary_key=True)
     driver = Column(SmallString)
     use_device_driver = Column(Boolean, default=True)
+    timeout = Column(Integer, default=60)
     getters = Column(MutableList)
-    negative_logic = Column(Boolean, default=False)
     optional_args = Column(MutableDict)
 
-    __mapper_args__ = {"polymorphic_identity": "NapalmGettersService"}
+    __mapper_args__ = {"polymorphic_identity": "napalm_getters_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         napalm_connection, result = run.napalm_connection(device), {}
-        run.log(
-            "info",
-            f"Fetching NAPALM getters ({', '.join(run.getters)}) on {device.name}",
-        )
+        run.log("info", f"Fetching NAPALM getters ({', '.join(run.getters)})", device)
         for getter in run.getters:
             try:
                 result[getter] = getattr(napalm_connection, getter)()
             except Exception as e:
                 result[getter] = f"{getter} failed because of {e}"
-        match = (
-            run.sub(run.content_match, locals())
-            if run.validation_method == "text"
-            else run.sub(run.dict_match, locals())
-        )
-        return {
-            "match": match,
-            "negative_logic": run.negative_logic,
-            "result": result,
-            "success": run.match_content(result, match),
-        }
+        return {"result": result}
 
 
-class NapalmGettersForm(ServiceForm, NapalmForm, DictValidationForm):
-    form_type = HiddenField(default="NapalmGettersService")
+class NapalmGettersForm(NapalmForm):
+    form_type = HiddenField(default="napalm_getters_service")
     getters = SelectMultipleField(
         choices=(
             ("get_arp_table", "ARP table"),
@@ -75,3 +58,7 @@ class NapalmGettersForm(ServiceForm, NapalmForm, DictValidationForm):
             ("is_alive", "Is alive"),
         )
     )
+    groups = {
+        "Main Parameters": {"commands": ["getters"], "default": "expanded"},
+        **NapalmForm.groups,
+    }

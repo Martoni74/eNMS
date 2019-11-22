@@ -1,19 +1,16 @@
-from flask.testing import FlaskClient
-from pathlib import Path
 from pytest import fixture
-from typing import Callable, Iterator
 
-from eNMS import create_app
 from eNMS.database import Session
+from eNMS.framework import create_app
 
 import warnings
 
 
 @fixture
-def base_client() -> Iterator[FlaskClient]:
+def base_client():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        app = create_app(Path.cwd(), "Test")
+        app = create_app("test")
         app_context = app.app_context()
         app_context.push()
         Session.close()
@@ -21,10 +18,10 @@ def base_client() -> Iterator[FlaskClient]:
 
 
 @fixture
-def user_client() -> Iterator[FlaskClient]:
+def user_client():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        app = create_app(Path.cwd(), "Test")
+        app = create_app("test")
         app_context = app.app_context()
         app_context.push()
         Session.close()
@@ -41,9 +38,9 @@ def user_client() -> Iterator[FlaskClient]:
             yield client
 
 
-def check_pages(*pages: str) -> Callable:
-    def decorator(function: Callable) -> Callable:
-        def wrapper(user_client: FlaskClient) -> None:
+def check_pages(*pages):
+    def decorator(function):
+        def wrapper(user_client):
             function(user_client)
             for page in pages:
                 r = user_client.get(page, follow_redirects=True)

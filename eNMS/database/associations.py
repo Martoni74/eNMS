@@ -2,72 +2,79 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 
 from eNMS.database import Base
 
-job_device_table: Table = Table(
-    "job_device_association",
+service_device_table = Table(
+    "service_device_association",
     Base.metadata,
-    Column("device_id", Integer, ForeignKey("Device.id")),
-    Column("job_id", Integer, ForeignKey("Job.id")),
+    Column("device_id", Integer, ForeignKey("device.id")),
+    Column("service_id", Integer, ForeignKey("service.id")),
 )
 
-job_pool_table: Table = Table(
-    "job_pool_association",
+service_pool_table = Table(
+    "service_pool_association",
     Base.metadata,
-    Column("pool_id", Integer, ForeignKey("Pool.id")),
-    Column("job_id", Integer, ForeignKey("Job.id")),
+    Column("pool_id", Integer, ForeignKey("pool.id")),
+    Column("service_id", Integer, ForeignKey("service.id")),
 )
 
-task_device_table: Table = Table(
+run_device_table = Table(
+    "run_device_association",
+    Base.metadata,
+    Column("device_id", Integer, ForeignKey("device.id")),
+    Column("run_id", Integer, ForeignKey("run.id")),
+)
+
+run_pool_table = Table(
+    "run_pool_association",
+    Base.metadata,
+    Column("pool_id", Integer, ForeignKey("pool.id")),
+    Column("run_id", Integer, ForeignKey("run.id")),
+)
+
+task_device_table = Table(
     "task_device_association",
     Base.metadata,
-    Column("device_id", Integer, ForeignKey("Device.id")),
-    Column("task_id", Integer, ForeignKey("Task.id")),
+    Column("device_id", Integer, ForeignKey("device.id")),
+    Column("task_id", Integer, ForeignKey("task.id")),
 )
 
-task_pool_table: Table = Table(
+task_pool_table = Table(
     "task_pool_association",
     Base.metadata,
-    Column("pool_id", Integer, ForeignKey("Pool.id")),
-    Column("task_id", Integer, ForeignKey("Task.id")),
+    Column("pool_id", Integer, ForeignKey("pool.id")),
+    Column("task_id", Integer, ForeignKey("task.id")),
 )
 
-job_event_table: Table = Table(
-    "job_event_association",
+service_event_table = Table(
+    "service_event_association",
     Base.metadata,
-    Column("job_id", Integer, ForeignKey("Job.id")),
-    Column("event_id", Integer, ForeignKey("Event.id")),
+    Column("service_id", Integer, ForeignKey("service.id")),
+    Column("event_id", Integer, ForeignKey("event.id")),
 )
 
-job_workflow_table: Table = Table(
-    "job_workflow_association",
+service_workflow_table = Table(
+    "service_workflow_association",
     Base.metadata,
-    Column("job_id", Integer, ForeignKey("Job.id")),
-    Column("workflow_id", Integer, ForeignKey("Workflow.id")),
+    Column("service_id", Integer, ForeignKey("service.id")),
+    Column("workflow_id", Integer, ForeignKey("workflow.id")),
 )
 
-start_jobs_workflow_table: Table = Table(
-    "start_jobs_workflow_association",
-    Base.metadata,
-    Column("job_id", Integer, ForeignKey("Job.id")),
-    Column("workflow_id", Integer, ForeignKey("Workflow.id")),
-)
-
-pool_device_table: Table = Table(
+pool_device_table = Table(
     "pool_device_association",
     Base.metadata,
-    Column("pool_id", Integer, ForeignKey("Pool.id")),
-    Column("device_id", Integer, ForeignKey("Device.id")),
+    Column("pool_id", Integer, ForeignKey("pool.id")),
+    Column("device_id", Integer, ForeignKey("device.id")),
 )
 
-pool_link_table: Table = Table(
+pool_link_table = Table(
     "pool_link_association",
     Base.metadata,
-    Column("pool_id", Integer, ForeignKey("Pool.id")),
-    Column("link_id", Integer, ForeignKey("Link.id")),
+    Column("pool_id", Integer, ForeignKey("pool.id")),
+    Column("link_id", Integer, ForeignKey("link.id")),
 )
 
-pool_user_table: Table = Table(
+pool_user_table = Table(
     "pool_user_association",
     Base.metadata,
-    Column("pool_id", Integer, ForeignKey("Pool.id")),
-    Column("user_id", Integer, ForeignKey("User.id")),
+    Column("pool_id", Integer, ForeignKey("pool.id")),
+    Column("user_id", Integer, ForeignKey("user.id")),
 )

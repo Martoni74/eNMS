@@ -1,29 +1,15 @@
-from typing import Dict, List
-
 from eNMS.properties.objects import object_common_properties
 
-device_table_properties: List[str] = object_common_properties + [
+device_table_properties = object_common_properties + [
     "operating_system",
     "os_version",
     "ip_address",
     "port",
 ]
 
-configuration_table_properties: List[str] = [
-    "name",
-    "model",
-    "last_failure",
-    "last_runtime",
-    "last_update",
-    "last_status",
-]
+link_table_properties = object_common_properties + ["source_name", "destination_name"]
 
-link_table_properties: List[str] = object_common_properties + [
-    "source_name",
-    "destination_name",
-]
-
-pool_table_properties: List[str] = [
+pool_table_properties = [
     "name",
     "last_modified",
     "description",
@@ -33,7 +19,7 @@ pool_table_properties: List[str] = [
     "object_number",
 ]
 
-service_table_properties: List[str] = [
+service_table_properties = [
     "name",
     "last_modified",
     "type",
@@ -41,24 +27,9 @@ service_table_properties: List[str] = [
     "vendor",
     "operating_system",
     "creator",
-    "number_of_retries",
-    "time_between_retries",
 ]
 
-workflow_table_properties: List[str] = [
-    "name",
-    "last_modified",
-    "description",
-    "vendor",
-    "operating_system",
-    "creator",
-    "vendor",
-    "operating_system",
-    "number_of_retries",
-    "time_between_retries",
-]
-
-user_table_properties: List[str] = ["name", "email"]
+user_table_properties = ["name", "email"]
 
 server_table_properties = [
     "name",
@@ -69,25 +40,35 @@ server_table_properties = [
     "cpu_load",
 ]
 
-syslog_table_properties: List[str] = ["time", "source", "content"]
+syslog_table_properties = ["time", "source", "content"]
 
-changelog_table_properties: List[str] = ["time", "user", "severity", "content"]
+changelog_table_properties = ["time", "user", "severity", "content"]
 
-event_table_properties: List[str] = ["name", "log_source", "log_content"]
+event_table_properties = ["name", "log_source", "log_content"]
 
-run_table_properties: List[str] = [
+run_table_properties = [
     "runtime",
     "endtime",
-    "job_name",
+    "service_name",
     "workflow_name",
     "status",
     "progress",
 ]
 
-task_table_properties: List[str] = [
+result_table_properties = [
+    "runtime",
+    "endtime",
+    "workflow_name",
+    "service_name",
+    "parent_device_name",
+    "device_name",
+    "success",
+]
+
+task_table_properties = [
     "name",
     "description",
-    "job_name",
+    "service_name",
     "status",
     "scheduling_mode",
     "start_date",
@@ -99,23 +80,22 @@ task_table_properties: List[str] = [
     "time_before_next_run",
 ]
 
-table_properties: Dict[str, List[str]] = {
+table_properties = {
     "changelog": changelog_table_properties,
-    "configuration": configuration_table_properties,
     "device": device_table_properties,
     "event": event_table_properties,
     "link": link_table_properties,
     "pool": pool_table_properties,
+    "result": result_table_properties,
     "run": run_table_properties,
     "server": server_table_properties,
     "service": service_table_properties,
     "syslog": syslog_table_properties,
     "task": task_table_properties,
     "user": user_table_properties,
-    "workflow": workflow_table_properties,
 }
 
-job_filtering_properties = [
+service_filtering_properties = [
     "name",
     "last_modified",
     "type",
@@ -132,56 +112,32 @@ job_filtering_properties = [
     "time_between_retries",
 ]
 
-filtering_properties: Dict[str, List[str]] = {
+filtering_properties = {
     "changelog": changelog_table_properties,
-    "configuration": device_table_properties
-    + configuration_table_properties[2:]
-    + ["current_configuration"],
-    "device": device_table_properties + ["current_configuration"],
+    "device": device_table_properties + ["configuration", "operational_data"],
     "event": event_table_properties,
     "link": link_table_properties,
     "pool": pool_table_properties,
+    "result": result_table_properties,
     "run": run_table_properties[:-1],
     "server": server_table_properties,
-    "service": job_filtering_properties,
+    "service": service_filtering_properties,
     "syslog": syslog_table_properties,
     "task": task_table_properties[:-2],
     "user": user_table_properties,
-    "workflow": job_filtering_properties,
 }
 
-table_fixed_columns: Dict[str, List[str]] = {
+table_fixed_columns = {
     "changelog": [],
-    "configuration": ["Configuration", "Download", "Edit"],
-    "device": ["Automation", "Connect", "Edit", "Duplicate", "Delete"],
-    "event": ["Edit", "Delete"],
-    "link": ["Edit", "Duplicate", "Delete"],
-    "run": ["Logs", "Results"],
-    "server": ["Edit", "Duplicate", "Delete"],
-    "service": [
-        "Status",
-        "Logs",
-        "Results",
-        "Run",
-        "Run with Updates",
-        "Edit",
-        "Duplicate",
-        "Export",
-        "Delete",
-    ],
+    "device": [""],
+    "event": [""],
+    "link": [""],
+    "run": [""],
+    "result": ["Result", "V1", "V2"],
+    "server": [""],
+    "service": ["Status", ""],
     "syslog": [],
-    "task": ["Action", "Edit", "Duplicate", "Delete"],
-    "user": ["Edit", "Duplicate", "Delete"],
-    "pool": ["Visualize", "Edit", "Update", "Duplicate", "Edit objects", "Delete"],
-    "workflow": [
-        "Status",
-        "Logs",
-        "Results",
-        "Run",
-        "Run with Updates",
-        "Edit",
-        "Duplicate",
-        "Export",
-        "Delete",
-    ],
+    "task": [""],
+    "user": [""],
+    "pool": [""],
 }

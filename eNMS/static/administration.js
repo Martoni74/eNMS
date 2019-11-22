@@ -2,23 +2,37 @@
 global
 alertify: false
 call: false
+config: true
 createPanel: false
 fCall: false
 folders: false
+JSONEditor: false
 page: false
 showPanel: false
-table: false
-updateProperty: false
+tables: false
 */
 
+let editor;
+
 // eslint-disable-next-line
-function showParametersPanel(type) {
-  createPanel(type, `${type} Parameters`, 0, () => {
-    call("/get/parameters/1", function(parameters) {
-      for (const [property, value] of Object.entries(parameters)) {
-        updateProperty($(`#${property}`), property, value, type);
-      }
-    });
+function showConfiguration() {
+  createPanel("configuration", "Configuration", null, function() {
+    editor = new JSONEditor(document.getElementById("content"), {}, config);
+  });
+}
+
+// eslint-disable-next-line
+function saveConfiguration() {
+  $.ajax({
+    type: "POST",
+    url: "/save_configuration",
+    contentType: "application/json",
+    data: JSON.stringify(editor.get()),
+    success: function() {
+      config = editor.get();
+      $("#configuration").remove();
+      alertify.notify("Configuration saved.", "success", 5);
+    },
   });
 }
 
@@ -26,7 +40,7 @@ function showParametersPanel(type) {
 function showImportTopologyPanel(type) {
   createPanel("excel_import", "Import Topology as an Excel file", 0, () => {
     document.getElementById("file").onchange = function() {
-      importTopology("Device");
+      importTopology();
     };
   });
 }
@@ -70,39 +84,25 @@ function exportTopology() {
 // eslint-disable-next-line
 function importTopology() {
   alertify.notify("Topology import: starting...", "success", 5);
-  if (
-    $("#import-form")
-      .parsley()
-      .validate()
-  ) {
-    const formData = new FormData($("#import-form")[0]);
-    $.ajax({
-      type: "POST",
-      url: "/import_topology",
-      dataType: "json",
-      data: formData,
-      contentType: false,
-      processData: false,
-      async: true,
-      success: function(result) {
-        alertify.notify(result, "success", 5);
-      },
-    });
-    $("#file")[0].value = "";
-  }
-}
-
-// eslint-disable-next-line
-function saveParameters(type) {
-  fCall(`/save_parameters/${type}`, `#${type}-form`, function() {
-    alertify.notify("Parameters saved.", "success", 5);
+  const formData = new FormData($("#import-form")[0]);
+  $.ajax({
+    type: "POST",
+    url: "/import_topology",
+    dataType: "json",
+    data: formData,
+    contentType: false,
+    processData: false,
+    async: true,
+    success: function(result) {
+      alertify.notify(result, "success", 5);
+    },
   });
-  $(`#${type}`).remove();
+  $("#file")[0].value = "";
 }
 
 function getClusterStatus() {
   call("/get_cluster_status", function(cluster) {
-    table.ajax.reload(null, false);
+    tables["server"].ajax.reload(null, false);
     setTimeout(getClusterStatus, 15000);
   });
 }
@@ -135,30 +135,30 @@ function migrationsImport() {
   });
 }
 
-function refreshExportedJobs() {
-  call("/get_exported_jobs", function(jobs) {
-    let list = document.getElementById("jobs_to_import");
-    jobs.forEach((item) => {
+function refreshExportedServices() {
+  call("/get_exported_services", function(services) {
+    let list = document.getElementById("service");
+    services.forEach((item) => {
       let option = document.createElement("option");
       option.textContent = option.value = item;
       list.appendChild(option);
     });
-    $("#jobs_to_import").selectpicker("refresh");
+    $("#service").selectpicker("refresh");
   });
 }
 
 // eslint-disable-next-line
-function showImportJobsPanel() {
-  showPanel("import_jobs", null, () => {
-    refreshExportedJobs();
+function showImportServicePanel() {
+  showPanel("import_service", null, () => {
+    refreshExportedServices();
   });
 }
 
 // eslint-disable-next-line
-function importJobs() {
-  fCall("/import_jobs", "#import_jobs-form", function(result) {
+function importService() {
+  call(`/import_service/${$("#service").val()}`, function(result) {
     alertify.notify("Import successful.", "success", 5);
-    $("#import_jobs").remove();
+    $("#import_service").remove();
   });
 }
 

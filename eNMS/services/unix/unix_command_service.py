@@ -1,42 +1,28 @@
 from subprocess import check_output
-from sqlalchemy import Boolean, ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer
 from wtforms import HiddenField
 
-from eNMS.database.dialect import Column, LargeString, SmallString
+from eNMS.database.dialect import Column, SmallString
 from eNMS.forms.automation import ServiceForm
 from eNMS.forms.fields import SubstitutionField
-from eNMS.forms.services import ValidationForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.models.automation import Service
 
 
 class UnixCommandService(Service):
 
-    __tablename__ = "UnixCommandService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
+    __tablename__ = "unix_command_service"
+    pretty_name = "Unix Command"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     command = Column(SmallString)
-    content_match = Column(LargeString, default="")
-    content_match_regex = Column(Boolean, default=False)
-    negative_logic = Column(Boolean, default=False)
-    delete_spaces_before_matching = Column(Boolean, default=False)
 
-    __mapper_args__ = {"polymorphic_identity": "UnixCommandService"}
+    __mapper_args__ = {"polymorphic_identity": "unix_command_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         command = run.sub(run.command, locals())
-        match = run.sub(run.content_match, locals())
-        run.log("info", f"Running Unix command ({command}) on {device.name}")
-        result = check_output(command.split()).decode()
-        return {
-            "success": run.match_content(result, match),
-            "match": match,
-            "negative_logic": run.negative_logic,
-            "result": result,
-        }
+        run.log("info", f"Running UNIX command: {command}", device)
+        return {"command": command, "result": check_output(command.split()).decode()}
 
 
-class UnixCommandForm(ServiceForm, ValidationForm):
-    form_type = HiddenField(default="UnixCommandService")
+class UnixCommandForm(ServiceForm):
+    form_type = HiddenField(default="unix_command_service")
     command = SubstitutionField()

@@ -6,9 +6,10 @@ from wtforms import (
     SelectField,
     StringField,
 )
+from wtforms.validators import InputRequired
 from wtforms.widgets import TextArea
 
-from eNMS.controller import controller
+from eNMS import app
 from eNMS.forms import BaseForm, configure_relationships
 from eNMS.forms.fields import MultipleInstanceField
 from eNMS.properties import private_properties
@@ -19,14 +20,14 @@ from eNMS.properties.objects import (
 )
 
 
-def configure_device_form(cls: BaseForm) -> BaseForm:
-    for property in controller.custom_properties:
+def configure_device_form(cls):
+    for property in app.custom_properties:
         field = PasswordField if property in private_properties else StringField
         setattr(cls, property, field())
     return cls
 
 
-def configure_pool_form(cls: BaseForm) -> BaseForm:
+def configure_pool_form(cls):
     cls.device_properties = pool_device_properties
     cls.link_properties = pool_link_properties
     for cls_name, properties in (
@@ -50,12 +51,12 @@ def configure_pool_form(cls: BaseForm) -> BaseForm:
     return cls
 
 
-class ConnectionForm(BaseForm):
-    template = "connection"
-    form_type = HiddenField(default="connection")
+class DeviceConnectionForm(BaseForm):
+    template = "device_connection"
+    form_type = HiddenField(default="device_connection")
     address_choices = [("ip_address", "IP address"), ("name", "Name")] + [
         (property, values["pretty_name"])
-        for property, values in controller.custom_properties.items()
+        for property, values in app.custom_properties.items()
         if values.get("is_address", False)
     ]
     address = SelectField(choices=address_choices)
@@ -63,7 +64,7 @@ class ConnectionForm(BaseForm):
 
 class ObjectForm(BaseForm):
     form_type = HiddenField(default="object")
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     description = StringField("Description")
     subtype = StringField("Subtype")
     location = StringField("Location")
@@ -88,10 +89,19 @@ class DeviceForm(ObjectForm):
     password = PasswordField("Password")
     enable_password = PasswordField("'Enable' Password")
     napalm_driver = SelectField(
-        "NAPALM Driver", choices=controller.NAPALM_DRIVERS, default="ios"
+        "NAPALM Driver", choices=app.NAPALM_DRIVERS, default="ios"
     )
     netmiko_driver = SelectField(
-        "Netmiko Driver", choices=controller.NETMIKO_DRIVERS, default="cisco_ios"
+        "Netmiko Driver", choices=app.NETMIKO_DRIVERS, default="cisco_ios"
+    )
+
+
+class DeviceDataForm(BaseForm):
+    template = "device_data"
+    form_type = HiddenField(default="device_data")
+    data_type = SelectField(
+        "Display",
+        choices=(("configuration", "Configuration"), ("data", "Operational Data")),
     )
 
 
@@ -108,7 +118,7 @@ class PoolForm(BaseForm):
     template = "pool"
     form_type = HiddenField(default="pool")
     id = HiddenField()
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     description = StringField("Description")
     longitude = StringField("Longitude", default=0.0)
     latitude = StringField("Latitude", default=0.0)
@@ -125,8 +135,8 @@ class PoolForm(BaseForm):
 class PoolObjectsForm(BaseForm):
     template = "pool_objects"
     form_type = HiddenField(default="pool_objects")
-    devices = MultipleInstanceField("Devices", instance_type="Device")
-    links = MultipleInstanceField("Links", instance_type="Link")
+    devices = MultipleInstanceField("Devices")
+    links = MultipleInstanceField("Links")
     string_devices = StringField(widget=TextArea(), render_kw={"rows": 5})
     string_links = StringField(widget=TextArea(), render_kw={"rows": 5})
 
@@ -135,15 +145,6 @@ class ExcelImportForm(BaseForm):
     template = "topology_import"
     form_type = HiddenField(default="excel_import")
     replace = BooleanField("Replace Existing Topology")
-
-
-class OpenNmsForm(BaseForm):
-    action = "queryOpenNMS"
-    form_type = HiddenField(default="opennms")
-    opennms_rest_api = StringField("REST API URL")
-    opennms_devices = StringField("Devices")
-    opennms_login = StringField("Login")
-    password = PasswordField("Password")
 
 
 class NetboxForm(BaseForm):
@@ -169,13 +170,6 @@ class ExportForm(BaseForm):
 class GoogleEarthForm(BaseForm):
     action = "exportToGoogleEarth"
     form_type = HiddenField(default="google_earth_export")
-    name = StringField("Name")
+    name = StringField("Name", [InputRequired()])
     label_size = IntegerField("Label Size", default=1)
     line_width = IntegerField("Link Width", default=2)
-
-
-class CompareConfigurationsForm(BaseForm):
-    template = "configuration"
-    form_type = HiddenField(default="configuration")
-    display = SelectField("Version to display", choices=())
-    compare_with = SelectField("Compare Against", choices=())

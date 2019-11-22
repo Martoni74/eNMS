@@ -42,12 +42,12 @@ Run a service, or a workflow
 ::
 
  # via a POST method to the following URL
- https://<IP_address>/rest/run_job
+ https://<IP_address>/rest/run_service
 
 The body must contain the follwoing:
 
-- A key titled ``name`` which is assocated to a value indicating the job you want run.
-- A key titled ``devices`` which is associated to a value list of target devices. If the ``device`` value list is empty, the job will run on the devices configured from the web UI.
+- A key titled ``name`` which is assocated to a value indicating the service you want run.
+- A key titled ``devices`` which is associated to a value list of target devices. If the ``device`` value list is empty, the service will run on the devices configured from the web UI.
 
 The body may contain the follwoing:
 
@@ -55,9 +55,9 @@ The body may contain the follwoing:
 - A key titled ``ip_addresses`` which is associated to a value list of the IPs you want to run.
 - A key titled ``payload" which contains a dictionary of the keys: values specific to the service being run.
 
-The job can be run asynchronously or not with the ``async`` key:
-  - ``async`` False, you send a request to the REST API, eNMS runs the job and it responds to your request when the job is done running. The response will contain the result of the job, but the connection might time out if the job takes too much time to run.
-  - ``async`` True, you run the job, eNMS starts it in a different thread and immediately respond with the job ID, so that you can fetch the result later on.
+The service can be run asynchronously or not with the ``async`` key:
+  - ``async`` False, you send a request to the REST API, eNMS runs the service and it responds to your request when the service is done running. The response will contain the result of the service, but the connection might time out if the service takes too much time to run.
+  - ``async`` True, you run the service, eNMS starts it in a different thread and immediately respond with the service ID, so that you can fetch the result later on.
   - Async will default to ``False`` if not in the payload.
 
 Example of body:
@@ -135,7 +135,7 @@ Example of payload to schedule a task from the REST API: this payload will creat
 
  {
     "name": "test",
-    "job": "netmiko_check_vrf_test",
+    "service": "netmiko_check_vrf_test",
 	"is_active": true,
 	"devices": ["Baltimore"],
 	"start_date": "13/08/2019 10:16:50"
@@ -164,7 +164,7 @@ Example of body:
 
  {
   "name": "test_project",
-  "import_export_types": ["User", "Device", "Link", "Pool", "Service", "WorkflowEdge", "Workflow", "Task"],
+  "import_export_types": ["user", "device", "link", "pool", "service", "workflow_edge", "task"],
   "empty_database_before_import": true
  }
 
@@ -181,7 +181,7 @@ You can also trigger the import/export programmatically. Here's an example with 
      data=dumps({
          "name": "Backup",
          "empty_database_before_import": False,
-         "import_export_types": ["User", "Device", "Link", "Pool", "Service", "WorkflowEdge", "Workflow", "Task"],
+         "import_export_types": ["user", "device", "link", "pool", "service", "workflow_edge", "task"],
      }),
      headers={'content-type': 'application/json'},
      auth=HTTPBasicAuth('admin', 'admin')
@@ -236,9 +236,3 @@ Some of the functionalities available in the administration panel can be accesse
 - ``update_database_configurations_from_git``: download and update device configuration from a git repository.
 - ``update_all_pools``: update all pools.
 - ``get_git_content``: fetch git configuration and automation content.
-
-Swagger / OpenAPI Interface
-***************************
-
-The eNMS ReST API is documented with Swagger / OpenAPI3.0. JSON and Yaml definitions for the interface, as well as the HTML API
-document can be found in the 'swagger' directory of the eNMS project.

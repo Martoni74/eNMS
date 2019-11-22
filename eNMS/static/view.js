@@ -3,20 +3,20 @@ global
 action: false
 alertify: false
 call: false
-deviceFilteringPanel: false
-fCall: false
+config: true
 L: false
-linkFilteringPanel: false
+serializeForm: false
+showDeviceNetworkData: false
+showFilteringPanel: false
+showPanel: false
 showPoolView: false
 showTypePanel: false
 viewType: false
-WE: false
 */
 
 const layers = {
   osm: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
   gm: "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga",
-  nasa: "http://tileserver.maptiler.com/nasa/{z}/{x}/{y}.jpg",
 };
 
 const iconSizes = {
@@ -34,55 +34,15 @@ const iconSizes = {
 let selectedObject;
 let markersArray = [];
 let polylinesArray = [];
-let currentView;
-let dimension;
-let layer2D = L.tileLayer(layers["osm"]);
-let layer3D = WE.tileLayer(layers["gm"]);
+let layer;
 let markerType;
-let earth;
 let map;
 let markers = L.markerClusterGroup();
-
-call("/get/parameters/1", function(parameters) {
-  currentView = parameters.default_view;
-  dimension = currentView.substring(0, 2);
-  markerType = parameters.default_marker;
-  map = L.map("map", { preferCanvas: true }).setView(
-    [parameters.default_latitude, parameters.default_longitude],
-    parameters.default_zoom_level
-  );
-  earth = WE.map("earth", { sky: true, atmosphere: true });
-  map.addLayer(layer2D);
-  layer3D.addTo(earth);
-
-  if (currentView == "3D") {
-    $("#map").css("visibility", "hidden");
-  } else {
-    $("#earth").css("visibility", "hidden");
-  }
-
-  map.on("click", function(e) {
-    selectedObject = null;
-  });
-
-  earth.on("click", function(e) {
-    $(".menu").hide();
-    $(".geo-menu").show();
-  });
-
-  map.on("contextmenu", function() {
-    if (!selectedObject) {
-      $(".menu").hide();
-      $(".geo-menu").show();
-    }
-  });
-
-  switchView(currentView);
-});
+let clustered;
 
 for (const [key, value] of Object.entries(iconSizes)) {
   window[`icon_${key}`] = L.icon({
-    iconUrl: `../static/images/2D/${key}.gif`,
+    iconUrl: `../static/images/view/${key}.gif`,
     iconSize: value,
     iconAnchor: [9, 6],
     popupAnchor: [8, -5],
@@ -91,78 +51,22 @@ for (const [key, value] of Object.entries(iconSizes)) {
 
 const routerIcon = window["icon_router"];
 
-L.PolylineClusterable = L.Polyline.extend({
-  _originalInitialize: L.Polyline.prototype.initialize,
-  initialize: function(bounds, options) {
-    this._originalInitialize(bounds, options);
-    this._latlng = this.getBounds().getCenter();
-  },
-  getLatLng: function() {
-    return this._latlng;
-  },
-  setLatLng: function() {},
-});
-
 // eslint-disable-next-line
-function switchView(newView) {
-  deleteAll();
-  const newDimension = newView.substring(0, 2);
-  if (dimension != newDimension) {
-    $("#map,#earth").css("visibility", "visible");
-    $(".flip-container").toggleClass("hover");
-    setTimeout(function() {
-      if (newDimension == "3D") {
-        $("#map").css("visibility", "hidden");
-      } else {
-        $("#earth").css("visibility", "hidden");
-      }
-    }, 1600);
-  } else {
-    $(`#${newDimension == "2D" ? "map" : "earth"}`).css(
-      "visibility",
-      "visible"
-    );
-  }
-  dimension = newDimension;
-  currentView = newView;
-  $(`#btn-${currentView}`).hide();
-  if (currentView == "2D") {
-    $("#btn-2DC,#btn-3D").show();
-  } else if (currentView == "2DC") {
-    $("#btn-2D,#btn-3D").show();
-  } else {
-    $("#btn-2D,#btn-2DC").show();
-  }
-  updateView();
-  if (currentView == "2DC") {
-    map.addLayer(markers);
-  }
-}
-
-// eslint-disable-next-line
-function switchLayer(layer) {
-  if (currentView !== "3D") {
-    map.removeLayer(layer2D);
-    layer2D = L.tileLayer(layers[layer]);
-    map.addLayer(layer2D);
-  } else {
-    layer3D.removeFrom(earth);
-    layer3D = WE.tileLayer(layers[layer]);
-    layer3D.addTo(earth);
-  }
-  $(".dropdown-submenu a.menu-layer")
-    .next("ul")
-    .toggle();
+function switchLayer(layerType) {
+  map.removeLayer(layer);
+  layer = L.tileLayer(layers[layerType]);
+  map.addLayer(layer);
 }
 
 // eslint-disable-next-line
 function changeMarker(type) {
   markerType = type;
-  switchView(currentView);
+  updateView();
 }
 
 // eslint-disable-next-line
-function createNode2d(node, nodeType) {
+function createNode(node, nodeType) {
+  if (!node.latitude && !node.longitude) return;
   const marker =
     markerType == "Circle Marker"
       ? L.circleMarker([node.latitude, node.longitude])
@@ -177,41 +81,6 @@ function createNode2d(node, nodeType) {
     marker.setIcon(marker.icon);
   }
   marker.bindTooltip(node["name"], { permanent: false });
-  return marker;
-}
-
-// eslint-disable-next-line
-function createNode3d(node, nodeType) {
-  let marker;
-  if (markerType == "Image") {
-    marker = WE.marker(
-      [node.latitude, node.longitude],
-      `../static/images/3D/${nodeType == "device" ? "router" : "site"}.gif`,
-      15,
-      10
-    ).addTo(earth);
-  } else {
-    marker = WE.marker([node.latitude, node.longitude]).addTo(earth);
-  }
-  marker.on("mouseover", function(e) {
-    $("#name-box").text(node.name);
-    $("#name-box").show();
-  });
-  marker.on("mouseout", function(e) {
-    $("#name-box").hide();
-  });
-  return marker;
-}
-
-// eslint-disable-next-line
-function createNode(node, nodeType) {
-  if (!node.latitude && !node.longitude) return;
-  let marker;
-  if (currentView == "3D") {
-    marker = createNode3d(node, nodeType);
-  } else {
-    marker = createNode2d(node, nodeType);
-  }
   marker.node_id = node.id;
   markersArray.push(marker);
   marker.on("click", function(e) {
@@ -226,24 +95,25 @@ function createNode(node, nodeType) {
     $(`.rc-${nodeType}-menu`).show();
     selectedObject = node; // eslint-disable-line no-undef
   });
-  if (currentView == "2D") {
-    marker.addTo(map);
-  } else if (currentView == "2DC") {
+  if (clustered) {
     markers.addLayer(marker);
+  } else {
+    marker.addTo(map);
   }
 }
 
 // eslint-disable-next-line
-function createLink2d(link) {
+function createLink(link) {
+  if (clustered) return;
   let pointA = new L.LatLng(link.source_latitude, link.source_longitude);
   let pointB = new L.LatLng(
     link.destination_latitude,
     link.destination_longitude
   );
   const pointList = [pointA, pointB];
-  const polyline = new L.PolylineClusterable(pointList, {
+  const polyline = new L.Polyline(pointList, {
     color: link.color,
-    weight: 3,
+    weight: 2,
     opacity: 1,
     smoothFactor: 1,
   });
@@ -255,77 +125,27 @@ function createLink2d(link) {
   polyline.on("contextmenu", function(e) {
     $(".menu").hide();
     $(".rc-link-menu").show();
-    selectedObject = this.link; // eslint-disable-line no-undef
+    selectedObject = link; // eslint-disable-line no-undef
   });
   polyline.bindTooltip(link.name, {
     permanent: false,
   });
-  if (currentView == "2D") {
-    polyline.addTo(map);
-  } else {
-    markers.addLayer(polyline);
-  }
-}
-
-// eslint-disable-next-line
-function createLink3d(link) {
-  const color = link.color.trimRight();
-  const polygonSD = WE.polygon(
-    [
-      [link.source_latitude, link.source_longitude],
-      [link.destination_latitude, link.destination_longitude],
-      [link.source_latitude, link.source_longitude],
-    ],
-    { color: color, opacity: 20 }
-  ).addTo(earth);
-  const polygonDS = WE.polygon(
-    [
-      [link.destination_latitude, link.destination_longitude],
-      [link.source_latitude, link.source_longitude],
-      [link.destination_latitude, link.destination_longitude],
-    ],
-    { color: color, opacity: 20 }
-  ).addTo(earth);
-  polygonSD.link_id = polygonDS.link_id = link.id;
-  polylinesArray.push(polygonSD, polygonDS);
-}
-
-// eslint-disable-next-line
-function createLink(link) {
-  if (currentView == "2D" || currentView == "2DC") {
-    createLink2d(link);
-  } else {
-    createLink3d(link);
-  }
+  polyline.addTo(map);
 }
 
 function deleteAllDevices() {
   for (let i = 0; i < markersArray.length; i++) {
-    if (currentView == "2D") {
-      markersArray[i].removeFrom(map);
-    } else if (currentView == "3D") {
-      markersArray[i].removeFrom(earth);
-    } else {
+    if (clustered) {
       markers.removeLayer(markersArray[i]);
+    } else {
+      markersArray[i].removeFrom(map);
     }
   }
   markersArray = [];
 }
 
 function deleteAllLinks() {
-  for (let i = 0; i < polylinesArray.length; i++) {
-    if (currentView == "2D") {
-      polylinesArray[i].removeFrom(map);
-    } else if (currentView == "2DC") {
-      markers.removeLayer(polylinesArray[i]);
-    } else {
-      try {
-        polylinesArray[i].destroy();
-      } catch (err) {
-        // catch
-      }
-    }
-  }
+  polylinesArray.map((l) => l.removeFrom(map));
   polylinesArray = [];
 }
 
@@ -338,14 +158,11 @@ Object.assign(action, {
   // eslint-disable-line no-unused-vars
   "Open Street Map": () => switchLayer("osm"),
   "Google Maps": () => switchLayer("gm"),
-  NASA: () => switchLayer("nasa"),
-  "Display sites": () => switchView(currentView),
-  "2D": () => switchView("2D"),
-  "Clustered 2D": () => switchView("2DC"),
-  "3D": () => switchView("3D"),
   Image: () => changeMarker("Image"),
   Circle: () => changeMarker("Circle"),
   "Circle Marker": () => changeMarker("Circle Marker"),
+  Normal: () => updateView(),
+  Clustered: () => updateView(true),
 });
 
 $("body").contextMenu({
@@ -358,8 +175,9 @@ $("body").contextMenu({
 });
 
 // eslint-disable-next-line
-function updateView() {
+function updateView(withCluster) {
   deleteAll();
+  clustered = withCluster;
   if (viewType == "network") {
     call("/get_view_topology", function(topology) {
       topology.devices.map((d) => createNode(d, "device"));
@@ -376,23 +194,61 @@ function updateView() {
     });
     $(".geo-menu").show();
   }
+  if (clustered) {
+    map.addLayer(markers);
+  } else {
+    map.removeLayer(markers);
+  }
 }
 
 // eslint-disable-next-line
 function filter(type) {
-  fCall(`/view_filtering/${type}`, `#${type}-form`, (r) => {
-    if (type == "device_filtering") {
-      deleteAllDevices();
-      r.map((d) => createNode(d, "device"));
-    } else {
-      deleteAllLinks();
-      r.map(createLink);
-    }
-    alertify.notify("Filter applied.", "success", 5);
+  $.ajax({
+    type: "POST",
+    url: `/view_filtering/${type}`,
+    contentType: "application/json",
+    data: JSON.stringify({ form: serializeForm(`#${type}_filtering-form`) }),
+    success: function(results) {
+      if (type == "device") {
+        deleteAllDevices();
+        results.map((d) => createNode(d, "device"));
+      } else {
+        deleteAllLinks();
+        results.map(createLink);
+      }
+      alertify.notify("Filter applied.", "success", 5);
+    },
   });
 }
 
 // eslint-disable-next-line
 function showViewFilteringPanel(type) {
-  (type == "device" ? deviceFilteringPanel : linkFilteringPanel).normalize();
+  showFilteringPanel(`${type}_filtering`);
 }
+
+Object.assign(action, {
+  Properties: (o) => showTypePanel(o.icon ? "device" : "link", o.id),
+  Connect: (d) => showPanel("device_connection", d.id),
+  Configuration: (d) => showDeviceNetworkData(d),
+});
+
+(function() {
+  markerType = config.view.marker;
+  map = L.map("map", { preferCanvas: true }).setView(
+    [config.view.latitude, config.view.longitude],
+    config.view.zoom_level
+  );
+  layer = L.tileLayer(layers[config.view.tile_layer]);
+  map
+    .addLayer(layer)
+    .on("click", function(e) {
+      selectedObject = null;
+    })
+    .on("contextmenu", function() {
+      if (!selectedObject) {
+        $(".menu").hide();
+        $(".geo-menu").show();
+      }
+    });
+  updateView();
+})();

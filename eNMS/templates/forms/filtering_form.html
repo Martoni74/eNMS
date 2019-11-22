@@ -26,21 +26,17 @@
         {% for property in form.properties %} {% set id =
         "{}-{}".format(form_type, property) %}
         <tr>
-          {% if form[property].type == "StringField" %}
           <td>
-            {{ names.get(property, property.replace("_", " ").capitalize() ) }}
+            {{ names.get(property, property.replace("_", " ")).capitalize() }}
           </td>
-          <td>{{ form[property](id=id, class="form-control") }}</td>
           <td>
-            {{ form[property + "_filter"](id=id + "_filter",
-            class="form-control") }}
+            {{ form[property](id=id, class="form-control", style="width:100%;")
+            }}
           </td>
-          {% else %}
           <td>
-            {{ names.get(property, property.replace("_", " ").capitalize() ) }}
+            {{ form[property + "_filter"](id=id + "_filter", class="form-control
+            no-search") }}
           </td>
-          <td colspan="2">{{ form[property](id=id, class="form-control") }}</td>
-          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
@@ -50,7 +46,7 @@
     <button
       type="button"
       class="btn btn-success"
-      onclick="filter('{{ form_type }}')"
+      onclick="filter('{{ form_type.split('_')[0] }}')"
     >
       Save
     </button>

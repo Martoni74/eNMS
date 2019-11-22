@@ -1,10 +1,9 @@
 from ast import literal_eval
-from flask_wtf import FlaskForm
 from json import loads
 from json.decoder import JSONDecodeError
-from typing import Any
 from wtforms import (
     BooleanField,
+    FieldList,
     FloatField,
     IntegerField,
     PasswordField,
@@ -14,18 +13,17 @@ from wtforms import (
 )
 from wtforms.validators import ValidationError
 
-from eNMS.database.functions import choices
-
 
 class DateField(StringField):
     pass
 
 
 class JsonField(StringField):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args, **kwargs):
+        kwargs["default"] = kwargs.get("default", "{}")
         super().__init__(*args, **kwargs)
 
-    def pre_validate(self, form: FlaskForm) -> bool:
+    def pre_validate(self, form):
         try:
             loads(self.data)
         except JSONDecodeError:
@@ -34,17 +32,17 @@ class JsonField(StringField):
 
 
 class JsonSubstitutionField(JsonField):
-    def __call__(self, *args: Any, **kwargs: Any) -> str:
+    def __call__(self, *args, **kwargs):
         kwargs["style"] = "background-color: #e8f0f7"
         return super().__call__(*args, **kwargs)
 
 
 class DictField(StringField):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args, **kwargs):
         kwargs["default"] = kwargs.get("default", "{}")
         super().__init__(*args, **kwargs)
 
-    def pre_validate(self, form: FlaskForm) -> bool:
+    def pre_validate(self, form):
         invalid_dict, invalid_json = False, False
         try:
             result = literal_eval(self.data)
@@ -62,48 +60,49 @@ class DictField(StringField):
 
 
 class DictSubstitutionField(DictField):
-    def __call__(self, *args: Any, **kwargs: Any) -> str:
+    def __call__(self, *args, **kwargs):
         kwargs["style"] = "background-color: #e8f0f7"
         return super().__call__(*args, **kwargs)
 
 
 class InstanceField(SelectField):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        instance_type = kwargs.pop("instance_type")
+    def __init__(self, *args, **kwargs):
         kwargs["coerce"] = int
         super().__init__(*args, **kwargs)
-        self.choices = choices(instance_type)
+        self.choices = ()
+
+    def pre_validate(self, form):
+        pass
 
 
 class MultipleInstanceField(SelectMultipleField):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        instance_type = kwargs.pop("instance_type")
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.choices = choices(instance_type)
+        self.choices = ()
 
-    def pre_validate(self, form: FlaskForm) -> None:
+    def pre_validate(self, form):
         pass
 
 
 class SubstitutionField(StringField):
-    def __call__(self, *args: Any, **kwargs: Any) -> str:
+    def __call__(self, *args, **kwargs):
         kwargs["style"] = "background-color: #e8f0f7"
         return super().__call__(*args, **kwargs)
 
 
 class PasswordSubstitutionField(PasswordField):
-    def __call__(self, *args: Any, **kwargs: Any) -> str:
+    def __call__(self, *args, **kwargs):
         kwargs["style"] = "background-color: #e8f0f7"
         return super().__call__(*args, **kwargs)
 
 
 class NoValidationSelectField(SelectField):
-    def pre_validate(self, form: FlaskForm) -> None:
+    def pre_validate(self, form):
         pass
 
 
 class NoValidationSelectMultipleField(SelectMultipleField):
-    def pre_validate(self, form: FlaskForm) -> None:
+    def pre_validate(self, form):
         pass
 
 
@@ -112,6 +111,7 @@ field_types = {
     DateField: "date",
     DictField: "dict",
     DictSubstitutionField: "dict",
+    FieldList: "field-list",
     FloatField: "float",
     InstanceField: "object",
     IntegerField: "integer",
@@ -120,6 +120,7 @@ field_types = {
     MultipleInstanceField: "object-list",
     NoValidationSelectMultipleField: "multiselect",
     NoValidationSelectField: "list",
+    PasswordField: "str",
     PasswordSubstitutionField: "str",
     SelectField: "list",
     SelectMultipleField: "multiselect",

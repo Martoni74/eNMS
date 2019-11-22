@@ -1,20 +1,20 @@
-from flask.testing import FlaskClient
-
-from eNMS.controller import controller
+from eNMS import app
 from eNMS.database.functions import fetch, fetch_all
 
 from tests.conftest import check_pages
 
 
-def test_authentication(base_client: FlaskClient) -> None:
-    for page in controller.valid_pages:
-        expected_code = 200 if page in controller.free_access_pages else 403
+def test_authentication(base_client):
+    for page in app.get_endpoints:
         r = base_client.get(page)
-        assert r.status_code == expected_code
+        if page in ["/", "/login"]:
+            assert r.status_code == 200
+        else:
+            assert r.status_code == 302 and "login" in r.location
 
 
-def test_urls(user_client: FlaskClient) -> None:
-    for page in controller.valid_pages:
+def test_urls(user_client):
+    for page in app.get_endpoints:
         r = user_client.get(page, follow_redirects=True)
         assert r.status_code == 200
     r = user_client.get("/logout", follow_redirects=True)
@@ -22,7 +22,7 @@ def test_urls(user_client: FlaskClient) -> None:
 
 
 @check_pages("table/user")
-def test_user_management(user_client: FlaskClient) -> None:
+def test_user_management(user_client):
     for user in ("user1", "user2", "user3"):
         dict_user = {
             "form_type": "user",
@@ -32,7 +32,7 @@ def test_user_management(user_client: FlaskClient) -> None:
             "password": user,
         }
         user_client.post("/update/user", data=dict_user)
-    assert len(fetch_all("User")) == 4
-    user1 = fetch("User", name="user1")
+    assert len(fetch_all("user")) == 4
+    user1 = fetch("user", name="user1")
     user_client.post("/delete_instance/user/{}".format(user1.id))
-    assert len(fetch_all("User")) == 3
+    assert len(fetch_all("user")) == 3

@@ -2,7 +2,6 @@ from collections import defaultdict
 from flask import request
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from werkzeug.datastructures import ImmutableMultiDict
 from wtforms.fields.core import UnboundField
 from wtforms.form import FormMeta
 
@@ -13,12 +12,12 @@ from eNMS.properties import field_conversion, property_names
 
 form_actions = {}
 form_classes = {}
-form_properties: dict = defaultdict(dict)
+form_properties = defaultdict(dict)
 form_templates = {}
 
 
 class MetaForm(FormMeta):
-    def __new__(cls: type, name: str, bases: tuple, attrs: dict) -> FlaskForm:
+    def __new__(cls, name, bases, attrs):
         form: FlaskForm = type.__new__(cls, name, bases, attrs)
         if name == "BaseForm":
             return form
@@ -27,7 +26,10 @@ class MetaForm(FormMeta):
         form_templates[form_type] = getattr(form, "template", "base")
         form_actions[form_type] = getattr(form, "action", None)
         properties = {
-            field_name: field_types[field.field_class]
+            field_name: {
+                "type": field_types[field.field_class],
+                "model": field.kwargs.pop("model", None),
+            }
             for field_name, field in attrs.items()
             if isinstance(field, UnboundField) and field.field_class in field_types
         }
@@ -35,11 +37,15 @@ class MetaForm(FormMeta):
             {
                 field_name: field.args[0]
                 for field_name, field in attrs.items()
-                if isinstance(field, UnboundField) and field.args
+                if isinstance(field, UnboundField)
+                and field.args
+                and isinstance(field.args[0], str)
             }
         )
         form_properties[form_type].update(properties)
-        property_types.update(properties)
+        for property, value in properties.items():
+            if property not in property_types:
+                property_types[property] = value["type"]
         for base in form.__bases__:
             if not hasattr(base, "form_type"):
                 continue
@@ -56,25 +62,31 @@ class BaseForm(FlaskForm, metaclass=MetaForm):
     pass
 
 
-def form_postprocessing(form: ImmutableMultiDict) -> dict:
-    data = {**form.to_dict(), **{"user": current_user}}
+def form_postprocessing(form, form_data):
+    data = {**form_data.to_dict(), **{"user": current_user}}
     if request.files:
         data["file"] = request.files["file"]
-    for property, field_type in form_properties[form.get("form_type")].items():
-        if field_type in ("object-list", "multiselect"):
-            data[property] = form.getlist(property)
-        elif field_type == "bool":
-            data[property] = property in form
-        elif field_type in field_conversion and property in data:
-            data[property] = field_conversion[field_type](form[property])
+    for property, field in form_properties[form_data.get("form_type")].items():
+        if field["type"] in ("object-list", "multiselect"):
+            data[property] = form_data.getlist(property)
+        elif field["type"] == "field-list":
+            data[property] = []
+            for entry in getattr(form, property).entries:
+                properties = entry.data
+                properties.pop("csrf_token")
+                data[property].append(properties)
+        elif field["type"] == "bool":
+            data[property] = property in form_data
+        elif field["type"] in field_conversion and property in data:
+            data[property] = field_conversion[field["type"]](form_data[property])
     return data
 
 
-def configure_relationships(cls: BaseForm) -> BaseForm:
+def configure_relationships(cls):
     form_type = cls.form_type.kwargs["default"]
-    for related_model, relation in relationships[form_type.capitalize()].items():
+    for related_model, relation in relationships[form_type].items():
         field = MultipleInstanceField if relation["list"] else InstanceField
         field_type = "object-list" if relation["list"] else "object"
-        form_properties[form_type][related_model] = field_type
-        setattr(cls, related_model, field(instance_type=relation["model"]))
+        form_properties[form_type][related_model] = {"type": field_type}
+        setattr(cls, related_model, field())
     return cls

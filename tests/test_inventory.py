@@ -1,7 +1,6 @@
-from flask.testing import FlaskClient
-from typing import List
 from werkzeug.datastructures import ImmutableMultiDict
 
+from eNMS import app
 from eNMS.database.functions import delete_all, fetch, fetch_all
 from eNMS.properties.objects import (
     device_icons,
@@ -46,63 +45,63 @@ def define_link(source: int, destination: int) -> ImmutableMultiDict:
 
 
 @check_pages("table/device", "table/link", "view/network")
-def test_manual_object_creation(user_client: FlaskClient) -> None:
-    delete_all("Device", "Link")
+def test_manual_object_creation(user_client):
+    delete_all("device", "link")
     for icon in device_icons:
         for description in ("desc1", "desc2"):
             obj_dict = define_device(icon, description)
             user_client.post("/update/device", data=obj_dict)
-    devices = fetch_all("Device")
+    devices = fetch_all("device")
     for source in devices[:3]:
         for destination in devices[:3]:
             obj_dict = define_link(source.id, destination.id)
             user_client.post("/update/link", data=obj_dict)
-    assert len(fetch_all("Device")) == 16
-    assert len(fetch_all("Link")) == 9
+    assert len(fetch_all("device")) == 16
+    assert len(fetch_all("link")) == 9
 
 
-def create_from_file(client: FlaskClient, file: str) -> None:
-    with open(client.application.path / "projects" / "spreadsheets" / file, "rb") as f:
+def create_from_file(client, file: str):
+    with open(app.path / "files" / "spreadsheets" / file, "rb") as f:
         data = {"form_type": "excel_import", "file": f, "replace": False}
         client.post("/import_topology", data=data)
 
 
 @check_pages("table/device", "table/link", "view/network")
-def test_object_creation_europe(user_client: FlaskClient) -> None:
+def test_object_creation_europe(user_client):
     create_from_file(user_client, "europe.xls")
-    assert len(fetch_all("Device")) == 33
-    assert len(fetch_all("Link")) == 49
+    assert len(fetch_all("device")) == 33
+    assert len(fetch_all("link")) == 49
 
 
 @check_pages("table/device", "table/link", "view/network")
-def test_object_creation_type(user_client: FlaskClient) -> None:
+def test_object_creation_type(user_client):
     create_from_file(user_client, "device_counters.xls")
-    assert len(fetch_all("Device")) == 27
-    assert len(fetch_all("Link")) == 0
+    assert len(fetch_all("device")) == 27
+    assert len(fetch_all("link")) == 0
 
 
-routers: List[str] = ["router" + str(i) for i in range(5, 20)]
-links: List[str] = ["link" + str(i) for i in range(4, 15)]
+routers = ["router" + str(i) for i in range(5, 20)]
+links = ["link" + str(i) for i in range(4, 15)]
 
 
 @check_pages("table/device", "table/link", "view/network")
-def test_device_deletion(user_client: FlaskClient) -> None:
+def test_device_deletion(user_client):
     create_from_file(user_client, "europe.xls")
     for device_name in routers:
-        device = fetch("Device", name=device_name)
+        device = fetch("device", name=device_name)
         user_client.post(f"/delete_instance/device/{device.id}")
-    assert len(fetch_all("Device")) == 18
-    assert len(fetch_all("Link")) == 18
+    assert len(fetch_all("device")) == 18
+    assert len(fetch_all("link")) == 18
 
 
 @check_pages("table/device", "table/link", "view/network")
-def test_link_deletion(user_client: FlaskClient) -> None:
+def test_link_deletion(user_client):
     create_from_file(user_client, "europe.xls")
     for link_name in links:
-        link = fetch("Link", name=link_name)
+        link = fetch("link", name=link_name)
         user_client.post(f"/delete_instance/link/{link.id}")
-    assert len(fetch_all("Device")) == 33
-    assert len(fetch_all("Link")) == 38
+    assert len(fetch_all("device")) == 33
+    assert len(fetch_all("link")) == 38
 
 
 pool1 = {
@@ -136,16 +135,16 @@ def create_pool(pool: dict) -> dict:
 
 
 @check_pages("table/device", "table/link", "view/network")
-def test_pool_management(user_client: FlaskClient) -> None:
+def test_pool_management(user_client):
     create_from_file(user_client, "europe.xls")
     user_client.post("/update/pool", data=create_pool(pool1))
     user_client.post("/update/pool", data=create_pool(pool2))
-    p1, p2 = fetch("Pool", name="pool1"), fetch("Pool", name="pool2")
+    p1, p2 = fetch("pool", name="pool1"), fetch("pool", name="pool2")
     assert len(p1.devices) == 21
     assert len(p1.links) == 20
     assert len(p2.devices) == 12
     assert len(p2.links) == 4
-    assert len(fetch_all("Pool")) == 9
+    assert len(fetch_all("pool")) == 9
     user_client.post(f"/delete_instance/pool/{p1.id}")
     user_client.post(f"/delete_instance/pool/{p2.id}")
-    assert len(fetch_all("Pool")) == 7
+    assert len(fetch_all("pool")) == 7

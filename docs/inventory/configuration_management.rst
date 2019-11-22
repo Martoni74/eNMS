@@ -17,7 +17,7 @@ Device configuration
 All devices are listed in the :guilabel:`Inventory / Configuration Management` page. By default, configurations are retrieved by a service called ``Configuration Backup Service``, which:
   - Uses Netmiko to fetch the configuration
   - Updates the device ``configuration`` property (a python dictionary that contains the most recent configurations)
-  - Writes the configuration to a local text file (located in eNMS/git/configurations)
+  - Writes the configuration to a local text file (located in eNMS/files/git/data)
 
 .. image:: /_static/inventory/configuration_management/device_configuration.png
    :alt: Configuration Management table.
@@ -64,4 +64,4 @@ Advanced
 
 - Number of configurations stored in the database: by default, eNMS stores the 10 most recent configurations in the database. The polling process is controlled by the ``configuration_backup`` service. You can change the number of stored configurations by changing the ``Number of configurations stored`` property.
 - Configurations are retrieved with Netmiko. By default, eNMS uses the driver defined at device level to run the command. You can use a driver configured at service level instead, by unticking the ``Use driver from device`` check box.
-- Configurations are pushed to the git 'configurations' repository automatically. This is not to be confused with the 'Push to git' option for Services and Workflows, which enables pushing the Job logs into the 'automation' repository
+- Configurations are pushed to the git 'configurations' repository automatically.

@@ -8,7 +8,7 @@ GoTTY is a terminal sharing web solution that can be found on github: https://gi
 Installation
 ------------
 
-There is no need to install GoTTY: it is shipped with eNMS by default in ``/eNMS/applications``.
+There is no need to install GoTTY: it is shipped with eNMS by default in ``/eNMS/files/apps``.
 However, you must make sure that the file `gotty` can be executed (``chmod 755 gotty``).
 
 Port allocation
@@ -21,12 +21,11 @@ You can change this range directly from the web UI, in the :guilabel:`Admin / Ad
 Custom URL
 ----------
 
-eNMS automatically redirects you to the address and port GoTTY is listening to, using JavaScript variables ``window.location.hostname`` and ``window.location.protocol``. If these variables do not redirect to the right URL, you can tell eNMS which protocol and URL to use by configuring the ``ENMS_SERVER_ADDR`` environment variable.
-
-::
-
- # set the ENMS_SERVER_ADDR environment variable
- (Unix) export ENMS_SERVER_ADDR=https://URL (just the URL, and eNMS will add the port GoTTY is listening to)
+eNMS automatically redirects you to the address and port GoTTY is listening to,
+using JavaScript variables ``window.location.hostname`` and ``window.location.protocol``.
+If these variables do not redirect to the right URL, you can tell eNMS which protocol
+and URL to use by setting the ``address`` variable in the configuration. (just the URL, and 
+eNMS will add the port GoTTY is listening to)
 
 Port redirection
 ----------------
@@ -49,13 +48,10 @@ With Nginx, this can be accomplished with the following `location` :
    proxy_set_header Connection "upgrade";
  }
 
-A full example of nginx configuration can be found in ``eNMS/nginx``.
+A full example of nginx configuration can be found in ``eNMS/files/nginx``.
 
-eNMS does not by default perform any port redirection: you must set the ``GOTTY_PORT_REDIRECTION`` environment to ``1`` to enable it.
-
-::
-
- export GOTTY_PORT_REDIRECTION=1
+eNMS does not by default perform any port redirection: you must set the ``port_redirection``
+variable to ``true`` to enable it.
 
 Ignore fingerprint prompt
 -------------------------

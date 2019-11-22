@@ -20,8 +20,7 @@ Parameters common to all services
     - ``Send Notification Method`` Choose Mail, Mattermost, or Slack to send the results summary to. See the previous section on Service Notification for more details.
     - ``Display only failed nodes`` Include only the failed devices in the email notification body summary
     - ``Mail Recipients (separated by comma)`` Overrides the Mail Recipients specified in the Administration Panel
-    - ``Waiting time (in seconds)`` How many seconds to wait after the service instance has completed running before running the next job.
-    - ``Push to Git`` Push the results of the service to a remote Git repository configured from the administration panel.
+    - ``Waiting time (in seconds)`` How many seconds to wait after the service instance has completed running before running the next service.
 - ``Targets``
     - ``Devices`` Multi-selection list of devices from the inventory
     - ``Pools`` (Filtered) pools of devices can be selected instead of, or in addition to, selecting individual devices. Multiple pools may also be selected.
@@ -45,7 +44,7 @@ Parameters common to the services that use netmiko
 - ``Privileged mode`` If checked, Netmiko should enter enable mode on the device before applying the above configuration block 
 - ``Driver`` Which Netmiko driver to use when connecting to the device
 - ``Use driver from device`` If set to True, the driver defined at device level (``netmiko_driver`` property of the device) is used, otherwise the driver defined at service level (``driver`` property of the service) is used. By default, this property is set to ```True`` and eNMS uses the driver defined in the ``netmiko_driver`` property of the device. A **driver** can be selected among all available netmiko drivers. The list of drivers is built upon netmiko ``CLASS_MAPPER_BASE`` in ``ssh_dispatcher.py`` (https://github.com/ktbyers/netmiko/blob/develop/netmiko/ssh_dispatcher.py#L69.
-- ``Fast CLI`` If checked, Netmiko will disable internal wait states and delays in order to execute the job as fast as possible.
+- ``Fast CLI`` If checked, Netmiko will disable internal wait states and delays in order to execute the service as fast as possible.
 - ``Timeout`` Netmiko internal timeout in seconds to wait for a connection or response before declaring failure.
 - ``Delay factor`` Netmiko multiplier used to increase internal delays (defaults to 1). Delay factor is used in the send_command Netmiko method. See here for more explanation: (https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html)
 - ``Global delay factor`` Netmiko multiplier used to increase internal delays (defaults to 1). Global delay factor affects more delays beyond Netmiko send_command. Increase this for devices that have trouble buffering and responding quickly.
@@ -309,7 +308,7 @@ Python Snippet Service
 Runs any python code.
 
 In the code, you can use the following variables / functions :
-- ``log``: function to add a string to the job logs.
+- ``log``: function to add a string to the service logs.
 - ``parent``: the workflow that the python snippet service is called from.
 - ``save_result``: the results of the service.
 
@@ -318,24 +317,6 @@ Additionally, you can use all the variables and functions described in the "Adva
 Configuration parameters for creating this service instance:
 - ``Has Device Targets`` If checked, indicates that the selected inventory devices will be made available for variable substitution in the URL and payload fields. For example, URL could be: /rest/get/{{device.ip_address}}
 - ``Source code``: source code of the python script to run.
-
-Iteration Service
------------------
-
-Execute a service multiple times with different values.
-
-Configuration parameters for creating this service instance:
-- ``Has Device Targets`` If checked, indicates that the selected inventory devices will be made available for variable substitution in the URL and payload fields. For example, URL could be: /rest/get/{{device.ip_address}}
-- ``Where Values come from`` The values over which the service iterates can either come from a user-provided dictionary, or be retrieved from the payload with a Python query.
-- ``Iteration Values for Iteration: User provided`` A dictionary that contains the iteration values. If the iteration values are common to all devices, the dictionary must have a unique key `all` associated to the value,
-for example `{"all": [1, 2, 3]}`. However, if the values are different for each device, the keys must be device names, for example `{"device1": [1, 2], "device2": [3, 4]}`.
-- ``Iteration Values for Iteration: Python query on the payload``: a Python query on the payload to fetch the iteration values. This field supports variable substitution, such that you can retrieve different values in the payload for each device
-by using `{{device.name}}` in the query.
-- ``Iteration Variable Name``: the value is sent to the "iterated job" via the payload, where it is associated to a variable. You can choose the name of the variable with this field.
-If you set this variable to `value`, the payload passed to the iterated service will contain a key `value` associated to the iteration value.
-- ``Job to run for each Value``: the job to execute.
-
-.. note:: This Service supports variable substitution (as mentioned in the previous section) in the `Python query` input field.
 
 Payload Extraction Service
 --------------------------

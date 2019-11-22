@@ -1,22 +1,23 @@
 /*
 global
-addJobsToWorkflow: false
 alertify: false
 call: false
+cantorPairing: false
+CodeMirror: false
 createPanel: false
 diffview: false
-displayWorkflow: false
 fCall: false
-getJobState: false
-getWorkflowState: false
-jobToNode: false
+getServiceState: false
+initTable: false
 JSONEditor: false
 page: false
+serviceTypes: false
 showTypePanel: false
-table: false
+tables: false
+workflow: true
 */
 
-let currentResults = {};
+let currentRuntime;
 
 // eslint-disable-next-line
 function openServicePanel() {
@@ -27,6 +28,12 @@ function openServicePanel() {
 function panelCode(type, id, mode) {
   const typeInput = $(id ? `#${type}-class-${id}` : `#${type}-class`);
   typeInput.val(type).prop("disabled", true);
+  $(id ? `#${type}-name-${id}` : `#${type}-name`).prop("disabled", true);
+  if (id) $(`#${type}-shared-${id}`).prop("disabled", true);
+  $(id ? `#${type}-workflows-${id}` : `#${type}-workflows`).prop(
+    "disabled",
+    true
+  );
   $(id ? `#${type}-wizard-${id}` : `#${type}-wizard`).smartWizard({
     autoAdjustHeight: false,
     enableAllSteps: true,
@@ -41,61 +48,7 @@ function panelCode(type, id, mode) {
       .addClass("btn-primary")
       .attr("onclick", `parametrizedRun('${type}', ${id})`)
       .text("Run");
-    $(".hide-run").hide();
-  } else {
-    $(".no-edit").remove();
-  }
-}
-
-// eslint-disable-next-line
-function workflowRunMode(instance, restartForm) {
-  call(`/get_runtimes/workflow/${instance.id}`, function(runtimes) {
-    const excludeId = restartForm
-      ? "#payloads_to_exclude"
-      : `#workflow-payloads_to_exclude-${instance.id}`;
-    const versionId = restartForm
-      ? "#restart_runtime"
-      : `#workflow-restart_runtime-${instance.id}`;
-    instance.jobs.forEach((job) => {
-      $(excludeId).append(
-        $("<option></option>")
-          .attr("value", job.name)
-          .text(job.name)
-      );
-    });
-    runtimes.forEach((runtime) => {
-      $(versionId).append(
-        $("<option></option>")
-          .attr("value", runtime[0])
-          .text(runtime[0])
-      );
-    });
-    $(versionId).val(runtimes[runtimes.length - 1]);
-    $(versionId).selectpicker("refresh");
-    $(excludeId).selectpicker("refresh");
-  });
-}
-
-// eslint-disable-next-line
-function saveService(service, id) {
-  if (page == "workflow_builder") {
-    if (id) {
-      jobToNode(service);
-    } else {
-      addJobsToWorkflow([service.id]);
-    }
-  }
-}
-
-// eslint-disable-next-line
-function saveWorkflow(newWorkflow) {
-  if (page == "workflow_builder") {
-    $("#current-workflow").append(
-      `<option value="${newWorkflow.id}">${newWorkflow.name}</option>`
-    );
-    $("#current-workflow").val(newWorkflow.id);
-    $("#current-workflow").selectpicker("refresh");
-    displayWorkflow({ workflow: newWorkflow, runtimes: [] });
+    $(".readonly-when-run").prop("readonly", true);
   }
 }
 
@@ -111,230 +64,51 @@ function parseObject(obj) {
   return obj;
 }
 
-function formatResults(results, id, formId, compare) {
-  if (!results) results = currentResults;
-  if (!results) {
-    $(`#display_results-${formId}`).text("No results yet.");
-  } else if (compare) {
-    $(`#display_results-${formId}`).empty();
-    $(`#display_results-${formId}`).append(
-      diffview.buildView({
-        baseTextLines: results.first,
-        newTextLines: results.second,
-        opcodes: results.opcodes,
-        baseTextName: $(`#runtime-${id}`).val(),
-        newTextName: $(`#runtime_compare-${id}`).val(),
-        contextSize: null,
-        viewType: 0,
-      })
-    );
-  } else {
-    $(`#display_results-${formId}`).empty();
-    const options = {
-      mode: $(`#view_type-${id}`).val(),
-      modes: ["text", "view"],
-    };
-    new JSONEditor(
-      document.getElementById(`display_results-${formId}`),
-      options,
-      parseObject(JSON.parse(JSON.stringify(results)))
-    );
-  }
-}
-
-function displayResults(type, id, formId, compare) {
-  const url = compare ? "compare" : "get";
-  if ($(`#runtime-${id}`).val() || type == "run") {
-    fCall(
-      `/${url}_results/${type}/${id}`,
-      `#results-form-${formId}`,
-      (results) => {
-        currentResults = results;
-        formatResults(results, id, formId, compare);
-      }
-    );
-  } else {
-    $(`#display_results-${formId}`).text("No results yet.");
-  }
-}
-
-function getRuntimes(type, id) {
-  call(`/get_runtimes/${type}/${id}`, (runtimes) => {
-    $(`#runtime-${id},#runtime_compare-${id}`).empty();
-    runtimes.forEach((runtime) => {
-      $(`#runtime-${id},#runtime_compare-${id}`).append(
-        $("<option></option>")
-          .attr("value", runtime[0])
-          .text(runtime[1])
-      );
-    });
-    const mostRecent = runtimes[runtimes.length - 1];
-    $(`#runtime-${id},#runtime_compare-${id}`).val(mostRecent);
-    $(`#runtime-${id},#runtime_compare-${id}`).selectpicker("refresh");
-    if (runtimes) {
-      if (type == "workflow" || type == "device") {
-        updateJobList(type, id, true);
-      } else if (type != "logs") {
-        updateDeviceLists(type, id, id, true, true);
-      } else {
-        refreshLogs({ id: id }, $(`#runtime-${id}`).val());
-      }
-    }
-  });
-}
-
-function updateDeviceLists(type, id, parentId, updateBoth, workflowDevice) {
-  const workflow = workflowDevice ? "workflow_" : "";
-  const formId = parentId || id;
-  fCall(
-    `/get_${workflow}device_list/${id}`,
-    `#results-form-${formId}`,
-    (result) => {
-      if (workflowDevice && result.workflow_devices.length) {
-        updateDeviceList(
-          formId,
-          updateBoth,
-          "workflow_",
-          result.workflow_devices
+// eslint-disable-next-line
+function compare(type) {
+  const v1 = $("input[name=v1]:checked").val();
+  const v2 = $("input[name=v2]:checked").val();
+  if (v1 && v2) {
+    const cantorId = cantorPairing(parseInt(v1), parseInt(v2));
+    createPanel("compare", `Compare ${type}s`, cantorId, () => {
+      call(`/compare/${type}/${v1}/${v2}`, (result) => {
+        $(`#content-${cantorId}`).append(
+          diffview.buildView({
+            baseTextLines: result.first,
+            newTextLines: result.second,
+            opcodes: result.opcodes,
+            baseTextName: "V1",
+            newTextName: "V2",
+            contextSize: null,
+            viewType: 0,
+          })
         );
-        $(`#workflow_device-row-${id}`).show();
-      } else {
-        if (workflowDevice) {
-          $(`#workflow_device-row-${id}`).hide();
-          emptyDeviceList(formId, updateBoth, "workflow_");
-        }
-        updateDeviceList(
-          formId,
-          updateBoth,
-          "",
-          workflowDevice ? result.devices : result
-        );
-      }
-      displayResults(type, id, formId);
-    }
-  );
-}
-
-function emptyDeviceList(formId, updateBoth, workflow) {
-  let ids;
-  if (updateBoth) {
-    ids = `#${workflow}device-${formId},#${workflow}device_compare-${formId}`;
-  } else {
-    const comp = $(`#compare-${formId}`).is(":checked") ? "_compare" : "";
-    ids = `#${workflow}device${comp}-${formId}`;
-  }
-  $(ids).empty();
-}
-
-function updateDeviceList(formId, updateBoth, workflow, devices) {
-  if (!devices.length) return;
-  let ids;
-  if (updateBoth) {
-    ids = `#${workflow}device-${formId},#${workflow}device_compare-${formId}`;
-  } else {
-    const comp = $(`#compare-${formId}`).is(":checked") ? "_compare" : "";
-    ids = `#${workflow}device${comp}-${formId}`;
-  }
-  $(ids).empty();
-  devices.forEach((device) => {
-    $(ids).append(
-      $("<option></option>")
-        .attr("value", device[0])
-        .text(device[1])
-    );
-  });
-  $(ids).selectpicker("refresh");
-}
-
-function updateJobList(type, id, updateBoth) {
-  fCall(`/get_job_list/${id}`, `#results-form-${id}`, (jobs) => {
-    let ids;
-    if (updateBoth) {
-      ids = `#job-${id},#job_compare-${id}`;
-    } else {
-      const comp = $(`#compare-${id}`).is(":checked") ? "_compare" : "";
-      ids = `#job${comp}-${id}`;
-    }
-    $(ids).empty();
-    jobs.forEach((job) => {
-      $(ids).append(
-        $("<option></option>")
-          .attr("value", job[0])
-          .text(job[1])
-      );
+      });
     });
-    $(ids).val(id);
-    $(ids).selectpicker("refresh");
-    updateDeviceLists(type, id, id, updateBoth, true);
-  });
+  } else {
+    alertify.notify("Select two versions to compare first.", "error", 5);
+  }
 }
 
 // eslint-disable-next-line
-function showResultsPanel(id, name, type, runtime) {
-  createPanel(`${type}_results`, `Results - ${name}`, id, function() {
-    configureResultsCallbacks(id, type);
-    if (runtime) {
-      $(`#runtime-${id},#runtime_compare-${id}`).append(
-        $("<option></option>")
-          .attr("value", runtime)
-          .text(runtime)
+function showResult(id) {
+  createPanel("display", "Result", id, function() {
+    call(`/get_result/${id}`, (result) => {
+      const jsonResult = parseObject(JSON.parse(JSON.stringify(result)));
+      const options = {
+        mode: "view",
+        modes: ["text", "view"],
+        onModeChange: function(newMode) {
+          editor.set(newMode == "text" ? result : jsonResult);
+        },
+      };
+      let editor = new JSONEditor(
+        document.getElementById(`content-${id}`),
+        options,
+        jsonResult
       );
-      $(`#runtime-row-${id}`).hide();
-      if (type == "workflow") {
-        updateJobList(type, id, true);
-      } else {
-        updateDeviceLists(type, id, id, true, true);
-      }
-    } else {
-      getRuntimes(type, id);
-    }
-  });
-}
-
-// eslint-disable-next-line
-function configureResultsCallbacks(id, type) {
-  if (type != "device") {
-    $(`#device-${id},#device_compare-${id}`).on("change", function() {
-      $(`#compare-${id}`).prop("checked", this.id.includes("compare"));
-      displayResults(type, id, id);
     });
-  }
-
-  if (type != "run") {
-    $(`#runtime-${id},#runtime_compare-${id}`).on("change", function() {
-      $(`#compare-${id}`).prop("checked", this.id.includes("compare"));
-      if (type == "workflow") updateDeviceLists(type, id, id, false, true);
-      if (type == "service") updateDeviceLists(type, id);
-      if (type != "service") updateJobList(type, id);
-    });
-  }
-
-  if (type != "service") {
-    $(`#job-${id},#job_compare-${id}`).on("change", function() {
-      $(`#compare-${id}`).prop("checked", this.id.includes("compare"));
-      updateDeviceLists(type, id, id, false, true);
-    });
-  }
-
-  $(`#workflow_device-${id},#workflow_device_compare-${id}`).on(
-    "change",
-    function() {
-      $(`#compare-${id}`).prop("checked", this.id.includes("compare"));
-      updateDeviceLists(type, id);
-    }
-  );
-
-  $(`#view_type-${id}`).on("change", function() {
-    displayResults(type, id, id);
   });
-
-  $(`#compare-btn-${id}`).click(function() {
-    displayResults(type, id, id, true);
-  });
-
-  if (type == "run" || type == "service") {
-    updateDeviceLists(type, id, id);
-  }
 }
 
 // eslint-disable-next-line
@@ -345,98 +119,109 @@ function clearResults(id) {
   });
 }
 
-// eslint-disable-next-line
-function refreshLogs(job, runtime, displayResults) {
-  fCall("/get_job_logs", `#logs-form-${job.id}`, function(result) {
-    $(`#log-${job.id}`).text(result.logs);
-    if (result.refresh) {
-      setTimeout(() => refreshLogs(job, runtime, displayResults), 1500);
-    } else if (displayResults) {
-      $(`#logs-${job.id}`).remove();
-      const jobType = job.type == "Workflow" ? "workflow" : "service";
-      showResultsPanel(job.id, job.name, jobType, runtime);
-    }
-  });
-}
-
-// eslint-disable-next-line
-function showLogsPanel(job, runtime, displayResults) {
-  createPanel("logs", `Logs - ${job.name}`, job.id, function() {
-    configureLogsCallbacks(job, runtime);
-    if (!runtime) {
-      getRuntimes("logs", job.id);
+function initPanel(type, service, runtime, fromRun) {
+  call(`/get_runtimes/${type}/${service.id}`, (runtimes) => {
+    if (!runtimes.length && !fromRun) {
+      return alertify.notify(`No ${type} yet.`, "error", 5);
     } else {
-      $(`#runtime-${job.id}`)
-        .append(`<option value='${runtime}'>${runtime}</option>`)
-        .val(runtime)
-        .selectpicker("refresh");
-      $(`#runtime-div-${job.id}`).hide();
-      refreshLogs(job, runtime, displayResults);
+      const panel = type.substring(0, type.length - 1);
+      createPanel(panel, `${type} - ${service.name}`, service.id, function() {
+        $(`#${type}_runtime-${service.id}`).empty();
+        runtimes.forEach((runtime) => {
+          $(`#${type}_runtime-${service.id}`).append(
+            $("<option></option>")
+              .attr("value", runtime[0])
+              .text(runtime[1])
+          );
+        });
+        if (!runtime || runtime == "normal") {
+          runtime = runtimes[runtimes.length - 1][0];
+        }
+        $(`#${type}_runtime-${service.id}`)
+          .val(runtime)
+          .selectpicker("refresh");
+        if (type == "logs") {
+          const content = document.getElementById(`content-${service.id}`);
+          // eslint-disable-next-line new-cap
+          let editor = CodeMirror(content, {
+            lineWrapping: true,
+            lineNumbers: true,
+            readOnly: true,
+            theme: "cobalt",
+            extraKeys: { "Ctrl-F": "findPersistent" },
+            scrollbarStyle: "overlay",
+          });
+          editor.setSize("100%", "100%");
+          $(`#logs_runtime-${service.id}`).on("change", function() {
+            refreshLogs(service, this.value, false, editor);
+          });
+          refreshLogs(service, runtime, fromRun, editor);
+        } else {
+          $("#result").remove();
+          $(`#results_runtime-${service.id}`).on("change", function() {
+            tables["result"].ajax.reload(null, false);
+          });
+          initTable("result", service, runtime || currentRuntime);
+        }
+      });
     }
   });
 }
 
 // eslint-disable-next-line
-function configureLogsCallbacks(job, runtime) {
-  $(`#filter-${job.id}`).on("input", function() {
-    refreshLogs(job, runtime, false);
+function showResultsPanel(service, runtime) {
+  initPanel("results", service, runtime || currentRuntime);
+}
+
+// eslint-disable-next-line
+function showLogsPanel(service, runtime, fromRun) {
+  initPanel("logs", service, runtime || currentRuntime, fromRun);
+}
+
+// eslint-disable-next-line
+function refreshLogs(service, runtime, fromRun, editor) {
+  if (!$(`#log-${service.id}`).length) return;
+  call(`/get_service_logs/${runtime}`, function(result) {
+    editor.setValue(result.logs);
+    editor.setCursor(editor.lineCount(), 0);
+    if (result.refresh) {
+      setTimeout(() => refreshLogs(service, runtime, fromRun, editor), 1000);
+    } else if (fromRun) {
+      $(`#log-${service.id}`).remove();
+      showResultsPanel(service, runtime);
+    }
   });
-  if (!runtime) {
-    $(`#runtime-${job.id}`).on("change", function() {
-      refreshLogs(job, this.value, false);
-    });
-  }
 }
 
 // eslint-disable-next-line
 function normalRun(id) {
-  call(`/run_job/${id}`, function(job) {
-    runLogic(job);
+  call(`/run_service/${id}`, function(result) {
+    runLogic(result);
   });
 }
 
 // eslint-disable-next-line
 function parametrizedRun(type, id) {
-  fCall("/run_job", `#edit-${type}-form-${id}`, function(job) {
+  fCall("/run_service", `#edit-${type}-form-${id}`, function(result) {
     $(`#${type}-${id}`).remove();
-    runLogic(job);
+    runLogic(result);
   });
 }
 
-function runLogic(job) {
-  showLogsPanel(job, job.runtime, true);
-  alertify.notify(`Job '${job.name}' started.`, "success", 5);
-  if (page == "workflow_builder") {
-    if (job.type == "Workflow") {
-      $("#current-runtimes").append(
-        `<option value='${job.runtime}'>${job.runtime}</option>`
-      );
-      $("#current-runtimes").val(job.runtime);
-      $("#current-runtimes").selectpicker("refresh");
-      getWorkflowState(true);
-    } else {
-      getJobState(job.id);
+function runLogic(result) {
+  showLogsPanel(result.service, result.runtime, true);
+  alertify.notify(`Service '${result.service.name}' started.`, "success", 5);
+  if (page == "workflow_builder" && workflow) {
+    if (result.service.id != workflow.id) {
+      getServiceState(result.service.id, true);
     }
   }
-  $(`#${job.type}-${job.id}`).remove();
+  $(`#${result.service.type}-${result.service.id}`).remove();
 }
 
 // eslint-disable-next-line
-function duplicateWorkflow(id) {
-  fCall(
-    `/duplicate_workflow/${id}`,
-    `#edit-workflow-form-${id}`,
-    (workflow) => {
-      table.ajax.reload(null, false);
-      $(`#workflow-${id}`).remove();
-      alertify.notify("Workflow successfully duplicated.", "success", 5);
-    }
-  );
-}
-
-// eslint-disable-next-line
-function exportJob(id) {
-  call(`/export_job/${id}`, () => {
+function exportService(id) {
+  call(`/export_service/${id}`, () => {
     alertify.notify("Export successful.", "success", 5);
   });
 }
@@ -455,7 +240,7 @@ function pauseTask(id) {
 // eslint-disable-next-line
 function resumeTask(id) {
   // eslint-disable-line no-unused-vars
-  call(`/task_action/resume/${id}`, function(result) {
+  call(`/task_action/resume/${id}`, function() {
     $(`#pause-resume-${id}`)
       .attr("onclick", `pauseTask('${id}')`)
       .text("Pause");
@@ -465,8 +250,10 @@ function resumeTask(id) {
 
 (function() {
   if (page == "table/service" || page == "workflow_builder") {
-    $("#service-type").selectpicker({
-      liveSearch: true,
-    });
+    $("#service-type").selectpicker({ liveSearch: true });
+    for (const [serviceType, serviceName] of Object.entries(serviceTypes)) {
+      $("#service-type").append(new Option(serviceName, serviceType));
+    }
+    $("#service-type").selectpicker("refresh");
   }
 })();

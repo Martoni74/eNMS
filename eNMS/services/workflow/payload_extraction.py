@@ -1,23 +1,20 @@
 from io import StringIO
 from re import findall
-from sqlalchemy import Boolean, ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer
 from textfsm import TextFSM
-from typing import Optional
-from wtforms import BooleanField, HiddenField, SelectField, StringField
+from wtforms import HiddenField, SelectField, StringField
 from wtforms.widgets import TextArea
 
 from eNMS.database.dialect import Column, LargeString, SmallString
 from eNMS.forms.automation import ServiceForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.models.automation import Service
 
 
 class PayloadExtractionService(Service):
 
-    __tablename__ = "PayloadExtractionService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = Column(Boolean, default=False)
+    __tablename__ = "payload_extraction_service"
+    pretty_name = "Payload Extraction"
+    id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     variable1 = Column(SmallString)
     query1 = Column(SmallString)
     match_type1 = Column(SmallString, default="none")
@@ -34,9 +31,9 @@ class PayloadExtractionService(Service):
     match3 = Column(LargeString, default="")
     operation3 = Column(SmallString, default="set")
 
-    __mapper_args__ = {"polymorphic_identity": "PayloadExtractionService"}
+    __mapper_args__ = {"polymorphic_identity": "payload_extraction_service"}
 
-    def job(self, run: "Run", payload: dict, device: Optional[Device] = None) -> dict:
+    def job(self, run, payload, device=None):
         result, success = {}, True
         for i in range(1, 4):
             variable = getattr(run, f"variable{i}")
@@ -88,8 +85,7 @@ operation_choices = (
 
 
 class PayloadExtractionForm(ServiceForm):
-    form_type = HiddenField(default="PayloadExtractionService")
-    has_targets = BooleanField("Has Target Devices")
+    form_type = HiddenField(default="payload_extraction_service")
     variable1 = StringField("Variable Name")
     query1 = StringField("Python Extraction Query")
     match_type1 = SelectField("Post Processing", choices=match_choices)
@@ -118,9 +114,17 @@ class PayloadExtractionForm(ServiceForm):
     )
     operation3 = SelectField("Operation", choices=operation_choices)
     groups = {
-        "General": ["has_targets"],
-        "Extraction 1": ["variable1", "query1", "match_type1", "match1", "operation1"],
-        "Extraction 2": ["variable2", "query2", "match_type2", "match2", "operation2"],
-        "Extraction 3": ["variable3", "query3", "match_type3", "match3", "operation3"],
+        "Extraction 1": {
+            "commands": ["variable1", "query1", "match_type1", "match1", "operation1"],
+            "default": "expanded",
+        },
+        "Extraction 2": {
+            "commands": ["variable2", "query2", "match_type2", "match2", "operation2"],
+            "default": "expanded",
+        },
+        "Extraction 3": {
+            "commands": ["variable3", "query3", "match_type3", "match3", "operation3"],
+            "default": "expanded",
+        },
     }
     query_fields = ServiceForm.query_fields + [f"query{i}" for i in range(1, 4)]

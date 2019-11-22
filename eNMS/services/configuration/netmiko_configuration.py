@@ -3,21 +3,20 @@ from wtforms import BooleanField, HiddenField, StringField
 from wtforms.widgets import TextArea
 
 from eNMS.database.dialect import Column, LargeString, SmallString
-from eNMS.forms.automation import ServiceForm
 from eNMS.forms.fields import SubstitutionField
-from eNMS.forms.services import NetmikoForm
-from eNMS.models.automation import Run, Service
-from eNMS.models.inventory import Device
+from eNMS.forms.automation import NetmikoForm
+from eNMS.models.automation import ConnectionService
 
 
-class NetmikoConfigurationService(Service):
+class NetmikoConfigurationService(ConnectionService):
 
-    __tablename__ = "NetmikoConfigurationService"
-
-    id = Column(Integer, ForeignKey("Service.id"), primary_key=True)
-    has_targets = True
+    __tablename__ = "netmiko_configuration_service"
+    pretty_name = "Netmiko Configuration"
+    parent_type = "connection_service"
+    id = Column(Integer, ForeignKey("connection_service.id"), primary_key=True)
     content = Column(LargeString, default="")
-    privileged_mode = Column(Boolean, default=False)
+    enable_mode = Column(Boolean, default=True)
+    config_mode = Column(Boolean, default=False)
     driver = Column(SmallString)
     use_device_driver = Column(Boolean, default=True)
     fast_cli = Column(Boolean, default=False)
@@ -30,12 +29,12 @@ class NetmikoConfigurationService(Service):
     strip_command = Column(Boolean, default=False)
     config_mode_command = Column(SmallString)
 
-    __mapper_args__ = {"polymorphic_identity": "NetmikoConfigurationService"}
+    __mapper_args__ = {"polymorphic_identity": "netmiko_configuration_service"}
 
-    def job(self, run: "Run", payload: dict, device: Device) -> dict:
+    def job(self, run, payload, device):
         netmiko_connection = run.netmiko_connection(device)
         config = run.sub(run.content, locals())
-        run.log("info", f"Pushing configuration on {device.name} (Netmiko)")
+        run.log("info", "Pushing Configuration with Netmiko", device)
         netmiko_connection.send_config_set(
             config.splitlines(),
             delay_factor=run.delay_factor,
@@ -49,8 +48,9 @@ class NetmikoConfigurationService(Service):
         return {"success": True, "result": f"configuration OK {config}"}
 
 
-class NetmikoConfigurationForm(ServiceForm, NetmikoForm):
-    form_type = HiddenField(default="NetmikoConfigurationService")
+class NetmikoConfigurationForm(NetmikoForm):
+    form_type = HiddenField(default="netmiko_configuration_service")
+    config_mode = BooleanField("Config mode", default=True)
     content = SubstitutionField(widget=TextArea(), render_kw={"rows": 5})
     commit_configuration = BooleanField()
     exit_config_mode = BooleanField(default=True)
@@ -58,13 +58,18 @@ class NetmikoConfigurationForm(ServiceForm, NetmikoForm):
     strip_command = BooleanField()
     config_mode_command = StringField()
     groups = {
-        "Main Parameters": [
-            "content",
-            "commit_configuration",
-            "exit_config_mode",
-            "strip_prompt",
-            "strip_command",
-            "config_mode_command",
-        ],
-        "Netmiko Parameters": NetmikoForm.group,
+        "Main Parameters": {
+            "commands": [
+                "content",
+                "commit_configuration",
+                "exit_config_mode",
+                "config_mode_command",
+            ],
+            "default": "expanded",
+        },
+        "Advanced Netmiko Parameters": {
+            "commands": ["strip_prompt", "strip_command"],
+            "default": "hidden",
+        },
+        **NetmikoForm.groups,
     }
