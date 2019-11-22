@@ -18,6 +18,8 @@ workflow: true
 */
 
 let currentRuntime;
+let arrowHistory = [""];
+let arrowPointer = -1;
 
 // eslint-disable-next-line
 function openServicePanel() {
@@ -119,76 +121,134 @@ function clearResults(id) {
   });
 }
 
-function initPanel(type, service, runtime, fromRun) {
-  call(`/get_runtimes/${type}/${service.id}`, (runtimes) => {
-    if (!runtimes.length && !fromRun) {
-      return alertify.notify(`No ${type} yet.`, "error", 5);
-    } else {
-      const panel = type.substring(0, type.length - 1);
-      createPanel(panel, `${type} - ${service.name}`, service.id, function() {
-        $(`#${type}_runtime-${service.id}`).empty();
-        runtimes.forEach((runtime) => {
-          $(`#${type}_runtime-${service.id}`).append(
-            $("<option></option>")
-              .attr("value", runtime[0])
-              .text(runtime[1])
-          );
+// eslint-disable-next-line
+function showRuntimePanel(type, service, runtime, displayTable) {
+  displayFunction =
+    type == "logs"
+      ? displayLogs
+      : service.type == "workflow" && !displayTable
+      ? displayResultsTree
+      : displayResultsTable;
+  createPanel(
+    service.type != "workflow" && type == "results" ? "result" : "runtime",
+    `${type} - ${service.name}`,
+    service.id,
+    function() {
+      if (runtime) {
+        $(`#div-runtimes-${service.id}`).hide();
+        displayFunction(service, runtime);
+      } else {
+        call(`/get_runtimes/${type}/${service.id}`, (runtimes) => {
+          if (!runtimes.length) {
+            return alertify.notify(`No ${type} yet.`, "error", 5);
+          } else {
+            $(`#runtimes-${service.id}`).empty();
+            runtimes.forEach((runtime) => {
+              $(`#runtimes-${service.id}`).append(
+                $("<option></option>")
+                  .attr("value", runtime[0])
+                  .text(runtime[1])
+              );
+            });
+            if (!runtime || runtime == "normal") {
+              runtime = runtimes[runtimes.length - 1][0];
+            }
+            $(`#runtimes-${service.id}`)
+              .val(runtime)
+              .selectpicker("refresh");
+            displayFunction(service, runtime);
+          }
         });
-        if (!runtime || runtime == "normal") {
-          runtime = runtimes[runtimes.length - 1][0];
-        }
-        $(`#${type}_runtime-${service.id}`)
-          .val(runtime)
-          .selectpicker("refresh");
-        if (type == "logs") {
-          const content = document.getElementById(`content-${service.id}`);
-          // eslint-disable-next-line new-cap
-          let editor = CodeMirror(content, {
-            lineWrapping: true,
-            lineNumbers: true,
-            readOnly: true,
-            theme: "cobalt",
-            extraKeys: { "Ctrl-F": "findPersistent" },
-            scrollbarStyle: "overlay",
-          });
-          editor.setSize("100%", "100%");
-          $(`#logs_runtime-${service.id}`).on("change", function() {
-            refreshLogs(service, this.value, false, editor);
-          });
-          refreshLogs(service, runtime, fromRun, editor);
-        } else {
-          $("#result").remove();
-          $(`#results_runtime-${service.id}`).on("change", function() {
-            tables["result"].ajax.reload(null, false);
-          });
-          initTable("result", service, runtime || currentRuntime);
-        }
-      });
+      }
     }
+  );
+}
+
+function displayLogs(service, runtime) {
+  $(`#body-runtime-${service.id}`).css("background-color", "#1B1B1B");
+  const content = document.getElementById(`content-${service.id}`);
+  // eslint-disable-next-line new-cap
+  let editor = CodeMirror(content, {
+    lineWrapping: true,
+    lineNumbers: true,
+    readOnly: true,
+    theme: "cobalt",
+    extraKeys: { "Ctrl-F": "findPersistent" },
+    scrollbarStyle: "overlay",
+  });
+  editor.setSize("100%", "100%");
+  $(`#runtimes-${service.id}`).on("change", function() {
+    refreshLogs(service, this.value, editor);
+  });
+  refreshLogs(service, runtime, editor, true);
+}
+
+function displayResultsTree(service, runtime) {
+  call(`/get_workflow_results/${service.id}/${runtime}`, function(data) {
+    let tree = $(`#content-${service.id}`).jstree({
+      core: {
+        animation: 200,
+        themes: { stripes: true },
+        data: data,
+      },
+      plugins: ["contextmenu", "types"],
+      contextmenu: {
+        items: function customMenu(node) {
+          return {
+            item1: {
+              label: "Results",
+              action: () => showRuntimePanel("results", node, runtime, true),
+              icon: "glyphicon glyphicon-list-alt",
+            },
+            item2: {
+              label: "Edit",
+              action: () => showTypePanel("service", node.id),
+              icon: "glyphicon glyphicon-edit",
+            },
+          };
+        },
+      },
+      types: {
+        default: {
+          icon: "glyphicon glyphicon-file",
+        },
+        workflow: {
+          icon: "fa fa-sitemap",
+        },
+      },
+    });
+    tree.bind("loaded.jstree", function() {
+      tree.jstree("open_all");
+    });
+    tree.bind("dblclick.jstree", function(event) {
+      const service = tree.jstree().get_node(event.target);
+      showRuntimePanel("results", service, runtime, true);
+    });
   });
 }
 
-// eslint-disable-next-line
-function showResultsPanel(service, runtime) {
-  initPanel("results", service, runtime || currentRuntime);
+function displayResultsTable(service, runtime) {
+  $("#result").remove();
+  $(`#runtimes-${service.id}`).on("change", function() {
+    tables["result"].ajax.reload(null, false);
+  });
+  initTable("result", service, runtime || currentRuntime);
 }
 
 // eslint-disable-next-line
-function showLogsPanel(service, runtime, fromRun) {
-  initPanel("logs", service, runtime || currentRuntime, fromRun);
-}
-
-// eslint-disable-next-line
-function refreshLogs(service, runtime, fromRun, editor) {
-  if (!$(`#log-${service.id}`).length) return;
-  call(`/get_service_logs/${runtime}`, function(result) {
+function refreshLogs(service, runtime, editor, first, wasRefreshed) {
+  if (!$(`#runtime-${service.id}`).length) return;
+  call(`/get_service_logs/${service.id}/${runtime}`, function(result) {
     editor.setValue(result.logs);
     editor.setCursor(editor.lineCount(), 0);
-    if (result.refresh) {
-      setTimeout(() => refreshLogs(service, runtime, fromRun, editor), 1000);
-    } else if (fromRun) {
-      $(`#log-${service.id}`).remove();
-      showResultsPanel(service, runtime);
+    if (first || result.refresh) {
+      setTimeout(
+        () => refreshLogs(service, runtime, editor, false, result.refresh),
+        1000
+      );
+    } else if (wasRefreshed) {
+      $(`#runtime-${service.id}`).remove();
+      showRuntimePanel("results", service, runtime);
     }
   });
 }
@@ -209,7 +269,7 @@ function parametrizedRun(type, id) {
 }
 
 function runLogic(result) {
-  showLogsPanel(result.service, result.runtime, true);
+  showRuntimePanel("logs", result.service, result.runtime);
   alertify.notify(`Service '${result.service.name}' started.`, "success", 5);
   if (page == "workflow_builder" && workflow) {
     if (result.service.id != workflow.id) {
@@ -248,6 +308,47 @@ function resumeTask(id) {
   });
 }
 
+function switchToWorkflow(workflowId, arrow) {
+  if (typeof workflowId === "undefined") return;
+  if (!arrow) {
+    arrowPointer++;
+    arrowHistory.splice(arrowPointer, 9e9, workflowId);
+  } else {
+    arrowPointer += arrow == "right" ? 1 : -1;
+  }
+  if (arrowHistory.length >= 1 && arrowPointer !== 0) {
+    $("#left-arrow").removeClass("disabled");
+  } else {
+    $("#left-arrow").addClass("disabled");
+  }
+  if (arrowPointer < arrowHistory.length - 1) {
+    $("#right-arrow").removeClass("disabled");
+  } else {
+    $("#right-arrow").addClass("disabled");
+  }
+  if (page == "workflow_builder") {
+    call(`/get_service_state/${workflowId}/latest`, function(result) {
+      workflow = result.service;
+      graph = displayWorkflow(result);
+      alertify.notify(`Workflow '${workflow.name}' displayed.`, "success", 5);
+    });
+  } else {
+    $("#workflow-filtering").val(workflowId);
+    if (tables["service"]) tables["service"].ajax.reload(null, false);
+  }
+}
+
+Object.assign(action, {
+  Edit: (service) => showTypePanel(service.type, service.id),
+  Duplicate: (service) => showTypePanel(service.type, service.id, "duplicate"),
+  Run: (service) => normalRun(service.id),
+  "Parametrized Run": (service) =>
+    showTypePanel(service.type, service.id, "run"),
+  Results: () => showRuntimePanel("results", service),
+  Backward: () => switchToWorkflow(arrowHistory[arrowPointer - 1], "left"),
+  Forward: () => switchToWorkflow(arrowHistory[arrowPointer + 1], "right"),
+});
+
 (function() {
   if (page == "table/service" || page == "workflow_builder") {
     $("#service-type").selectpicker({ liveSearch: true });
@@ -256,4 +357,5 @@ function resumeTask(id) {
     }
     $("#service-type").selectpicker("refresh");
   }
+  if (page == "table/service") switchToWorkflow("");
 })();

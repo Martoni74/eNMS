@@ -54,8 +54,8 @@ class Task(AbstractBase):
         if self.is_active:
             self.schedule()
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        return super().generate_row() + [
             f"""
             <ul class="pagination pagination-lg" style="margin: 0px; width: 250px">
           <li>
@@ -217,9 +217,6 @@ class Baselog(AbstractBase):
         kwargs["time"] = str(datetime.now())
         super().update(**kwargs)
 
-    def generate_row(self, table):
-        return []
-
 
 class Syslog(Baselog):
 
@@ -253,8 +250,8 @@ class Event(AbstractBase):
         "Service", secondary=service_event_table, back_populates="events"
     )
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        return super().generate_row() + [
             f"""
             <ul class="pagination pagination-lg" style="margin: 0px; width: 150px">
           <li>

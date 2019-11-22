@@ -246,17 +246,17 @@ class RestartWorkflowForm(BaseForm):
     restart_runtime = NoValidationSelectField("Restart Runtime", choices=())
 
 
-class LogsForm(BaseForm):
-    template = "log"
-    form_type = HiddenField(default="log")
+class RuntimeForm(BaseForm):
+    template = "runtime"
+    form_type = HiddenField(default="runtime")
     filter = StringField("Filter")
-    logs_runtime = NoValidationSelectField("Runtime", choices=())
+    runtimes = NoValidationSelectField("Runtime", choices=())
 
 
 class ResultForm(BaseForm):
     template = "result"
     form_type = HiddenField(default="result")
-    results_runtime = NoValidationSelectField("Runtime", choices=())
+    runtimes = NoValidationSelectField("Runtime", choices=())
 
 
 class DisplayForm(BaseForm):
@@ -273,9 +273,8 @@ class DisplayConfigurationForm(DisplayForm):
 
 
 class AddServiceForm(BaseForm):
-    action = "addToWorkflow"
     form_type = HiddenField(default="add_service")
-    services = InstanceField("Add service", model="service")
+    template = "add_service"
     mode = SelectField(
         "Mode",
         choices=(

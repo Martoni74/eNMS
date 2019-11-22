@@ -78,8 +78,8 @@ class Result(AbstractBase):
             f'style="width:100%">{label}</button>'
         )
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        return super().generate_row() + [
             f"""<button type="button" class="btn btn-info btn-sm"
             onclick="showResult('{self.id}')">Results</button>""",
             f"""<input type="radio" name="v1" value="{self.id}"/>""",
@@ -147,23 +147,21 @@ class Run(AbstractBase):
         result = [r for r in self.results if r.device_name == device]
         return result.pop() if result else None
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        return super().generate_row() + [
             f"""
             <ul class="pagination pagination-lg" style="margin: 0px; width: 100px">
           <li>
             <button type="button" class="btn btn-info"
-            onclick="showResultsPanel({self.service.row_properties}, '{self.runtime}')"
-            data-tooltip="Results"
-              ><span class="glyphicon glyphicon-list-alt"></span
-            ></button>
+            onclick="showRuntimePanel('results', {self.service.row_properties},
+            '{self.runtime}')"data-tooltip="Results">
+            <span class="glyphicon glyphicon-list-alt"></span></button>
           </li>
           <li>
             <button type="button" class="btn btn-info"
-            onclick="showLogsPanel({self.service.row_properties}, '{self.runtime}')"
-            data-tooltip="Logs"
-              ><span class="glyphicon glyphicon-list"></span
-            ></button>
+            onclick="showRuntimePanel('logs', {self.service.row_properties},
+            '{self.runtime}')"data-tooltip="Logs">
+            <span class="glyphicon glyphicon-list"></span></button>
           </li>
         </ul>"""
         ]
@@ -293,7 +291,7 @@ class Run(AbstractBase):
             }
             if self.send_notification:
                 results = self.notify(results)
-            if self.runtime == self.parent_runtime:
+            if self.runtime == self.parent_runtime or len(self.devices) > 1:
                 self.create_result(results)
             Session.commit()
         return results

@@ -125,6 +125,8 @@ class BaseController:
         "get_runtimes",
         "get_view_topology",
         "get_service_state",
+        "get_workflow_results",
+        "get_workflow_services",
         "import_service",
         "import_topology",
         "migration_export",
@@ -495,6 +497,17 @@ class BaseController:
                 )
             if kwargs.get("runtime"):
                 constraints.append(models["result"].parent_runtime == kwargs["runtime"])
+        if table == "service":
+            workflow_id = kwargs["form"].get("workflow-filtering")
+            if workflow_id:
+                constraints.append(
+                    models["service"].workflows.any(
+                        models["workflow"].id == int(workflow_id)
+                    )
+                )
+            else:
+                if kwargs["form"].get("parent-filtering") == "true":
+                    constraints.append(~models["service"].workflows.any())
         result = Session.query(model).filter(operator(*constraints))
         if order_function:
             result = result.order_by(order_function())
@@ -503,11 +516,7 @@ class BaseController:
             "recordsTotal": Session.query(func.count(model.id)).scalar(),
             "recordsFiltered": get_query_count(result),
             "data": [
-                [
-                    getattr(obj, f"table_{property}", getattr(obj, property))
-                    for property in properties
-                ]
-                + obj.generate_row(table)
+                obj.generate_row()
                 for obj in result.limit(int(kwargs["length"]))
                 .offset(int(kwargs["start"]))
                 .all()

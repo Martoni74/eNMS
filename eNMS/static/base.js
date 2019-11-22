@@ -48,7 +48,6 @@ const panelSize = {
   librenms: "700 250",
   link: "700 400",
   link_filtering: "700 600",
-  log: "800 auto",
   log_filtering: "700 350",
   notifications: "1100 400",
   netbox: "700 250",
@@ -57,6 +56,7 @@ const panelSize = {
   pool_filtering: "1000 700",
   pool_objects: "700 550",
   result: "1200 700",
+  runtime: "800 auto",
   service_results: "1200 700",
   server: "600 250",
   server_filtering: "700 450",
@@ -331,11 +331,6 @@ function showPanel(type, id, processing) {
 }
 
 // eslint-disable-next-line
-function showFilteringPanel(panelType) {
-  showPanel(panelType);
-}
-
-// eslint-disable-next-line
 function showDeletionPanel(instance) {
   createPanel(
     "instance_deletion",
@@ -448,7 +443,7 @@ function showTypePanel(type, id, mode) {
         });
       } else {
         panel.setHeaderTitle(`Create a New ${type}`);
-        if (workflow && creationMode == "service") {
+        if (page == "workflow_builder" && creationMode == "service") {
           $(`#${type}-workflows`).append(
             new Option(workflow.name, workflow.id)
           );
@@ -519,7 +514,7 @@ function processInstance(type, instance) {
 }
 
 // eslint-disable-next-line
-function processData(type, id, duplicate) {
+function processData(type, id) {
   if (type.includes("service") || type == "workflow") {
     $(id ? `#${type}-workflows-${id}` : `#${type}-workflows`).prop(
       "disabled",
@@ -583,7 +578,7 @@ function initTable(type, instance, runtime) {
         d.form = serializeForm(form);
         d.instance = instance;
         if (runtime) {
-          d.runtime = $(`#results_runtime-${instance.id}`).val() || runtime;
+          d.runtime = $(`#runtimes-${instance.id}`).val() || runtime;
         }
         return JSON.stringify(d);
       },
@@ -592,6 +587,11 @@ function initTable(type, instance, runtime) {
   createSearchHeaders(type);
   if (["changelog", "syslog", "run", "result"].includes(type)) {
     tables[type].order([0, "desc"]).draw();
+  }
+  if (type == "service") {
+    $("#parent-filtering").on("change", function() {
+      tables["service"].ajax.reload(null, false);
+    });
   }
   if (["run", "service", "task", "workflow"].includes(type)) {
     refreshTablePeriodically(type, 3000);

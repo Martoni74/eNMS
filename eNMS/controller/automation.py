@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from eNMS.controller.base import BaseController
 from eNMS.database import Session
-from eNMS.database.functions import delete, factory, fetch, fetch_all
+from eNMS.database.functions import delete, factory, fetch, fetch_all, objectify
 
 
 class AutomationController(BaseController):
@@ -51,19 +51,22 @@ class AutomationController(BaseController):
         workflow.services.append(fetch("service", id=service))
 
     def copy_service_in_workflow(self, workflow_id, **kwargs):
-        service = fetch("service", id=kwargs["services"])
+        service_instances = objectify("service", kwargs["services"].split(","))
         workflow = fetch("workflow", id=workflow_id)
-        if kwargs["mode"] == "deep":
-            service = service.duplicate(workflow)
-        elif not service.shared:
-            return {"error": "This is not a shared service."}
-        elif service in workflow.services:
-            return {"error": f"This workflow already contains {service.name}."}
-        else:
-            workflow.services.append(service)
+        serialized_services = []
+        for service in service_instances:
+            if kwargs["mode"] == "deep":
+                service = service.duplicate(workflow)
+            elif not service.shared:
+                return {"error": "This is not a shared service."}
+            elif service in workflow.services:
+                return {"error": f"This workflow already contains {service.name}."}
+            else:
+                workflow.services.append(service)
+            serialized_services.append(service.serialized)
         workflow.last_modified = self.get_time()
         Session.commit()
-        return {"service": service.serialized, "update_time": workflow.last_modified}
+        return {"services": serialized_services, "update_time": workflow.last_modified}
 
     def clear_results(self, service_id):
         for result in fetch(
@@ -109,8 +112,8 @@ class AutomationController(BaseController):
     def duplicate_workflow(self, workflow_id, **kwargs):
         return fetch("workflow", id=workflow_id).duplicate(**kwargs).serialized
 
-    def get_service_logs(self, runtime):
-        run = fetch("run", allow_none=True, runtime=runtime)
+    def get_service_logs(self, service, runtime):
+        run = fetch("run", allow_none=True, parent_runtime=runtime, service_id=service)
         result = run.result() if run else None
         logs = result["logs"] if result else self.run_logs.get(runtime, [])
         return {"logs": "\n".join(logs), "refresh": not bool(result)}
@@ -121,6 +124,61 @@ class AutomationController(BaseController):
 
     def get_result(self, id):
         return fetch("result", id=id).result
+
+    def get_parent_workflows(self, workflow):
+        yield workflow
+        for parent_workflow in workflow.workflows:
+            yield from self.get_parent_workflows(parent_workflow)
+
+    def get_workflow_services(self, id, node):
+        parents = list(self.get_parent_workflows(fetch("workflow", id=id)))
+        if node == "all":
+            return [
+                {
+                    "id": workflow.id,
+                    "text": workflow.name,
+                    "children": True,
+                    "type": "workflow",
+                    "a_attr": {"class": "no_checkbox" if workflow in parents else ""},
+                }
+                for workflow in fetch_all("workflow")
+                if not workflow.workflows
+            ]
+        else:
+            return [
+                {
+                    "id": service.id,
+                    "text": service.scoped_name,
+                    "children": service.type == "workflow",
+                    "type": "workflow" if service.type == "workflow" else "service",
+                    "a_attr": {"class": "no_checkbox" if service in parents else ""},
+                }
+                for service in fetch("workflow", id=node).services
+                if service.scoped_name not in ("Start", "End")
+            ]
+
+    def get_workflow_results(self, workflow, runtime):
+        def rec(service):
+            service_run = fetch(
+                "run", parent_runtime=runtime, allow_none=True, service_id=service.id
+            )
+            if service.scoped_name in ("Start", "End") or not service_run:
+                return
+            color = "32CD32" if service_run.success else "FF6666"
+            result = {
+                "id": service.id,
+                "text": service.scoped_name,
+                "a_attr": {"style": f"color: #{color}"},
+            }
+            if service.type == "workflow":
+                children = list(
+                    filter(None, (rec(child) for child in service.services))
+                )
+                return {"children": children, "type": "workflow", **result}
+            else:
+                return {"type": "service", **result}
+
+        return rec(fetch("workflow", id=workflow))
 
     @staticmethod
     def run(service, **kwargs):
@@ -166,7 +224,7 @@ class AutomationController(BaseController):
         session["workflow"] = workflow.id
         for id, position in request.json.items():
             new_position = [position["x"], position["y"]]
-            if "-" in id:
+            if "-" in id and id in workflow.labels:
                 old_position = workflow.labels[id].pop("positions")
                 workflow.labels[id] = {"positions": new_position, **workflow.labels[id]}
             else:

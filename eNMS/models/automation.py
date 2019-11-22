@@ -114,21 +114,25 @@ class Service(AbstractBase):
             workflow = f"[{self.workflows[0].name}] "
         self.name = f"{workflow}{name or self.scoped_name}"
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        rows = super().generate_row()
+        if self.type == "workflow":
+            onclick = f"switchToWorkflow('{self.id}')"
+            rows[0] = f"""<b><a href="#" onclick="{onclick}">{rows[0]}</a></b>"""
+        return rows + [
             f"Running" if app.service_db[self.id]["runs"] else "Idle",
             f"""
-            <ul class="pagination pagination-lg" style="margin: 0px; width: 400px">
+            <ul class="pagination pagination-lg" style="margin: 0px; width: 350px">
           <li>
             <button type="button" class="btn btn-info"
-            onclick="showResultsPanel({self.row_properties})" data-tooltip="Results"
-              ><span class="glyphicon glyphicon-list-alt"></span
+            onclick="showRuntimePanel('results', {self.row_properties})"
+            data-tooltip="Results"><span class="glyphicon glyphicon-list-alt"></span
             ></button>
           </li>
           <li>
             <button type="button" class="btn btn-info"
-            onclick="showLogsPanel({self.row_properties})" data-tooltip="Logs"
-              ><span class="glyphicon glyphicon-list"></span
+            onclick="showRuntimePanel('logs', {self.row_properties})"
+            data-tooltip="Logs"><span class="glyphicon glyphicon-list"></span
             ></button>
           </li>
           <li>
@@ -148,13 +152,6 @@ class Service(AbstractBase):
             <button type="button" class="btn btn-primary"
             onclick="showTypePanel('{self.type}', '{self.id}')" data-tooltip="Edit"
               ><span class="glyphicon glyphicon-edit"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('{self.type}', '{self.id}', 'duplicate')"
-            data-tooltip="Duplicate"
-              ><span class="glyphicon glyphicon-duplicate"></span
             ></button>
           </li>
           <li>

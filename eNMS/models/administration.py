@@ -18,8 +18,8 @@ class Server(AbstractBase):
     status = Column(SmallString, default="down")
     cpu_load = Column(Float)
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        return super().generate_row() + [
             f"""<center>
             <ul class="pagination pagination-lg" style="margin: 0px;">
           <li>
@@ -55,8 +55,8 @@ class User(AbstractBase, UserMixin):
     pools = relationship("Pool", secondary=pool_user_table, back_populates="users")
     password = Column(SmallString)
 
-    def generate_row(self, table):
-        return [
+    def generate_row(self):
+        return super().generate_row() + [
             f"""<center>
             <ul class="pagination pagination-lg" style="margin: 0px;">
           <li>

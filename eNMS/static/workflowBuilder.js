@@ -9,9 +9,8 @@ fCall: false
 normalRun: false
 runLogic: false
 serviceTypes: false
-showLogsPanel: false
 showPanel: false
-showResultsPanel: false
+showRuntimePanel: false
 showTypePanel: false
 userIsActive: true
 vis: false
@@ -70,8 +69,6 @@ let currentMode = "motion";
 let creationMode;
 let mousePosition;
 let currLabel;
-let arrowHistory = [];
-let arrowPointer = -1;
 let triggerMenu;
 
 function displayWorkflow(workflowData) {
@@ -231,31 +228,6 @@ const rectangleSelection = (container, network, nodes) => {
   });
 };
 
-function switchToWorkflow(workflowId, arrow) {
-  if (!workflowId) return;
-  if (!arrow) {
-    arrowPointer++;
-    arrowHistory.splice(arrowPointer, 9e9, workflowId);
-  } else {
-    arrowPointer += arrow == "right" ? 1 : -1;
-  }
-  if (arrowHistory.length >= 1 && arrowPointer !== 0) {
-    $("#left-arrow").removeClass("disabled");
-  } else {
-    $("#left-arrow").addClass("disabled");
-  }
-  if (arrowPointer < arrowHistory.length - 1) {
-    $("#right-arrow").removeClass("disabled");
-  } else {
-    $("#right-arrow").addClass("disabled");
-  }
-  call(`/get_service_state/${workflowId}/latest`, function(result) {
-    workflow = result.service;
-    graph = displayWorkflow(result);
-    alertify.notify(`Workflow '${workflow.name}' displayed.`, "success", 5);
-  });
-}
-
 // eslint-disable-next-line
 function switchToSubworkflow() {
   const service = nodes.get(graph.getSelectedNodes()[0]);
@@ -264,11 +236,6 @@ function switchToSubworkflow() {
   } else {
     switchToWorkflow(service.id);
   }
-}
-
-// eslint-disable-next-line
-function menu(entry) {
-  action[entry]();
 }
 
 // eslint-disable-next-line
@@ -318,14 +285,17 @@ function updateWorkflowService(service) {
 }
 
 // eslint-disable-next-line
-function addToWorkflow() {
+function addServicesToWorkflow() {
+  const selection = $("#service-tree").jstree("get_checked");
+  if (!selection.length) alertify.notify("Nothing selected.", "error", 5);
+  $("#services").val(selection);
   fCall(
     `/copy_service_in_workflow/${workflow.id}`,
-    "#add_service-form",
+    "#add-services-form",
     function(result) {
       workflow.last_modified = result.update_time;
       $("#add_service").remove();
-      updateWorkflowService(result.service);
+      result.services.map(updateWorkflowService);
     }
   );
 }
@@ -440,7 +410,7 @@ function serviceToNode(service) {
     },
     shadow: {
       enabled: !defaultService,
-      color: service.shared ? "red" : "#6666FF",
+      color: service.shared ? "#FF1694" : "#6666FF",
       size: 15,
     },
     label: getServiceLabel(service),
@@ -577,6 +547,36 @@ function savePositions() {
   });
 }
 
+function addServicePanel() {
+  showPanel("add_service", null, function() {
+    $("#service-tree").jstree({
+      core: {
+        animation: 200,
+        themes: { stripes: true },
+        data: {
+          url: function(node) {
+            const nodeId = node.id == "#" ? "all" : node.id;
+            return `/get_workflow_services/${workflow.id}/${nodeId}`;
+          },
+          type: "POST",
+        },
+      },
+      plugins: ["checkbox", "types"],
+      checkbox: {
+        three_state: false,
+      },
+      types: {
+        default: {
+          icon: "glyphicon glyphicon-file",
+        },
+        workflow: {
+          icon: "fa fa-sitemap",
+        },
+      },
+    });
+  });
+}
+
 function createNew(instanceType) {
   creationMode = instanceType;
   if (instanceType == "workflow") {
@@ -587,22 +587,16 @@ function createNew(instanceType) {
 }
 
 Object.assign(action, {
-  Edit: (service) => showTypePanel(service.type, service.id),
-  Duplicate: (service) => showTypePanel(service.type, service.id, "duplicate"),
-  Run: (service) => normalRun(service.id),
-  "Parametrized Run": (service) =>
-    showTypePanel(service.type, service.id, "run"),
   "Run Workflow": () => runWorkflow(),
   "Parametrized Workflow Run": () => runWorkflow(true),
-  Results: showResultsPanel,
   "Create Workflow": () => createNew("workflow"),
   "Create New Service": () => createNew("service"),
   "Edit Workflow": () => showTypePanel("workflow", workflow.id),
   "Restart Workflow from Here": (service) =>
     showRestartWorkflowPanel(workflow, service),
-  "Workflow Results": () => showResultsPanel(workflow),
-  "Workflow Logs": () => showLogsPanel(workflow),
-  "Add to Workflow": () => showPanel("add_service"),
+  "Workflow Results": () => showRuntimePanel("results", workflow),
+  "Workflow Logs": () => showRuntimePanel("logs", workflow),
+  "Add to Workflow": addServicePanel,
   "Stop Workflow": () => stopWorkflow(),
   Delete: deleteSelection,
   "Create 'Success' edge": () => switchMode("success"),
