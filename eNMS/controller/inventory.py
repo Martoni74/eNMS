@@ -19,11 +19,14 @@ from eNMS.properties.table import table_properties
 
 
 class InventoryController(BaseController):
+
+    gotty_port = -1
+
     def get_gotty_port(self):
-        self.config["gotty"]["port"] += 1
+        self.gotty_port += 1
         start = self.config["gotty"]["start_port"]
         end = self.config["gotty"]["end_port"]
-        return start + self.config["gotty"]["port"] % (end - start)
+        return start + self.gotty_port % (end - start)
 
     def connection(self, device_id, **kwargs):
         device = fetch("device", id=device_id)
@@ -88,7 +91,9 @@ class InventoryController(BaseController):
         workbook.save(self.path / "files" / "spreadsheets" / filename)
 
     def query_netbox(self, **kwargs):
-        nb = netbox_api(kwargs["netbox_address"], token=kwargs["netbox_token"])
+        nb = netbox_api(
+            self.config["netbox"]["address"], token=environ.get("NETBOX_TOKEN")
+        )
         for device in nb.dcim.devices.all():
             device_ip = device.primary_ip4 or device.primary_ip6
             factory(
@@ -108,8 +113,8 @@ class InventoryController(BaseController):
 
     def query_librenms(self, **kwargs):
         devices = http_get(
-            f'{kwargs["librenms_address"]}/api/v0/devices',
-            headers={"X-Auth-Token": kwargs["librenms_token"]},
+            f'{self.config["opennms"]["address"]}/api/v0/devices',
+            headers={"X-Auth-Token": environ.get("LIBRENMS_TOKEN")},
         ).json()["devices"]
         for device in devices:
             factory(
@@ -126,7 +131,7 @@ class InventoryController(BaseController):
                 },
             )
 
-    def query_opennms(self, **kwargs):
+    def query_opennms(self):
         login = self.config["opennms"]["login"]
         password = environ.get("OPENNMS_PASSWORD")
         Session.commit()
@@ -151,7 +156,7 @@ class InventoryController(BaseController):
         }
         for device in list(devices):
             link = http_get(
-                f"{self.config['opennms']['rest_api']}/nodes/{device}/ipinterfaces",
+                f"{self.config['opennms']['address']}/nodes/{device}/ipinterfaces",
                 headers={"Accept": "application/json"},
                 auth=(login, password),
             ).json()
@@ -205,9 +210,10 @@ class InventoryController(BaseController):
                     obj = fetch(obj_type, allow_none=True, name=name)
                     if not obj:
                         return {
-                            "error": f"{obj_type.capitalize()} '{name}' does not exist."
+                            "alert": f"{obj_type.capitalize()} '{name}' does not exist."
                         }
-                    objects.append(obj)
+                    if obj not in objects:
+                        objects.append(obj)
             else:
                 objects = objectify(obj_type, kwargs[f"{obj_type}s"])
             setattr(pool, f"{obj_type}_number", len(objects))

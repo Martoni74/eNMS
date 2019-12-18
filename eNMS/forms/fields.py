@@ -90,6 +90,16 @@ class SubstitutionField(StringField):
         return super().__call__(*args, **kwargs)
 
 
+class PythonField(StringField):
+    def __call__(self, *args, **kwargs):
+        kwargs["style"] = "background-color: #FFE8F6"
+        return super().__call__(*args, **kwargs)
+
+
+class CodeField(StringField):
+    pass
+
+
 class PasswordSubstitutionField(PasswordField):
     def __call__(self, *args, **kwargs):
         kwargs["style"] = "background-color: #e8f0f7"
@@ -108,6 +118,7 @@ class NoValidationSelectMultipleField(SelectMultipleField):
 
 field_types = {
     BooleanField: "bool",
+    CodeField: "code",
     DateField: "date",
     DictField: "dict",
     DictSubstitutionField: "dict",
@@ -122,6 +133,7 @@ field_types = {
     NoValidationSelectField: "list",
     PasswordField: "str",
     PasswordSubstitutionField: "str",
+    PythonField: "str",
     SelectField: "list",
     SelectMultipleField: "multiselect",
     StringField: "str",

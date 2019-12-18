@@ -64,8 +64,6 @@ class BaseController:
 
     get_endpoints = [
         "/administration",
-        "/calendar/run",
-        "/calendar/task",
         "/dashboard",
         "/login",
         "/table/changelog",
@@ -76,7 +74,6 @@ class BaseController:
         "/table/run",
         "/table/server",
         "/table/service",
-        "/table/syslog",
         "/table/task",
         "/table/user",
         "/view/network",
@@ -110,7 +107,6 @@ class BaseController:
         "delete_node",
         "duplicate_workflow",
         "export_service",
-        "export_to_google_earth",
         "export_topology",
         "get",
         "get_all",
@@ -125,6 +121,7 @@ class BaseController:
         "get_runtimes",
         "get_view_topology",
         "get_service_state",
+        "get_top_level_workflows",
         "get_workflow_results",
         "get_workflow_services",
         "import_service",
@@ -348,7 +345,6 @@ class BaseController:
 
     def init_vault_client(self):
         self.vault_client = VaultClient()
-        self.vault_client.url = self.config["vault"]["address"]
         self.vault_client.token = environ.get("VAULT_TOKEN")
         if self.vault_client.sys.is_sealed() and self.config["vault"]["unseal"]:
             keys = [environ.get(f"UNSEAL_VAULT_KEY{i}") for i in range(1, 6)]
@@ -364,19 +360,19 @@ class BaseController:
         Session.query(models["parameters"]).one().update(**kwargs)
         self.__dict__.update(**kwargs)
 
-    def delete_instance(self, cls, instance_id):
-        return delete(cls, id=instance_id)
+    def delete_instance(self, instance_type, instance_id):
+        return delete(instance_type, id=instance_id)
 
-    def get(self, cls, id):
-        return fetch(cls, id=id).serialized
+    def get(self, instance_type, id):
+        return fetch(instance_type, id=id).serialized
 
-    def get_properties(self, cls, id):
-        return fetch(cls, id=id).get_properties()
+    def get_properties(self, instance_type, id):
+        return fetch(instance_type, id=id).get_properties()
 
-    def get_all(self, cls):
-        return [instance.get_properties() for instance in fetch_all(cls)]
+    def get_all(self, instance_type):
+        return [instance.get_properties() for instance in fetch_all(instance_type)]
 
-    def update(self, cls, **kwargs):
+    def update(self, instance_type, **kwargs):
         try:
             must_be_new = kwargs.get("id") == ""
             for arg in ("name", "scoped_name"):
@@ -384,14 +380,18 @@ class BaseController:
                     kwargs[arg] = kwargs[arg].strip()
             kwargs["last_modified"] = self.get_time()
             kwargs["creator"] = kwargs["user"] = getattr(current_user, "name", "admin")
-            instance = factory(cls, must_be_new=must_be_new, **kwargs)
+            instance = factory(instance_type, must_be_new=must_be_new, **kwargs)
+            if kwargs.get("original"):
+                fetch(instance_type, id=kwargs["original"]).duplicate(clone=instance)
             Session.flush()
             return instance.serialized
         except Exception as exc:
             Session.rollback()
             if isinstance(exc, IntegrityError):
-                return {"error": (f"There already is a {cls} with the same name")}
-            return {"error": str(exc)}
+                return {
+                    "alert": (f"There already is a {instance_type} with the same name")
+                }
+            return {"alert": str(exc)}
 
     def log(self, severity, content):
         factory(
@@ -406,13 +406,15 @@ class BaseController:
 
     def count_models(self):
         return {
-            "counters": {cls: count(cls) for cls in diagram_classes},
+            "counters": {
+                instance_type: count(instance_type) for instance_type in diagram_classes
+            },
             "properties": {
-                cls: Counter(
-                    str(getattr(instance, type_to_diagram_properties[cls][0]))
-                    for instance in fetch_all(cls)
+                instance_type: Counter(
+                    str(getattr(instance, type_to_diagram_properties[instance_type][0]))
+                    for instance in fetch_all(instance_type)
                 )
-                for cls in diagram_classes
+                for instance_type in diagram_classes
             },
         }
 
@@ -433,7 +435,7 @@ class BaseController:
                 constraint = getattr(model, property) == (value == "bool-true")
             elif filter == "equality":
                 constraint = getattr(model, property) == value
-            elif filter == "inclusion" or DIALECT == "sqlite":
+            elif not filter or filter == "inclusion" or DIALECT == "sqlite":
                 constraint = getattr(model, property).contains(value)
             else:
                 regex_operator = "regexp" if DIALECT == "mysql" else "~"
@@ -484,17 +486,9 @@ class BaseController:
             order_function = None
         constraints = self.build_filtering_constraints(table, **kwargs)
         if table == "result":
-            if kwargs["instance"]["type"] == "workflow":
-                constraints.append(
-                    or_(
-                        models["result"].service.has(id=kwargs["instance"]["id"]),
-                        models["result"].workflow.has(id=kwargs["instance"]["id"]),
-                    )
-                )
-            else:
-                constraints.append(
-                    models["result"].service.has(id=kwargs["instance"]["id"])
-                )
+            constraints.append(
+                models["result"].service.has(id=kwargs["instance"]["id"])
+            )
             if kwargs.get("runtime"):
                 constraints.append(models["result"].parent_runtime == kwargs["runtime"])
         if table == "service":
@@ -508,6 +502,8 @@ class BaseController:
             else:
                 if kwargs["form"].get("parent-filtering") == "true":
                     constraints.append(~models["service"].workflows.any())
+        if table == "run":
+            constraints.append(models["run"].children.any())
         result = Session.query(model).filter(operator(*constraints))
         if order_function:
             result = result.order_by(order_function())
@@ -516,7 +512,7 @@ class BaseController:
             "recordsTotal": Session.query(func.count(model.id)).scalar(),
             "recordsFiltered": get_query_count(result),
             "data": [
-                obj.generate_row()
+                obj.generate_row(**kwargs)
                 for obj in result.limit(int(kwargs["length"]))
                 .offset(int(kwargs["start"]))
                 .all()

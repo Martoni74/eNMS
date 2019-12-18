@@ -16,10 +16,10 @@ project = u"eNMS"
 copyright = u"Antoine Fourmy"
 
 # The short X.Y version.
-version = "1.0"
+version = "3.17.2"
 
 # The full version, including alpha/beta/rc tags.
-release = "1.0"
+release = "3.17.2"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -31,6 +31,7 @@ pygments_style = "sphinx"
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = []
 
+html_theme_options = {"navigation_depth": 4}
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -42,15 +43,6 @@ html_theme = "sphinx_rtd_theme"  # winner, mobile friendly
 # in Sphinx’ static/ path, or in one of the custom paths given in
 # html_static_path. Default is the stylesheet given by the selected theme.
 html_style = "custom.css"
-
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-html_logo = "logo.png"
-
-# The name of an image file (within the static path) to use as favicon of the
-# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
-# pixels large.
-html_favicon = "favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

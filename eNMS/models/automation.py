@@ -5,7 +5,6 @@ from eNMS import app
 from eNMS.database.dialect import Column, LargeString, MutableDict, SmallString
 from eNMS.database.associations import (
     service_device_table,
-    service_event_table,
     service_pool_table,
     service_workflow_table,
 )
@@ -13,8 +12,9 @@ from eNMS.database.base import AbstractBase
 from eNMS.database.functions import fetch
 from eNMS.models.inventory import Device  # noqa: F401
 from eNMS.models.execution import Run  # noqa: F401
-from eNMS.models.events import Task  # noqa: F401
+from eNMS.models.scheduling import Task  # noqa: F401
 from eNMS.models.administration import User  # noqa: F401
+from eNMS.properties.table import table_properties
 
 
 class Service(AbstractBase):
@@ -32,6 +32,7 @@ class Service(AbstractBase):
     time_between_retries = Column(Integer, default=10)
     positions = Column(MutableDict)
     tasks = relationship("Task", back_populates="service", cascade="all,delete")
+    events = relationship("Event", back_populates="service", cascade="all,delete")
     vendor = Column(SmallString)
     operating_system = Column(SmallString)
     waiting_time = Column(Integer, default=0)
@@ -47,9 +48,6 @@ class Service(AbstractBase):
     pools = relationship(
         "Pool", secondary=service_pool_table, back_populates="services"
     )
-    events = relationship(
-        "Event", secondary=service_event_table, back_populates="services"
-    )
     send_notification = Column(Boolean, default=False)
     send_notification_method = Column(SmallString, default="mail")
     notification_header = Column(LargeString, default="")
@@ -57,7 +55,6 @@ class Service(AbstractBase):
     include_device_results = Column(Boolean, default=True)
     include_link_in_summary = Column(Boolean, default=True)
     mail_recipient = Column(SmallString)
-    color = Column(SmallString, default="#D2E5FF")
     initial_payload = Column(MutableDict)
     skip = Column(Boolean, default=False)
     skip_query = Column(SmallString)
@@ -77,6 +74,7 @@ class Service(AbstractBase):
     dict_match = Column(MutableDict)
     negative_logic = Column(Boolean, default=False)
     delete_spaces_before_matching = Column(Boolean, default=False)
+    run_method = Column(SmallString, default="per_device")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -98,7 +96,8 @@ class Service(AbstractBase):
                     name=name, scoped_name=scoped_name, shared=False
                 )
                 break
-        workflow.services.append(service)
+        if workflow:
+            workflow.services.append(service)
         return service
 
     @property
@@ -114,8 +113,12 @@ class Service(AbstractBase):
             workflow = f"[{self.workflows[0].name}] "
         self.name = f"{workflow}{name or self.scoped_name}"
 
-    def generate_row(self):
-        rows = super().generate_row()
+    def generate_row(self, **kwargs):
+        hierarchical_display = kwargs["form"].get("parent-filtering") == "true"
+        rows = [self.scoped_name if hierarchical_display else self.name] + [
+            getattr(self, f"table_{property}", getattr(self, property))
+            for property in table_properties["service"][1:]
+        ]
         if self.type == "workflow":
             onclick = f"switchToWorkflow('{self.id}')"
             rows[0] = f"""<b><a href="#" onclick="{onclick}">{rows[0]}</a></b>"""
@@ -144,7 +147,7 @@ class Service(AbstractBase):
           <li>
             <button type="button" class="btn btn-success"
             onclick="showTypePanel('{self.type}', '{self.id}', 'run')"
-            data-tooltip="Parametrized Run"
+            data-tooltip="Parameterized Run"
               ><span class="glyphicon glyphicon-play-circle"></span
             ></button>
           </li>

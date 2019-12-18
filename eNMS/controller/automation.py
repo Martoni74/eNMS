@@ -5,6 +5,7 @@ from flask import request, session
 from flask_login import current_user
 from napalm._SUPPORTED_DRIVERS import SUPPORTED_DRIVERS
 from netmiko.ssh_dispatcher import CLASS_MAPPER, FILE_TRANSFER_MAP
+from operator import itemgetter
 from pathlib import Path
 from re import search, sub
 from uuid import uuid4
@@ -51,22 +52,30 @@ class AutomationController(BaseController):
         workflow.services.append(fetch("service", id=service))
 
     def copy_service_in_workflow(self, workflow_id, **kwargs):
-        service_instances = objectify("service", kwargs["services"].split(","))
+        service_sets = list(set(kwargs["services"].split(",")))
+        service_instances = objectify("service", service_sets)
         workflow = fetch("workflow", id=workflow_id)
-        serialized_services = []
+        services, errors = [], []
+        if kwargs["mode"] == "shallow":
+            for service in service_instances:
+                if not service.shared:
+                    errors.append(f"'{service.name}' is not a shared service.")
+                elif service in workflow.services:
+                    errors.append(f"This workflow already contains '{service.name}'.")
+        if errors:
+            return {"alert": errors}
         for service in service_instances:
             if kwargs["mode"] == "deep":
                 service = service.duplicate(workflow)
-            elif not service.shared:
-                return {"error": "This is not a shared service."}
-            elif service in workflow.services:
-                return {"error": f"This workflow already contains {service.name}."}
             else:
                 workflow.services.append(service)
-            serialized_services.append(service.serialized)
+            services.append(service)
         workflow.last_modified = self.get_time()
         Session.commit()
-        return {"services": serialized_services, "update_time": workflow.last_modified}
+        return {
+            "services": [service.serialized for service in services],
+            "update_time": workflow.last_modified,
+        }
 
     def clear_results(self, service_id):
         for result in fetch(
@@ -97,7 +106,7 @@ class AutomationController(BaseController):
         )
         workflow.services.remove(service)
         if not service.shared:
-            Session.delete(service)
+            delete("service", id=service.id)
         now = self.get_time()
         workflow.last_modified = now
         return {"service": service.serialized, "update_time": now}
@@ -109,8 +118,9 @@ class AutomationController(BaseController):
         workflow.last_modified = now
         return now
 
-    def duplicate_workflow(self, workflow_id, **kwargs):
-        return fetch("workflow", id=workflow_id).duplicate(**kwargs).serialized
+    def duplicate_workflow(self, workflow_id):
+        workflow = fetch("workflow", id=workflow_id)
+        return workflow.duplicate().serialized
 
     def get_service_logs(self, service, runtime):
         run = fetch("run", allow_none=True, parent_runtime=runtime, service_id=service)
@@ -125,7 +135,14 @@ class AutomationController(BaseController):
     def get_result(self, id):
         return fetch("result", id=id).result
 
-    def get_parent_workflows(self, workflow):
+    def get_top_level_workflows(self):
+        return [
+            workflow.get_properties()
+            for workflow in fetch_all("workflow")
+            if not workflow.workflows
+        ]
+
+    def get_parent_workflows(self, workflow=None):
         yield workflow
         for parent_workflow in workflow.workflows:
             yield from self.get_parent_workflows(parent_workflow)
@@ -135,44 +152,104 @@ class AutomationController(BaseController):
         if node == "all":
             return [
                 {
-                    "id": workflow.id,
-                    "text": workflow.name,
+                    "data": {"id": "standalone"},
+                    "id": "standalone",
+                    "text": "Standalone services",
                     "children": True,
-                    "type": "workflow",
-                    "a_attr": {"class": "no_checkbox" if workflow in parents else ""},
+                    "state": {"disabled": True},
+                    "a_attr": {"class": "no_checkbox", "style": "color: #000000"},
+                    "type": "category",
                 }
-                for workflow in fetch_all("workflow")
-                if not workflow.workflows
-            ]
+            ] + sorted(
+                (
+                    {
+                        "data": {"id": workflow.id},
+                        "text": workflow.name,
+                        "children": True,
+                        "type": "workflow",
+                        "state": {"disabled": workflow in parents},
+                        "a_attr": {
+                            "class": "no_checkbox" if workflow in parents else "",
+                            "style": "color: #6666FF",
+                        },
+                    }
+                    for workflow in fetch_all("workflow")
+                    if not workflow.workflows
+                ),
+                key=itemgetter("text"),
+            )
+        elif node == "standalone":
+            return sorted(
+                (
+                    {
+                        "data": {"id": service.id},
+                        "text": service.scoped_name,
+                        "a_attr": {
+                            "style": (
+                                f"color: #{'FF1694' if service.shared else '6666FF'}"
+                            ),
+                        },
+                    }
+                    for service in fetch_all("service")
+                    if not service.workflows and service.type != "workflow"
+                ),
+                key=itemgetter("text"),
+            )
         else:
-            return [
-                {
-                    "id": service.id,
-                    "text": service.scoped_name,
-                    "children": service.type == "workflow",
-                    "type": "workflow" if service.type == "workflow" else "service",
-                    "a_attr": {"class": "no_checkbox" if service in parents else ""},
-                }
-                for service in fetch("workflow", id=node).services
-                if service.scoped_name not in ("Start", "End")
-            ]
+            return sorted(
+                (
+                    {
+                        "data": {"id": service.id},
+                        "text": service.scoped_name,
+                        "children": service.type == "workflow",
+                        "type": "workflow" if service.type == "workflow" else "service",
+                        "state": {"disabled": service in parents},
+                        "a_attr": {
+                            "class": "no_checkbox" if service in parents else "",
+                            "style": (
+                                f"color: #{'FF1694' if service.shared else '6666FF'}"
+                            ),
+                        },
+                    }
+                    for service in fetch("workflow", id=node).services
+                    if service.scoped_name not in ("Start", "End")
+                ),
+                key=itemgetter("text"),
+            )
 
     def get_workflow_results(self, workflow, runtime):
+        state = fetch("run", parent_runtime=runtime).result().result["state"]
+
         def rec(service):
-            service_run = fetch(
-                "run", parent_runtime=runtime, allow_none=True, service_id=service.id
+            runs = fetch(
+                "run",
+                parent_runtime=runtime,
+                allow_none=True,
+                all_matches=True,
+                service_id=service.id,
             )
-            if service.scoped_name in ("Start", "End") or not service_run:
+            if service.scoped_name in ("Start", "End") or not runs:
                 return
-            color = "32CD32" if service_run.success else "FF6666"
+            progress = state["services"][service.id].get("progress")
+            label = (
+                (
+                    f"({progress['device']['success']} passed,"
+                    f" {progress['device']['failure']} failed)</div>"
+                )
+                if progress and progress["device"]["total"]
+                else ""
+            )
+            color = "32CD32" if all(run.success for run in runs) else "FF6666"
             result = {
-                "id": service.id,
-                "text": service.scoped_name,
+                "runtime": min(run.runtime for run in runs),
+                "data": service.get_properties(),
+                "text": f"{service.scoped_name} {label}",
                 "a_attr": {"style": f"color: #{color}"},
             }
             if service.type == "workflow":
-                children = list(
-                    filter(None, (rec(child) for child in service.services))
+                children = sorted(
+                    filter(None, (rec(child) for child in service.services)),
+                    key=itemgetter("runtime"),
                 )
                 return {"children": children, "type": "workflow", **result}
             else:
@@ -195,9 +272,11 @@ class AutomationController(BaseController):
         )
         if restart_run:
             run_kwargs["restart_run"] = restart_run
+        initial_payload = fetch("service", id=service).initial_payload
         run = factory("run", service=service, **run_kwargs)
         run.properties = kwargs
-        return run.run(kwargs.get("payload"))
+        payload = {**initial_payload, **kwargs}
+        return run.run(payload)
 
     def run_service(self, id=None, **kwargs):
         for property in ("user", "csrf_token", "form_type"):
@@ -219,18 +298,17 @@ class AutomationController(BaseController):
         return {"service": service.serialized, "runtime": runtime}
 
     def save_positions(self, workflow_id):
-        now = self.get_time()
+        now, old_position = self.get_time(), None
         workflow = fetch("workflow", allow_none=True, id=workflow_id)
-        session["workflow"] = workflow.id
         for id, position in request.json.items():
             new_position = [position["x"], position["y"]]
-            if "-" in id and id in workflow.labels:
-                old_position = workflow.labels[id].pop("positions")
-                workflow.labels[id] = {"positions": new_position, **workflow.labels[id]}
-            else:
+            if "-" not in id:
                 service = fetch("service", id=id)
                 old_position = service.positions.get(workflow.name)
                 service.positions[workflow.name] = new_position
+            elif id in workflow.labels:
+                old_position = workflow.labels[id].pop("positions")
+                workflow.labels[id] = {"positions": new_position, **workflow.labels[id]}
             if new_position != old_position:
                 workflow.last_modified = now
         return now
@@ -243,9 +321,14 @@ class AutomationController(BaseController):
         fetch("workflow", id=workflow_id).last_modified = self.get_time()
         return "skip" if skip else "unskip"
 
-    def get_service_state(self, service_id, runtime="latest"):
+    def get_service_state(self, path, runtime=None):
+        service_id = path.split(">")[-1]
         state, service = None, fetch("service", id=service_id)
         runs = fetch_all("run", service_id=service_id)
+        if not runtime:
+            runtime = "latest"
+        else:
+            session["path"] = path
         if runs and runtime != "normal":
             if runtime == "latest":
                 runtime = runs[-1].parent_runtime
@@ -287,7 +370,7 @@ class AutomationController(BaseController):
         try:
             return getattr(fetch("task", id=task_id), action)()
         except JobLookupError:
-            return {"error": "This task no longer exists."}
+            return {"alert": "This task no longer exists."}
 
     def scan_playbook_folder(self):
         path = Path(

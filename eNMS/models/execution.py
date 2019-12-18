@@ -1,6 +1,7 @@
 from builtins import __dict__ as builtins
 from collections import defaultdict
 from copy import deepcopy
+from datetime import datetime
 from functools import partial
 from json import dumps, loads
 from json.decoder import JSONDecodeError
@@ -38,7 +39,7 @@ class Result(AbstractBase):
     id = Column(Integer, primary_key=True)
     success = Column(Boolean, default=False)
     runtime = Column(SmallString)
-    endtime = Column(SmallString)
+    duration = Column(SmallString)
     result = Column(MutableDict)
     run_id = Column(Integer, ForeignKey("run.id"))
     run = relationship("Run", back_populates="results", foreign_keys="Result.run_id")
@@ -52,7 +53,7 @@ class Result(AbstractBase):
     service_id = Column(Integer, ForeignKey("service.id"))
     service = relationship("Service", foreign_keys="Result.service_id")
     service_name = association_proxy("service", "name")
-    workflow_id = Column(Integer, ForeignKey("workflow.id"))
+    workflow_id = Column(Integer, ForeignKey("workflow.id", ondelete="cascade"))
     workflow = relationship("Workflow", foreign_keys="Result.workflow_id")
     workflow_name = association_proxy("workflow", "name")
 
@@ -65,7 +66,7 @@ class Result(AbstractBase):
     def __init__(self, **kwargs):
         self.success = kwargs["result"]["success"]
         self.runtime = kwargs["result"]["runtime"]
-        self.endtime = kwargs["result"]["endtime"]
+        self.duration = kwargs["result"]["duration"]
         super().__init__(**kwargs)
         self.parent_runtime = self.run.parent_runtime
 
@@ -78,7 +79,7 @@ class Result(AbstractBase):
             f'style="width:100%">{label}</button>'
         )
 
-    def generate_row(self):
+    def generate_row(self, **kwargs):
         return super().generate_row() + [
             f"""<button type="button" class="btn btn-info btn-sm"
             onclick="showResult('{self.id}')">Results</button>""",
@@ -99,10 +100,14 @@ class Run(AbstractBase):
     success = Column(Boolean, default=False)
     status = Column(SmallString, default="Running")
     runtime = Column(SmallString)
-    endtime = Column(SmallString)
+    duration = Column(SmallString)
     parent_id = Column(Integer, ForeignKey("run.id"))
-    parent = relationship("Run", uselist=False, foreign_keys=parent_id)
+    parent = relationship(
+        "Run", remote_side=[id], foreign_keys="Run.parent_id", back_populates="children"
+    )
+    children = relationship("Run", foreign_keys="Run.parent_id")
     parent_runtime = Column(SmallString)
+    path = Column(SmallString)
     parent_device_id = Column(Integer, ForeignKey("device.id"))
     parent_device = relationship("Device", foreign_keys="Run.parent_device_id")
     devices = relationship("Device", secondary=run_device_table, back_populates="runs")
@@ -112,7 +117,7 @@ class Run(AbstractBase):
         "Service", back_populates="runs", foreign_keys="Run.service_id"
     )
     service_name = association_proxy("service", "name")
-    workflow_id = Column(Integer, ForeignKey("workflow.id"))
+    workflow_id = Column(Integer, ForeignKey("workflow.id", ondelete="cascade"))
     workflow = relationship("Workflow", foreign_keys="Run.workflow_id")
     workflow_name = association_proxy("workflow", "name")
     task_id = Column(Integer, ForeignKey("task.id"))
@@ -125,6 +130,9 @@ class Run(AbstractBase):
         super().__init__(**kwargs)
         if not kwargs.get("parent_runtime"):
             self.parent_runtime = self.runtime
+            self.path = str(self.service.id)
+        else:
+            self.path = f"{self.parent.path}>{self.service.id}"
 
     @property
     def name(self):
@@ -147,7 +155,7 @@ class Run(AbstractBase):
         result = [r for r in self.results if r.device_name == device]
         return result.pop() if result else None
 
-    def generate_row(self):
+    def generate_row(self, **kwargs):
         return super().generate_row() + [
             f"""
             <ul class="pagination pagination-lg" style="margin: 0px; width: 100px">
@@ -173,7 +181,11 @@ class Run(AbstractBase):
         elif self.runtime == self.parent_runtime:
             return app.run_db[self.runtime]
         else:
-            return app.run_db[self.parent_runtime]["services"][self.service.id]
+            return app.run_db[self.parent_runtime]["services"][self.path]
+
+    @property
+    def edge_state(self):
+        return app.run_db[self.parent_runtime]["edges"]
 
     @property
     def stop(self):
@@ -185,8 +197,8 @@ class Run(AbstractBase):
             progress = self.run_state["progress"]["device"]
             try:
                 return (
-                    f"{progress['passed'] + progress['failed']}/{progress['total']}"
-                    f" ({progress['failed']} failed)"
+                    f"{progress['success'] + progress['failure']}/{progress['total']}"
+                    f" ({progress['failure']} failed)"
                 )
             except KeyError:
                 return "N/A"
@@ -222,27 +234,26 @@ class Run(AbstractBase):
             devices |= set(self.service.devices)
             for pool in self.service.pools:
                 devices |= set(pool.devices)
-        self.run_state["progress"]["device"]["total"] += len(devices)
         return list(devices)
 
     def init_state(self):
         state = {
             "status": "Idle",
             "success": None,
-            "progress": {"device": {"total": 0, "passed": 0, "failed": 0}},
+            "progress": {"device": {"total": 0, "success": 0, "failure": 0}},
             "attempt": 0,
             "waiting_time": {
                 "total": self.service.waiting_time,
                 "left": self.service.waiting_time,
             },
-            "summary": {"passed": [], "failed": []},
+            "summary": {"success": [], "failure": []},
         }
         if self.service.type == "workflow":
             state.update({"edges": defaultdict(int), "services": defaultdict(dict)})
             state["progress"]["service"] = {
                 "total": len(self.service.services),
-                "passed": 0,
-                "failed": 0,
+                "success": 0,
+                "failure": 0,
                 "skipped": 0,
             }
         if self.runtime == self.parent_runtime:
@@ -251,14 +262,13 @@ class Run(AbstractBase):
             app.run_db[self.runtime] = state
         else:
             service_states = app.run_db[self.parent_runtime]["services"]
-            if self.service.id not in service_states:
-                service_states[self.service.id] = state
+            if self.path not in service_states:
+                service_states[self.path] = state
 
-    def run(self, payload=None):
+    def run(self, payload):
         self.init_state()
         self.run_state["status"] = "Running"
-        if payload is None:
-            payload = self.service.initial_payload
+        start = datetime.now().replace(microsecond=0)
         try:
             app.service_db[self.service.id]["runs"] += 1
             Session.commit()
@@ -274,13 +284,18 @@ class Run(AbstractBase):
             results = {"success": False, "runtime": self.runtime, "result": result}
         finally:
             Session.commit()
+            results["summary"] = self.run_state.get("summary", None)
             self.status = "Aborted" if self.stop else "Completed"
             self.run_state["status"] = self.status
             if self.run_state["success"] is not False:
-                self.run_state["success"] = results["success"]
+                self.success = self.run_state["success"] = results["success"]
+            if self.send_notification:
+                results = self.notify(results)
             app.service_db[self.service.id]["runs"] -= 1
-            results["endtime"] = self.endtime = app.get_time()
-            results["logs"] = app.run_logs.pop(self.runtime, None)
+            results["duration"] = self.duration = str(
+                datetime.now().replace(microsecond=0) - start
+            )
+            results["logs"] = app.run_logs.pop(self.runtime, [])
             if self.runtime == self.parent_runtime:
                 self.state = results["state"] = app.run_db.pop(self.runtime)
             if self.task and not self.task.frequency:
@@ -289,9 +304,11 @@ class Run(AbstractBase):
                 "run": self.properties,
                 "service": self.service.get_properties(exclude=["positions"]),
             }
-            if self.send_notification:
-                results = self.notify(results)
-            if self.runtime == self.parent_runtime or len(self.devices) > 1:
+            if (
+                self.runtime == self.parent_runtime
+                or len(self.devices) > 1
+                or self.run_method == "once"
+            ):
                 self.create_result(results)
             Session.commit()
         return results
@@ -305,7 +322,9 @@ class Run(AbstractBase):
 
     def device_iteration(self, payload, device):
         derived_devices = self.compute_devices_from_query(
-            self.iteration_devices, self.iteration_devices_property, **locals()
+            self.service.iteration_devices,
+            self.service.iteration_devices_property,
+            **locals(),
         )
         derived_run = factory(
             "run",
@@ -320,18 +339,28 @@ class Run(AbstractBase):
             },
         )
         derived_run.properties = self.properties
-        return derived_run.run(payload)["success"]
+        success = derived_run.run(payload)["success"]
+        key = "success" if success else "failure"
+        self.run_state["summary"][key].append(device.name)
+        return success
 
     def device_run(self, payload):
-        self.devices, success = self.compute_devices(payload), True
-        if not self.devices:
-            results = [self.get_results(payload)]
+        self.devices = self.compute_devices(payload)
+        self.run_state["progress"]["device"]["total"] += len(self.devices)
+        if self.iteration_devices and not self.parent_device:
+            if not self.workflow:
+                return {
+                    "success": False,
+                    "result": "Device iteration not allowed outside of a workflow",
+                    "runtime": self.runtime,
+                }
+            results = [
+                self.device_iteration(payload, device) for device in self.devices
+            ]
+            return {"success": all(results), "runtime": self.runtime}
+        elif self.run_method != "per_device":
+            return self.get_results(payload)
         else:
-            if self.iteration_devices and not self.parent_device:
-                success = all(
-                    self.device_iteration(payload, device) for device in self.devices
-                )
-                return {"success": success, "runtime": self.runtime}
             if self.multiprocessing and len(self.devices) > 1:
                 results = []
                 processes = min(len(self.devices), self.max_processes)
@@ -345,7 +374,10 @@ class Run(AbstractBase):
                 pool.join()
             else:
                 results = [self.get_results(payload, device) for device in self.devices]
-        return {"success": all(results), "runtime": self.runtime}
+            return {
+                "success": all(result["success"] for result in results),
+                "runtime": self.runtime,
+            }
 
     def create_result(self, results, device=None):
         self.success = results["success"]
@@ -365,10 +397,10 @@ class Run(AbstractBase):
 
     def run_service_job(self, payload, device):
         args = (device,) if device else ()
-        for i in range(self.number_of_retries + 1):
+        for retry in range(self.number_of_retries + 1):
             try:
-                if i:
-                    self.log("error", f"RETRY n°{i}", device)
+                if retry:
+                    self.log("error", f"RETRY n°{retry}", device)
                 results = self.service.job(self, payload, *args)
                 if device and (
                     getattr(self, "close_connection", False)
@@ -376,19 +408,19 @@ class Run(AbstractBase):
                 ):
                     self.close_device_connection(device)
                 self.convert_result(results)
+                if "success" not in results:
+                    results["success"] = True
                 try:
                     self.eval(
                         self.service.result_postprocessing, function="exec", **locals()
                     )
                 except SystemExit:
                     pass
-                if "success" not in results:
-                    results["success"] = True
                 if results["success"] and self.validation_method != "none":
                     self.validate_result(results, payload, device)
                 if results["success"]:
                     return results
-                elif i < self.number_of_retries:
+                elif retry < self.number_of_retries:
                     sleep(self.time_between_retries)
             except Exception:
                 result = (
@@ -403,17 +435,20 @@ class Run(AbstractBase):
 
     def get_results(self, payload, device=None):
         self.log("info", "STARTING", device)
+        start = datetime.now().replace(microsecond=0)
         results = {"runtime": app.get_time(), "logs": []}
         try:
             if self.restart_run and self.service.type == "workflow":
-                old_result = self.restart_run.result(device=device.name)
+                old_result = self.restart_run.result(
+                    device=device.name if device else None
+                )
                 if old_result and "payload" in old_result.result:
                     payload.update(old_result["payload"])
             if self.service.iteration_values:
                 targets_results = {}
                 for target in self.eval(self.service.iteration_values, **locals()):
                     self.payload_helper(payload, self.iteration_variable_name, target)
-                    targets_results[target] = self.run_service_job(payload, device)
+                    targets_results[str(target)] = self.run_service_job(payload, device)
                 results.update(
                     {
                         "result": targets_results,
@@ -427,15 +462,15 @@ class Run(AbstractBase):
                 {"success": False, "result": chr(10).join(format_exc().splitlines())}
             )
             self.log("error", chr(10).join(format_exc().splitlines()), device)
-        results["endtime"] = app.get_time()
+        results["duration"] = str(datetime.now().replace(microsecond=0) - start)
         if device:
-            status = "passed" if results["success"] else "failed"
+            status = "success" if results["success"] else "failure"
             self.run_state["progress"]["device"][status] += 1
             self.run_state["summary"][status].append(device.name)
             self.create_result(results, device)
         Session.commit()
         self.log("info", "FINISHED", device)
-        return results["success"]
+        return results
 
     def log(self, severity, content, device=None):
         log = f"{app.get_time()} - {severity} - {self.service.name}"
@@ -455,25 +490,29 @@ class Run(AbstractBase):
         if self.include_link_in_summary:
             address = app.config["app"]["address"]
             notification["Link"] = f"{address}/view_service_results/{self.id}"
-        if self.run_state["summary"]["failed"]:
-            notification["FAILED"] = self.run_state["summary"]["failed"]
-        if self.run_state["summary"]["passed"] and not self.display_only_failed_nodes:
-            notification["PASSED"] = self.run_state["summary"]["passed"]
+        if results["summary"]:
+            if results["summary"]["failure"]:
+                notification["FAILED"] = results["summary"]["failure"]
+            if results["summary"]["success"] and not self.display_only_failed_nodes:
+                notification["PASSED"] = results["summary"]["success"]
         return notification
 
     def notify(self, results):
+        self.log("info", f"Sending {self.send_notification_method} notification...")
         notification = self.build_notification(results)
         file_content = deepcopy(notification)
         if self.include_device_results:
-            file_content["Device Results"] = {
-                device.name: fetch(
+            file_content["Device Results"] = {}
+            for device in self.devices:
+                device_result = fetch(
                     "result",
                     service_id=self.service_id,
                     parent_runtime=self.parent_runtime,
                     device_id=device.id,
-                ).result
-                for device in self.devices
-            }
+                    allow_none=True,
+                )
+                if device_result:
+                    file_content["Device Results"][device.name] = device_result.result
         try:
             if self.send_notification_method == "mail":
                 filename = self.runtime.replace(".", "").replace(":", "")
@@ -642,8 +681,10 @@ class Run(AbstractBase):
     def python_code_kwargs(_self, **locals):  # noqa: N805
         return {
             "config": app.config,
+            "devices": _self.devices,
             "get_var": partial(_self.get_var, locals.get("payload", {})),
             "get_result": _self.get_result,
+            "log": _self.log,
             "workflow": _self.workflow,
             "set_var": partial(_self.payload_helper, locals.get("payload", {})),
             "parent_device": _self.parent_device or locals.get("device"),

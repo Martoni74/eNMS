@@ -97,21 +97,15 @@ title %} {% block stylesheets %} {{ super() }}
               >
                 Excel
               </button>
-              <button
-                class="btn btn-primary btn-file"
-                onclick="showPanel('opennms')"
-              >
+              <button class="btn btn-primary btn-file" onclick="queryOpenNMS()">
                 OpenNMS
               </button>
-              <button
-                class="btn btn-primary btn-file"
-                onclick="showPanel('netbox')"
-              >
+              <button class="btn btn-primary btn-file" onclick="queryNetbox()">
                 Netbox
               </button>
               <button
                 class="btn btn-primary btn-file"
-                onclick="showPanel('librenms')"
+                onclick="queryLibreNMS()"
               >
                 LibreNMS
               </button>
@@ -134,12 +128,6 @@ title %} {% block stylesheets %} {{ super() }}
                 onclick="showPanel('excel_export')"
               >
                 Excel
-              </button>
-              <button
-                class="btn btn-primary btn-file"
-                onclick="showPanel('google_earth_export')"
-              >
-                Google Earth
               </button>
             </div>
           </center>

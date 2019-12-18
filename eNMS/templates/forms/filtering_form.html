@@ -6,7 +6,7 @@
 >
   <div class="modal-body">
     {{ form.csrf_token() }} {{ form.form_type() }}
-    <label>Match Condition</label>
+    <label>Type of match</label>
     <div class="form-group">
       {{ form.operator(id="operator", class="form-control required") }}
     </div>
@@ -17,7 +17,7 @@
     >
       <thead>
         <tr>
-          <th>Property</th>
+          <th style="width: 20%">Property</th>
           <th>Value</th>
           <th style="width: 25%">Match</th>
         </tr>

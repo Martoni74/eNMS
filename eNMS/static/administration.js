@@ -47,29 +47,22 @@ function showImportTopologyPanel(type) {
 
 // eslint-disable-next-line
 function queryOpenNMS() {
-  fCall("/query_opennms", "#opennms-form", function() {
+  call("/query_opennms", function() {
     alertify.notify("Topology imported from OpenNMS.", "success", 5);
   });
 }
 
 // eslint-disable-next-line
 function queryNetbox() {
-  fCall("/query_netbox", "#netbox-form", function() {
+  call("/query_netbox", function() {
     alertify.notify("Topology imported from Netbox.", "success", 5);
   });
 }
 
 // eslint-disable-next-line
 function queryLibreNMS() {
-  fCall("/query_librenms", "#librenms-form", function() {
+  call("/query_librenms", function() {
     alertify.notify("Topology imported from LibreNMS.", "success", 5);
-  });
-}
-
-// eslint-disable-next-line
-function exportToGoogleEarth() {
-  fCall("/export_to_google_earth", "#google_earth_export-form", function() {
-    alertify.notify("Project exported to Google Earth.", "success", 5);
   });
 }
 

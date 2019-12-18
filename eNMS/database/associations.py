@@ -20,14 +20,14 @@ run_device_table = Table(
     "run_device_association",
     Base.metadata,
     Column("device_id", Integer, ForeignKey("device.id")),
-    Column("run_id", Integer, ForeignKey("run.id")),
+    Column("run_id", Integer, ForeignKey("run.id", ondelete="cascade")),
 )
 
 run_pool_table = Table(
     "run_pool_association",
     Base.metadata,
     Column("pool_id", Integer, ForeignKey("pool.id")),
-    Column("run_id", Integer, ForeignKey("run.id")),
+    Column("run_id", Integer, ForeignKey("run.id", ondelete="cascade")),
 )
 
 task_device_table = Table(
@@ -42,13 +42,6 @@ task_pool_table = Table(
     Base.metadata,
     Column("pool_id", Integer, ForeignKey("pool.id")),
     Column("task_id", Integer, ForeignKey("task.id")),
-)
-
-service_event_table = Table(
-    "service_event_association",
-    Base.metadata,
-    Column("service_id", Integer, ForeignKey("service.id")),
-    Column("event_id", Integer, ForeignKey("event.id")),
 )
 
 service_workflow_table = Table(

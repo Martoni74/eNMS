@@ -127,22 +127,16 @@ def view(view_type):
 @blueprint.route("/workflow_builder")
 @monitor_requests
 def workflow_builder():
-    workflow = fetch("workflow", allow_none=True, id=session.get("workflow", None))
+    workflow, workflow_path = None, session.get("path", None)
+    if workflow_path:
+        workflow = fetch("workflow", allow_none=True, id=workflow_path.split(">")[-1])
     return render_template(
         f"pages/workflow_builder.html",
         **{
             "endpoint": "workflow_builder",
             "workflow": workflow.serialized if workflow else None,
+            "path": session.get("path", ""),
         },
-    )
-
-
-@blueprint.route("/calendar/<calendar_type>")
-@monitor_requests
-def calendar(calendar_type):
-    return render_template(
-        f"pages/calendar.html",
-        **{"calendar_type": calendar_type, "endpoint": "calendar"},
     )
 
 
@@ -197,7 +191,7 @@ def get_requests_sink(_):
 def route(page):
     f, *args = page.split("/")
     if f not in app.json_endpoints + app.form_endpoints:
-        return jsonify({"error": "Invalid POST request."})
+        return jsonify({"alert": "Invalid POST request."})
     form_type = request.form.get("form_type")
     if f in app.json_endpoints:
         result = getattr(app, f)(*args, **request.json)
@@ -216,4 +210,4 @@ def route(page):
         Session.rollback()
         if app.config["app"]["config_mode"] == "debug":
             raise
-        return jsonify({"error": handle_exception(str(exc))})
+        return jsonify({"alert": handle_exception(str(exc))})

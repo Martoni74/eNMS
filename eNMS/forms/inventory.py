@@ -123,7 +123,7 @@ class PoolForm(BaseForm):
     longitude = StringField("Longitude", default=0.0)
     latitude = StringField("Latitude", default=0.0)
     operator = SelectField(
-        "Match Condition",
+        "Type of match",
         choices=(
             ("all", "Match if all properties match"),
             ("any", "Match if any property matches"),
@@ -147,29 +147,7 @@ class ExcelImportForm(BaseForm):
     replace = BooleanField("Replace Existing Topology")
 
 
-class NetboxForm(BaseForm):
-    action = "queryNetbox"
-    form_type = HiddenField(default="netbox")
-    netbox_address = StringField("URL", default="http://0.0.0.0:8000")
-    netbox_token = PasswordField("Token")
-
-
-class LibreNmsForm(BaseForm):
-    action = "queryLibreNMS"
-    form_type = HiddenField(default="librenms")
-    librenms_address = StringField("URL", default="http://librenms.example.com")
-    librenms_token = PasswordField("Token")
-
-
 class ExportForm(BaseForm):
     action = "exportTopology"
     form_type = HiddenField(default="excel_export")
     export_filename = StringField("Filename")
-
-
-class GoogleEarthForm(BaseForm):
-    action = "exportToGoogleEarth"
-    form_type = HiddenField(default="google_earth_export")
-    name = StringField("Name", [InputRequired()])
-    label_size = IntegerField("Label Size", default=1)
-    line_width = IntegerField("Link Width", default=2)

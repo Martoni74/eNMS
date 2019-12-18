@@ -1,6 +1,7 @@
 /*
 global
 alertify: false
+CodeMirror: false
 config: true
 creationMode: true
 csrf_token: false
@@ -20,21 +21,21 @@ workflow: true
 */
 
 const currentUrl = window.location.href.split("#")[0].split("?")[0];
+let editors = {};
 let tables = {};
 let userIsActive = true;
 let topZ = 1000;
 
 const panelSize = {
-  add_service: "800 500",
+  add_services: "800 700",
+  calendar: "1200 650",
   changelog: "700 300",
   changelog_filtering: "700 300",
   compare: "auto 700",
   configuration: "800 auto",
   database_deletion: "700 400",
   database_migration: "700 300",
-  device: "700 500",
   device_connection: "400 500",
-  device_filtering: "700 600",
   device_results: "1200 700",
   display: "700 700",
   display_configuration: "1200 800",
@@ -42,16 +43,12 @@ const panelSize = {
   excel_import: "400 150",
   excel_export: "400 150",
   git: "900 200",
-  google_earth_export: "700 200",
   import_service: "500 400",
   instance_deletion: "400 130",
-  librenms: "700 250",
   link: "700 400",
   link_filtering: "700 600",
   log_filtering: "700 350",
   notifications: "1100 400",
-  netbox: "700 250",
-  opennms: "700 300",
   pool: "800 600",
   pool_filtering: "1000 700",
   pool_objects: "700 550",
@@ -60,21 +57,17 @@ const panelSize = {
   service_results: "1200 700",
   server: "600 250",
   server_filtering: "700 450",
-  service: "1300 600",
-  service_filtering: "1000 600",
   ssh: "700 200",
-  task: "900 500",
+  task: "900 600",
   task_filtering: "900 650",
   user: "600 300",
   user_filtering: "700 250",
   view: "700 300",
-  workflow: "1300 600",
-  workflow_filtering: "1000 600",
   workflow_results: "1200 700",
 };
 
 const panelName = {
-  add_service: "Add service",
+  add_services: "Add services",
   configuration: "Configuration",
   database_deletion: "Database Deletion",
   database_migration: "Database Migration",
@@ -88,7 +81,6 @@ const panelName = {
   changelog_filtering: "Changelog Filtering",
   pool_filtering: "Pool Filtering",
   service_filtering: "Service Filtering",
-  syslog_filtering: "Syslog Filtering",
   task_filtering: "Task Filtering",
   user_filtering: "User Filtering",
   workflow_filtering: "Workflow Filtering",
@@ -97,23 +89,19 @@ const panelName = {
 // eslint-disable-next-line
 function doc(page) {
   let endpoint = {
-    administration: "administration/index.html",
-    calendar: "events/tasks.html",
-    dashboard: "base/introduction.html",
-    "table/configuration": "inventory/configuration_management.html",
-    "table/device": "inventory/objects.html",
-    "table/event": "events/index.html",
-    "table/link": "inventory/objects.html",
-    "table/syslog": "events/logs.html",
-    "table/changelog": "events/logs.html",
-    "table/pool": "inventory/pool_management.html",
-    "table/run": "services/index.html",
-    "table/server": "administration/index.html",
-    "table/service": "services/index.html",
-    "table/task": "events/tasks.html",
-    "table/user": "administration/index.html",
-    view: "views/geographical_view.html",
-    workflow_builder: "workflows/index.html",
+    administration: "base/installation.html",
+    dashboard: "base/features.html",
+    "table/device": "inventory/network_creation.html",
+    "table/event": "automation/scheduling.html",
+    "table/link": "inventory/network_creation.html",
+    "table/changelog": "advanced/administration.html",
+    "table/pool": "inventory/pools.html",
+    "table/run": "automation/services.html",
+    "table/service": "automation/services.html",
+    "table/task": "automation/scheduling.html",
+    "table/user": "advanced/administration.html",
+    view: "inventory/network_visualization.html",
+    workflow_builder: "automation/workflows.html",
   }[page];
   $("#doc-link").attr("href", `${config.app.documentation_url}${endpoint}`);
 }
@@ -204,8 +192,12 @@ function cantorPairing(x, y) {
 function processResults(callback, results) {
   if (results === false) {
     alertify.notify("HTTP Error 403 – Forbidden", "error", 5);
-  } else if (results && results.error) {
-    alertify.notify(results.error, "error", 5);
+  } else if (results && results.alert) {
+    if (Array.isArray(results.alert)) {
+      results.alert.map((e) => alertify.notify(e, "error", 5));
+    } else {
+      alertify.notify(results.alert, "error", 5);
+    }
   } else if (results && results.invalid_form) {
     for (const [field, error] of Object.entries(results.errors)) {
       alertify.notify(`Wrong input for "${field}": ${error}`, "error", 20);
@@ -303,7 +295,7 @@ function createPanel(name, title, id, processing, type, duplicate) {
     theme: "light filledlight",
     headerLogo: "../static/images/logo.png",
     contentOverflow: "hidden scroll",
-    contentSize: panelSize[name] || "1000 600",
+    contentSize: panelSize[name] || "800 600",
     position: "center-top 0 10",
     headerTitle: title,
     contentAjax: {
@@ -360,6 +352,9 @@ function preprocessForm(panel, id, type, duplicate) {
       $(el).attr("onclick", type ? `${el.value}("${type}")` : `${el.value}()`);
     }
   });
+  panel.querySelectorAll(".doc-link").forEach((el) => {
+    $(el).attr("href", `${config.app.documentation_url}${$(el).attr("href")}`);
+  });
 }
 
 function initSelect(el, model, parentId, single) {
@@ -394,7 +389,8 @@ function initSelect(el, model, parentId, single) {
 function configureForm(form, id, panelId) {
   if (!formProperties[form]) return;
   for (const [property, field] of Object.entries(formProperties[form])) {
-    let el = $(id ? `#${form}-${property}-${id}` : `#${form}-${property}`);
+    const fieldId = id ? `${form}-${property}-${id}` : `${form}-${property}`;
+    let el = $(`#${fieldId}`);
     if (!el.length) el = $(`#${property}`);
     if (field.type == "date") {
       el.datetimepicker({
@@ -412,6 +408,18 @@ function configureForm(form, id, panelId) {
         actionsBox: true,
         selectedTextFormat: "count > 3",
       });
+    } else if (field.type == "code") {
+      let editor = CodeMirror.fromTextArea(el[0], {
+        lineWrapping: true,
+        lineNumbers: true,
+        extraKeys: { "Ctrl-F": "findPersistent" },
+        matchBrackets: true,
+        mode: "python",
+        scrollbarStyle: "overlay",
+      });
+      editor.on("change", () => editor.save());
+      if (!editors[id]) editors[id] = {};
+      editors[id][property] = editor;
     } else if (["object", "object-list"].includes(field.type)) {
       let model;
       if (relationships[form]) {
@@ -443,7 +451,7 @@ function showTypePanel(type, id, mode) {
         });
       } else {
         panel.setHeaderTitle(`Create a New ${type}`);
-        if (page == "workflow_builder" && creationMode == "service") {
+        if (page == "workflow_builder" && creationMode == "create_service") {
           $(`#${type}-workflows`).append(
             new Option(workflow.name, workflow.id)
           );
@@ -493,6 +501,9 @@ function updateProperty(instance, el, property, value, type) {
     el.append(new Option(value.name, value.id))
       .val(value.id)
       .trigger("change");
+  } else if (propertyType == "code") {
+    const editor = editors[instance.id][property];
+    if (editor) editor.setValue(value);
   } else if (propertyType == "field-list") {
     for (let [index, form] of value.entries()) {
       for (const [key, value] of Object.entries(form)) {
@@ -554,8 +565,9 @@ function createSearchHeaders(type) {
 
 // eslint-disable-next-line
 function initTable(type, instance, runtime) {
+  const tableId = instance ? `#${type}-table-${instance.id}` : `#${type}-table`;
   // eslint-disable-next-line new-cap
-  tables[type] = $(`#${type}-table`).DataTable({
+  tables[type] = $(tableId).DataTable({
     serverSide: true,
     orderCellsTop: true,
     autoWidth: false,
@@ -585,7 +597,7 @@ function initTable(type, instance, runtime) {
     },
   });
   createSearchHeaders(type);
-  if (["changelog", "syslog", "run", "result"].includes(type)) {
+  if (["changelog", "run", "result"].includes(type)) {
     tables[type].order([0, "desc"]).draw();
   }
   if (type == "service") {

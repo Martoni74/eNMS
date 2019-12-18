@@ -48,10 +48,16 @@
     "channel": "",
     "verify_certificate": true
   },
+  "librenms": {
+    "address": "http://librenms.example.com"
+  },
+  "netbox": {
+    "address": "http://0.0.0.0:8000"
+  },
   "opennms": {
-    "opennms_login": "",
-    "opennms_devices": "",
-    "opennms_rest_api": ""
+    "address": "",
+    "login": "",
+    "devices": ""
   },
   "paths": {
     "custom_code": "",
@@ -86,7 +92,6 @@
   },
   "vault": {
     "active": false,
-    "address": "http://127.0.0.1:8200",
     "unseal": false
   },
   "view": {

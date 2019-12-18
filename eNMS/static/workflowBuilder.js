@@ -2,16 +2,21 @@
 global
 action: false
 alertify: false
+arrowHistory: false
+arrowPointer: false
 call: false
 createPanel: false
+currentPath: true
 currentRuntime: true
 fCall: false
 normalRun: false
 runLogic: false
 serviceTypes: false
+Set: false
 showPanel: false
 showRuntimePanel: false
 showTypePanel: false
+switchToWorkflow: false
 userIsActive: true
 vis: false
 workflow: true
@@ -49,14 +54,18 @@ const dsoptions = {
     enabled: false,
     addNode: function(data, callback) {},
     addEdge: function(data, callback) {
-      if (data.to == 1) {
+      if (data.to == "Start") {
         alertify.notify("You cannot draw an edge to 'Start'.", "error", 5);
-      } else if (data.from == 2) {
+      } else if (data.from == "End") {
         alertify.notify("You cannot draw an edge from 'End'.", "error", 5);
       } else if (data.from != data.to) {
         data.subtype = currentMode;
         saveEdge(data);
       }
+    },
+    deleteNode: function(data, callback) {
+      data.nodes = data.nodes.filter((node) => !ends.has(node));
+      callback(data);
     },
   },
 };
@@ -65,6 +74,7 @@ let nodes;
 let edges;
 let graph;
 let selectedObject;
+let ends = new Set();
 let currentMode = "motion";
 let creationMode;
 let mousePosition;
@@ -91,12 +101,13 @@ function displayWorkflow(workflowData) {
       properties.event.preventDefault();
       const node = this.getNodeAt(properties.pointer.DOM);
       const edge = this.getEdgeAt(properties.pointer.DOM);
-      if (typeof node !== "undefined" && node != 1 && node != 2) {
+      if (typeof node !== "undefined" && !ends.has(node)) {
         graph.selectNodes([node]);
         $(".menu-entry ").hide();
         $(`.${node.length == 36 ? "label" : "node"}-selection`).show();
         selectedObject = nodes.get(node);
-      } else if (typeof edge !== "undefined" && node != 1 && node != 2) {
+        $(".workflow-selection").toggle(selectedObject.type == "workflow");
+      } else if (typeof edge !== "undefined" && !ends.has(node)) {
         graph.selectEdges([edge]);
         $(".menu-entry ").hide();
         $(".edge-selection").show();
@@ -118,7 +129,7 @@ function displayWorkflow(workflowData) {
     } else if (node.type == "label") {
       editLabel(node);
     } else if (node.type == "workflow") {
-      switchToWorkflow(node.id);
+      switchToWorkflow(`${currentPath}>${node.id}`);
     } else {
       showTypePanel(node.type, node.id);
     }
@@ -138,7 +149,7 @@ function displayWorkflow(workflowData) {
     );
   });
   $("#current-runtime").val("latest");
-  $("#current-workflow").val(workflow.id);
+  $("#current-workflow").val(currentPath.split(">")[0]);
   $("#current-runtime,#current-workflow").selectpicker("refresh");
   graph.on("dragEnd", (event) => {
     if (graph.getNodeAt(event.pointer.DOM)) savePositions();
@@ -146,7 +157,6 @@ function displayWorkflow(workflowData) {
   displayWorkflowState(workflowData);
   rectangleSelection($("#network"), graph, nodes);
   switchMode(currentMode, true);
-  return graph;
 }
 
 const rectangleSelection = (container, network, nodes) => {
@@ -232,7 +242,7 @@ const rectangleSelection = (container, network, nodes) => {
 function switchToSubworkflow() {
   const service = nodes.get(graph.getSelectedNodes()[0]);
   if (service.type != "workflow") {
-    alertify.notify("You must select a workflow.", "error", 5);
+    alertify.notify("You must select a subworkflow.", "error", 5);
   } else {
     switchToWorkflow(service.id);
   }
@@ -240,8 +250,9 @@ function switchToSubworkflow() {
 
 // eslint-disable-next-line
 function processWorkflowData(instance, id) {
-  if (instance.type == "workflow_edge") edges.update(edgeToEdge(instance));
-  if (instance.type.includes("service") || instance.type == "workflow") {
+  if (!instance.type) {
+    edges.update(edgeToEdge(instance));
+  } else if (instance.type.includes("service") || instance.type == "workflow") {
     if (id) {
       if (workflow.id == id) return;
       nodes.update(serviceToNode(instance));
@@ -250,7 +261,7 @@ function processWorkflowData(instance, id) {
       );
       workflow.services[serviceIndex] = instance;
     } else {
-      if (creationMode == "workflow") {
+      if (creationMode == "create_workflow") {
         if (instance.type === "workflow" && !id) {
           $("#current-workflow").append(
             `<option value="${instance.id}">${instance.name}</option>`
@@ -258,7 +269,7 @@ function processWorkflowData(instance, id) {
           $("#current-workflow")
             .val(instance.id)
             .trigger("change");
-          displayWorkflow({ workflow: instance, runtimes: [] });
+          displayWorkflow({ service: instance, runtimes: [] });
         }
       } else {
         call(
@@ -286,15 +297,15 @@ function updateWorkflowService(service) {
 
 // eslint-disable-next-line
 function addServicesToWorkflow() {
-  const selection = $("#service-tree").jstree("get_checked");
+  const selection = $("#service-tree").jstree("get_checked", true);
   if (!selection.length) alertify.notify("Nothing selected.", "error", 5);
-  $("#services").val(selection);
+  $("#services").val(selection.map((n) => n.data.id));
   fCall(
     `/copy_service_in_workflow/${workflow.id}`,
     "#add-services-form",
     function(result) {
       workflow.last_modified = result.update_time;
-      $("#add_service").remove();
+      $("#add_services").remove();
       result.services.map(updateWorkflowService);
     }
   );
@@ -378,7 +389,7 @@ function formatServiceTitle(service) {
 }
 
 function getServiceLabel(service) {
-  if (["Start", "End"].includes(service.scoped_name)) {
+  if (ends.has(service.id)) {
     return service.scoped_name;
   }
   let label =
@@ -393,6 +404,7 @@ function getServiceLabel(service) {
 
 function serviceToNode(service) {
   const defaultService = ["Start", "End"].includes(service.scoped_name);
+  if (defaultService) ends.add(service.id);
   return {
     id: service.id,
     shape:
@@ -493,7 +505,10 @@ function edgeToEdge(edge) {
 }
 
 function deleteSelection() {
-  graph.getSelectedNodes().map((node) => deleteNode(node));
+  graph
+    .getSelectedNodes()
+    .filter((node) => !ends.has(node))
+    .map((node) => deleteNode(node));
   graph.getSelectedEdges().map((edge) => deleteEdge(edge));
   graph.deleteSelected();
   switchMode(currentMode, true);
@@ -548,14 +563,14 @@ function savePositions() {
 }
 
 function addServicePanel() {
-  showPanel("add_service", null, function() {
+  showPanel("add_services", null, function() {
     $("#service-tree").jstree({
       core: {
         animation: 200,
         themes: { stripes: true },
         data: {
           url: function(node) {
-            const nodeId = node.id == "#" ? "all" : node.id;
+            const nodeId = node.id == "#" ? "all" : node.data.id;
             return `/get_workflow_services/${workflow.id}/${nodeId}`;
           },
           type: "POST",
@@ -566,6 +581,9 @@ function addServicePanel() {
         three_state: false,
       },
       types: {
+        category: {
+          icon: "fa fa-folder",
+        },
         default: {
           icon: "glyphicon glyphicon-file",
         },
@@ -577,10 +595,17 @@ function addServicePanel() {
   });
 }
 
-function createNew(instanceType) {
-  creationMode = instanceType;
-  if (instanceType == "workflow") {
+function createNew(mode) {
+  creationMode = mode;
+  if (mode == "create_workflow") {
     showTypePanel("workflow");
+  } else if (mode == "duplicate_workflow") {
+    call(`/duplicate_workflow/${workflow.id}`, function(instance) {
+      $("#current-workflow").append(
+        `<option value="${instance.id}">${instance.name}</option>`
+      );
+      switchToWorkflow(instance.id);
+    });
   } else {
     showTypePanel($("#service-type").val());
   }
@@ -588,9 +613,10 @@ function createNew(instanceType) {
 
 Object.assign(action, {
   "Run Workflow": () => runWorkflow(),
-  "Parametrized Workflow Run": () => runWorkflow(true),
-  "Create Workflow": () => createNew("workflow"),
-  "Create New Service": () => createNew("service"),
+  "Parameterized Workflow Run": () => runWorkflow(true),
+  "Create Workflow": () => createNew("create_workflow"),
+  "Duplicate Workflow": () => createNew("duplicate_workflow"),
+  "Create New Service": () => createNew("create_service"),
   "Edit Workflow": () => showTypePanel("workflow", workflow.id),
   "Restart Workflow from Here": (service) =>
     showRestartWorkflowPanel(workflow, service),
@@ -612,8 +638,16 @@ Object.assign(action, {
   Skip: () => skipServices(),
   "Zoom In": () => graph.zoom(0.2),
   "Zoom Out": () => graph.zoom(-0.2),
+  "Enter Workflow": (node) => switchToWorkflow(`${currentPath}>${node.id}`),
   Backward: () => switchToWorkflow(arrowHistory[arrowPointer - 1], "left"),
   Forward: () => switchToWorkflow(arrowHistory[arrowPointer + 1], "right"),
+  Upward: () => {
+    const parentPath = currentPath
+      .split(">")
+      .slice(0, -1)
+      .join(">");
+    if (parentPath) switchToWorkflow(parentPath);
+  },
 });
 
 // eslint-disable-next-line
@@ -698,7 +732,9 @@ function restartWorkflow() {
 }
 
 function colorService(id, color) {
-  if (id != 1 && id != 2 && nodes) nodes.update({ id: id, color: color });
+  if (!ends.has(id) && nodes) {
+    nodes.update({ id: id, color: color });
+  }
 }
 
 // eslint-disable-next-line
@@ -726,32 +762,33 @@ function displayWorkflowState(result) {
     const progress = result.state.progress[mode];
     $("#progress").show();
     $("#progress-success").width(
-      `${(progress.passed * 100) / progress.total}%`
+      `${(progress.success * 100) / progress.total}%`
     );
     $("#progress-failure").width(
-      `${(progress.failed * 100) / progress.total}%`
+      `${(progress.failure * 100) / progress.total}%`
     );
-    if (progress.passed) $("#progress-success-span").text(progress.passed);
-    if (progress.failed) $("#progress-failure-span").text(progress.failed);
+    if (progress.success) $("#progress-success-span").text(progress.success);
+    if (progress.failure) $("#progress-failure-span").text(progress.failure);
     $("#status").text(`Status: ${result.state.status}`);
     if (result.state.services) {
-      $.each(result.state.services, (id, state) => {
+      $.each(result.state.services, (path, state) => {
+        const id = path.split(">").slice(-1)[0];
         const color = {
           true: "#32cd32",
           false: "#FF6666",
           skipped: "#D3D3D3",
           null: "#00CCFF",
         };
-        if (id in nodes._data && !["1", "2"].includes(id)) {
+        if (id in nodes._data && !ends.has(id)) {
           colorService(id, color[state.success]);
           const progress = state.progress.device;
           if (progress.total) {
             let label = `<b>${nodes.get(id).name}</b>\n`;
             label += "—————\n";
-            let progressLabel = `Progress - ${progress.passed +
-              progress.failed}/${progress.total}`;
-            progressLabel += ` (${progress.passed} passed, ${
-              progress.failed
+            let progressLabel = `Progress - ${progress.success +
+              progress.failure}/${progress.total}`;
+            progressLabel += ` (${progress.success} passed, ${
+              progress.failure
             } failed)`;
             label += progressLabel;
             nodes.update({
@@ -767,9 +804,10 @@ function displayWorkflowState(result) {
         if (!edges.get(id)) return;
         edges.update({
           id: id,
-          label: result.state.progress.device.total
-            ? `<b>${devices} DEVICE${devices == 1 ? "" : "S"}</b>`
-            : "<b>DONE</b>",
+          label:
+            typeof devices == "string"
+              ? `<b>${devices}</b>`
+              : `<b>${devices} DEVICE${devices == 1 ? "" : "S"}</b>`,
           font: { size: 15, multi: "html" },
         });
       });
@@ -780,7 +818,7 @@ function displayWorkflowState(result) {
 function resetDisplay() {
   $("#progressbar").hide();
   workflow.services.forEach((service) => {
-    if ([1, 2].includes(service.id)) return;
+    if (ends.has(service.id)) return;
     nodes.update({
       id: service.id,
       label: getServiceLabel(service),
@@ -793,11 +831,11 @@ function resetDisplay() {
   });
 }
 
-function getWorkflowState(periodic) {
+function getWorkflowState(periodic, notification) {
   const runtime = $("#current-runtime").val();
   const url = runtime ? `/${runtime}` : "";
   if (userIsActive && workflow && workflow.id) {
-    call(`/get_service_state/${workflow.id}${url}`, function(result) {
+    call(`/get_service_state/${currentPath}${url}`, function(result) {
       if (result.service.id != workflow.id) return;
       currentRuntime = result.runtime;
       if (result.service.last_modified !== workflow.last_modified) {
@@ -808,6 +846,7 @@ function getWorkflowState(periodic) {
     });
   }
   if (periodic) setTimeout(() => getWorkflowState(true), 4000);
+  if (notification) alertify.notify("Workflow refreshed.", "success", 5);
 }
 
 (function() {
@@ -815,7 +854,7 @@ function getWorkflowState(periodic) {
   $("#edge-type").on("change", function() {
     switchMode(this.value);
   });
-  call("/get_all/workflow", function(workflows) {
+  call("/get_top_level_workflows", function(workflows) {
     workflows.sort((a, b) => a.name.localeCompare(b.name));
     for (let i = 0; i < workflows.length; i++) {
       $("#current-workflow").append(
@@ -823,8 +862,8 @@ function getWorkflowState(periodic) {
       );
     }
     if (workflow) {
-      $("#current-workflow").val(workflow.id);
-      switchToWorkflow(workflow.id);
+      $("#current-workflow").val(currentPath.split(">")[0]);
+      switchToWorkflow(currentPath);
     } else {
       workflow = $("#current-workflow").val();
       if (workflow) {
