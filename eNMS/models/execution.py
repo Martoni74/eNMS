@@ -3,6 +3,7 @@ from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
 from functools import partial
+from io import BytesIO
 from json import dumps, loads
 from json.decoder import JSONDecodeError
 from multiprocessing.pool import ThreadPool
@@ -26,7 +27,7 @@ from xml.parsers.expat import ExpatError
 from eNMS import app
 from eNMS.database import Session
 from eNMS.database.associations import run_pool_table, run_device_table
-from eNMS.database.dialect import Column, MutableDict, SmallString
+from eNMS.database.dialect import Column, MutableDict, MutableList, SmallString
 from eNMS.database.functions import factory, fetch
 from eNMS.database.base import AbstractBase
 from eNMS.models import models
@@ -93,8 +94,10 @@ class Run(AbstractBase):
     __tablename__ = type = "run"
     private = True
     id = Column(Integer, primary_key=True)
+    restart_path = Column(SmallString)
     restart_run_id = Column(Integer, ForeignKey("run.id"))
     restart_run = relationship("Run", uselist=False, foreign_keys=restart_run_id)
+    start_services = Column(MutableList)
     creator = Column(SmallString, default="admin")
     properties = Column(MutableDict)
     success = Column(Boolean, default=False)
@@ -120,7 +123,7 @@ class Run(AbstractBase):
     workflow_id = Column(Integer, ForeignKey("workflow.id", ondelete="cascade"))
     workflow = relationship("Workflow", foreign_keys="Run.workflow_id")
     workflow_name = association_proxy("workflow", "name")
-    task_id = Column(Integer, ForeignKey("task.id"))
+    task_id = Column(Integer, ForeignKey("task.id", ondelete="SET NULL"))
     task = relationship("Task", foreign_keys="Run.task_id")
     state = Column(MutableDict)
     results = relationship("Result", back_populates="run", cascade="all, delete-orphan")
@@ -130,16 +133,32 @@ class Run(AbstractBase):
         super().__init__(**kwargs)
         if not kwargs.get("parent_runtime"):
             self.parent_runtime = self.runtime
+            self.restart_path = kwargs.get("restart_path")
             self.path = str(self.service.id)
         else:
             self.path = f"{self.parent.path}>{self.service.id}"
+        restart_path = self.original.restart_path
+        if restart_path:
+            path_ids = restart_path.split(">")
+            if str(self.service.id) in path_ids:
+                workflow_index = path_ids.index(str(self.service.id))
+                if workflow_index == len(path_ids) - 2:
+                    self.start_services = path_ids[-1].split("-")
+                elif workflow_index < len(path_ids) - 2:
+                    self.start_services = [path_ids[workflow_index + 1]]
+        if not self.start_services:
+            self.start_services = [fetch("service", scoped_name="Start").id]
 
     @property
     def name(self):
         return repr(self)
 
+    @property
+    def original(self):
+        return self if not self.parent else self.parent.original
+
     def __repr__(self):
-        return f"{self.runtime} ({self.service_name} run by {self.creator})"
+        return f"{self.runtime} (run by '{self.creator}')"
 
     def __getattr__(self, key):
         if key in self.__dict__:
@@ -206,7 +225,7 @@ class Run(AbstractBase):
             return "N/A"
 
     def compute_devices_from_query(_self, query, property, **locals):  # noqa: N805
-        values = _self.eval(query, **locals)
+        values = _self.eval(query, **locals)[0]
         devices, not_found = set(), []
         if isinstance(values, str):
             values = [values]
@@ -240,7 +259,9 @@ class Run(AbstractBase):
         state = {
             "status": "Idle",
             "success": None,
-            "progress": {"device": {"total": 0, "success": 0, "failure": 0}},
+            "progress": {
+                "device": {"total": 0, "success": 0, "failure": 0, "skipped": 0}
+            },
             "attempt": 0,
             "waiting_time": {
                 "total": self.service.waiting_time,
@@ -361,6 +382,7 @@ class Run(AbstractBase):
         elif self.run_method != "per_device":
             return self.get_results(payload)
         else:
+
             if self.multiprocessing and len(self.devices) > 1:
                 results = []
                 processes = min(len(self.devices), self.max_processes)
@@ -397,10 +419,16 @@ class Run(AbstractBase):
 
     def run_service_job(self, payload, device):
         args = (device,) if device else ()
-        for retry in range(self.number_of_retries + 1):
+        retries = self.number_of_retries + 1
+        total_retries = 0
+        while retries > 0 and total_retries < 1000:
+            retries -= 1
+            total_retries += 1
             try:
-                if retry:
-                    self.log("error", f"RETRY n°{retry}", device)
+                if retries:
+                    self.log(
+                        "error", f"RETRY n°{self.number_of_retries-retries+2}", device
+                    )
                 results = self.service.job(self, payload, *args)
                 if device and (
                     getattr(self, "close_connection", False)
@@ -411,16 +439,18 @@ class Run(AbstractBase):
                 if "success" not in results:
                     results["success"] = True
                 try:
-                    self.eval(
+                    _, exec_variables = self.eval(
                         self.service.result_postprocessing, function="exec", **locals()
                     )
+                    if isinstance(exec_variables.get("retries"), int):
+                        retries = exec_variables["retries"]
                 except SystemExit:
                     pass
                 if results["success"] and self.validation_method != "none":
                     self.validate_result(results, payload, device)
                 if results["success"]:
                     return results
-                elif retry < self.number_of_retries:
+                elif retries:
                     sleep(self.time_between_retries)
             except Exception:
                 result = (
@@ -436,6 +466,18 @@ class Run(AbstractBase):
     def get_results(self, payload, device=None):
         self.log("info", "STARTING", device)
         start = datetime.now().replace(microsecond=0)
+        skip_service = False
+        if self.skip_query:
+            skip_service = self.eval(self.skip_query, **locals())[0]
+        if skip_service or self.skip:
+            if device:
+                self.run_state["progress"]["device"]["skipped"] += 1
+                key = "success" if self.skip_value == "True" else "failure"
+                self.run_state["summary"][key].append(device.name)
+            return {
+                "result": "skipped",
+                "success": self.skip_value == "True",
+            }
         results = {"runtime": app.get_time(), "logs": []}
         try:
             if self.restart_run and self.service.type == "workflow":
@@ -446,7 +488,7 @@ class Run(AbstractBase):
                     payload.update(old_result["payload"])
             if self.service.iteration_values:
                 targets_results = {}
-                for target in self.eval(self.service.iteration_values, **locals()):
+                for target in self.eval(self.service.iteration_values, **locals())[0]:
                     self.payload_helper(payload, self.iteration_variable_name, target)
                     targets_results[str(target)] = self.run_service_job(payload, device)
                 results.update(
@@ -516,8 +558,9 @@ class Run(AbstractBase):
         try:
             if self.send_notification_method == "mail":
                 filename = self.runtime.replace(".", "").replace(":", "")
+                status = "PASS" if results["success"] else "FAILED"
                 result = app.send_email(
-                    f"{self.name} ({'PASS' if results['success'] else 'FAILED'})",
+                    f"{self.service.name} ({status})",
                     app.str_dict(notification),
                     recipients=self.mail_recipient,
                     filename=f"results-{filename}.txt",
@@ -692,13 +735,15 @@ class Run(AbstractBase):
         }
 
     def eval(_self, query, function="eval", **locals):  # noqa: N805
-        return builtins[function](query, _self.python_code_kwargs(**locals))
+        exec_variables = _self.python_code_kwargs(**locals)
+        results = builtins[function](query, exec_variables)
+        return results, exec_variables
 
     def sub(self, input, variables):
         r = compile("{{(.*?)}}")
 
         def replace(match):
-            return str(self.eval(match.group()[2:-2], **variables))
+            return str(self.eval(match.group()[2:-2], **variables)[0])
 
         def rec(input):
             if isinstance(input, str):
@@ -751,6 +796,7 @@ class Run(AbstractBase):
             fast_cli=self.fast_cli,
             timeout=self.timeout,
             global_delay_factor=self.global_delay_factor,
+            session_log=BytesIO(),
         )
         if self.enable_mode:
             netmiko_connection.enable()
