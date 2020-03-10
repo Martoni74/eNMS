@@ -6,7 +6,6 @@ from eNMS.database.functions import factory, fetch, objectify
 from eNMS.models import model_properties, property_types, relationships
 from eNMS.properties import dont_serialize, private_properties
 from eNMS.properties.database import dont_migrate
-from eNMS.properties.table import table_properties
 
 
 class AbstractBase(Base):
@@ -23,7 +22,7 @@ class AbstractBase(Base):
         return self.name
 
     def __getattribute__(self, property):
-        if property in private_properties and app.config["vault"]["active"]:
+        if property in private_properties and app.settings["vault"]["active"]:
             path = f"secret/data/{self.__tablename__}/{self.name}/{property}"
             data = app.vault_client.read(path)
             return data["data"]["data"][property] if data else ""
@@ -34,7 +33,7 @@ class AbstractBase(Base):
         if property in private_properties:
             if not value:
                 return
-            if app.config["vault"]["active"]:
+            if app.settings["vault"]["active"]:
                 app.vault_client.write(
                     f"secret/data/{self.__tablename__}/{self.name}/{property}",
                     data={property: value},
@@ -44,19 +43,13 @@ class AbstractBase(Base):
         else:
             super().__setattr__(property, value)
 
-    def generate_row(self, **kwargs):
-        return [
-            getattr(self, f"table_{property}", getattr(self, property))
-            for property in table_properties[self.type]
-        ]
-
-    @property
-    def row_properties(self):
-        return {p: getattr(self, p) for p in ("id", "name", "type")}
-
     @property
     def ui_name(self):
         return self.name
+
+    @property
+    def base_properties(self):
+        return {p: getattr(self, p) for p in ("id", "name", "type")}
 
     def update(self, **kwargs):
         relation = relationships[self.__tablename__]
@@ -79,7 +72,12 @@ class AbstractBase(Base):
     def get_properties(self, export=False, exclude=None, include=None):
         result = {}
         no_migrate = dont_migrate.get(self.type, dont_migrate["service"])
-        for property in model_properties[self.type]:
+        properties = list(model_properties[self.type])
+        if not export:
+            properties.extend(getattr(self, "model_properties", []))
+        for property in properties:
+            if not hasattr(self, property):
+                continue
             if property in dont_serialize.get(self.type, []):
                 continue
             if property in private_properties:
@@ -98,6 +96,11 @@ class AbstractBase(Base):
                     continue
             result[property] = value
         return result
+
+    def table_properties(self, **kwargs):
+        rest_api = kwargs.get("rest_api_request")
+        columns = [c["data"] for c in kwargs["columns"]] if rest_api else None
+        return self.get_properties(include=columns)
 
     def duplicate(self, **kwargs):
         properties = {

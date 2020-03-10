@@ -1,54 +1,58 @@
 from collections import Counter
+from flask_login import current_user
 from logging import info
-from os import environ
-from pynetbox import api as netbox_api
-from requests import get as http_get
 from sqlalchemy import and_
 from subprocess import Popen
+from threading import Thread
+from uuid import uuid4
 from werkzeug.utils import secure_filename
 from xlrd import open_workbook
 from xlrd.biffh import XLRDError
 from xlwt import Workbook
 
+
 from eNMS.controller.base import BaseController
+from eNMS.controller.ssh import SshConnection
 from eNMS.database import Session
 from eNMS.database.functions import delete_all, factory, fetch, fetch_all, objectify
-from eNMS.models import models, property_types
+from eNMS.models import models, model_properties, property_types
 from eNMS.properties import field_conversion
-from eNMS.properties.table import table_properties
 
 
 class InventoryController(BaseController):
 
-    gotty_port = -1
+    ssh_port = -1
 
-    def get_gotty_port(self):
-        self.gotty_port += 1
-        start = self.config["gotty"]["start_port"]
-        end = self.config["gotty"]["end_port"]
-        return start + self.gotty_port % (end - start)
+    def get_ssh_port(self):
+        self.ssh_port += 1
+        start = self.settings["ssh"]["start_port"]
+        end = self.settings["ssh"]["end_port"]
+        return start + self.ssh_port % (end - start)
 
     def connection(self, device_id, **kwargs):
         device = fetch("device", id=device_id)
         cmd = [str(self.path / "files" / "apps" / "gotty"), "-w"]
-        port, protocol = self.get_gotty_port(), kwargs["protocol"]
+        port, protocol = self.get_ssh_port(), kwargs["protocol"]
         address = getattr(device, kwargs["address"])
         cmd.extend(["-p", str(port)])
         if "accept-once" in kwargs:
             cmd.append("--once")
         if "multiplexing" in kwargs:
             cmd.extend(f"tmux new -A -s gotty{port}".split())
-        if self.config["gotty"]["bypass_key_prompt"]:
+        if self.settings["ssh"]["bypass_key_prompt"]:
             options = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
         else:
             options = ""
         if protocol == "telnet":
             cmd.extend(f"telnet {address}".split())
         elif "authentication" in kwargs:
-            if kwargs["credentials"] == "device":
-                login, pwd = device.username, device.password
-            else:
-                login, pwd = kwargs["user"].name, kwargs["user"].password
+            login, pwd = (
+                (device.username, device.password)
+                if kwargs["credentials"] == "device"
+                else (current_user.name, current_user.password)
+                if kwargs["credentials"] == "user"
+                else (kwargs["username"], kwargs["password"])
+            )
             cmd.extend(f"sshpass -p {pwd} ssh {options} {login}@{address}".split())
         else:
             cmd.extend(f"ssh {options} {address}".split())
@@ -58,8 +62,8 @@ class InventoryController(BaseController):
         return {
             "device": device.name,
             "port": port,
-            "redirection": self.config["gotty"]["port_redirection"],
-            "server_addr": self.config["app"]["address"],
+            "redirection": self.settings["ssh"]["port_redirection"],
+            "server_addr": self.settings["app"]["address"],
         }
 
     def get_device_logs(self, device_id):
@@ -70,9 +74,46 @@ class InventoryController(BaseController):
         ]
         return "\n".join(device_logs)
 
+    def handoffssh(self, id, **kwargs):
+        device = fetch("device", id=id)
+        credentials = (
+            (device.username, device.password)
+            if kwargs["credentials"] == "device"
+            else (current_user.name, current_user.password)
+            if kwargs["credentials"] == "user"
+            else (kwargs["username"], kwargs["password"])
+        )
+        uuid, port = str(uuid4()), self.get_ssh_port()
+        session = factory(
+            "session",
+            name=uuid,
+            user=current_user.name,
+            timestamp=self.get_time(),
+            device=device.id,
+        )
+        Session.commit()
+        try:
+            ssh_connection = SshConnection(
+                device.ip_address, *credentials, session.id, uuid, port
+            )
+            Thread(
+                target=ssh_connection.start_session, args=(session.id, uuid, port),
+            ).start()
+            return {
+                "port": port,
+                "username": uuid,
+                "device_name": device.name,
+                "device_ip": device.ip_address,
+            }
+        except Exception as exc:
+            return {"error": exc.args}
+
     def get_device_network_data(self, device_id):
         device = fetch("device", id=device_id)
         return {"configuration": device.configuration, "data": device.operational_data}
+
+    def get_session_log(self, session_id):
+        return fetch("session", id=session_id).content
 
     def counters(self, property, type):
         return Counter(str(getattr(instance, property)) for instance in fetch_all(type))
@@ -84,86 +125,19 @@ class InventoryController(BaseController):
             filename += ".xls"
         for obj_type in ("device", "link"):
             sheet = workbook.add_sheet(obj_type)
-            for index, property in enumerate(table_properties[obj_type]):
+            for index, property in enumerate(model_properties[obj_type]):
+                if property in (
+                    "id",
+                    "source_id",
+                    "destination_id",
+                    "configuration",
+                    "operational_data",
+                ):
+                    continue
                 sheet.write(0, index, property)
                 for obj_index, obj in enumerate(fetch_all(obj_type), 1):
                     sheet.write(obj_index, index, getattr(obj, property))
         workbook.save(self.path / "files" / "spreadsheets" / filename)
-
-    def query_netbox(self, **kwargs):
-        nb = netbox_api(
-            self.config["netbox"]["address"], token=environ.get("NETBOX_TOKEN")
-        )
-        for device in nb.dcim.devices.all():
-            device_ip = device.primary_ip4 or device.primary_ip6
-            factory(
-                "device",
-                **{
-                    "name": device.name,
-                    "ip_address": str(device_ip).split("/")[0],
-                    "subtype": str(device.device_role),
-                    "model": str(device.device_type),
-                    "location": str(device.site),
-                    "vendor": str(device.device_type.manufacturer),
-                    "operating_system": str(device.platform),
-                    "longitude": str(nb.dcim.sites.get(name=device.site).longitude),
-                    "latitude": str(nb.dcim.sites.get(name=device.site).latitude),
-                },
-            )
-
-    def query_librenms(self, **kwargs):
-        devices = http_get(
-            f'{self.config["opennms"]["address"]}/api/v0/devices',
-            headers={"X-Auth-Token": environ.get("LIBRENMS_TOKEN")},
-        ).json()["devices"]
-        for device in devices:
-            factory(
-                "device",
-                **{
-                    "name": device["hostname"],
-                    "ip_address": device["ip"] or device["hostname"],
-                    "model": device["hardware"],
-                    "operating_system": device["os"],
-                    "os_version": device["version"],
-                    "location": device["location"],
-                    "longitude": device["lng"],
-                    "latitude": device["lat"],
-                },
-            )
-
-    def query_opennms(self):
-        login = self.config["opennms"]["login"]
-        password = environ.get("OPENNMS_PASSWORD")
-        Session.commit()
-        json_devices = http_get(
-            self.config["opennms"]["devices"],
-            headers={"Accept": "application/json"},
-            auth=(login, password),
-        ).json()["node"]
-        devices = {
-            device["id"]: {
-                "name": device.get("label", device["id"]),
-                "description": device["assetRecord"].get("description", ""),
-                "location": device["assetRecord"].get("building", ""),
-                "vendor": device["assetRecord"].get("manufacturer", ""),
-                "model": device["assetRecord"].get("modelNumber", ""),
-                "operating_system": device.get("operatingSystem", ""),
-                "os_version": device["assetRecord"].get("sysDescription", ""),
-                "longitude": device["assetRecord"].get("longitude", 0.0),
-                "latitude": device["assetRecord"].get("latitude", 0.0),
-            }
-            for device in json_devices
-        }
-        for device in list(devices):
-            link = http_get(
-                f"{self.config['opennms']['address']}/nodes/{device}/ipinterfaces",
-                headers={"Accept": "application/json"},
-                auth=(login, password),
-            ).json()
-            for interface in link["ipInterface"]:
-                if interface["snmpPrimary"] == "P":
-                    devices[device]["ip_address"] = interface["ipAddress"]
-                    factory("device", **devices[device])
 
     def topology_import(self, file):
         book = open_workbook(file_contents=file.read())
@@ -177,12 +151,14 @@ class InventoryController(BaseController):
             for row_index in range(1, sheet.nrows):
                 values = {"dont_update_pools": True}
                 for index, property in enumerate(properties):
-                    func = field_conversion[property_types[property]]
+                    if not property:
+                        continue
+                    func = field_conversion[property_types.get(property, "str")]
                     values[property] = func(sheet.row_values(row_index)[index])
                 try:
                     factory(obj_type, **values).serialized
-                except Exception as e:
-                    info(f"{str(values)} could not be imported ({str(e)})")
+                except Exception as exc:
+                    info(f"{str(values)} could not be imported ({str(exc)})")
                     status = "Partial import (see logs)."
             Session.commit()
         for pool in fetch_all("pool"):
@@ -233,7 +209,13 @@ class InventoryController(BaseController):
             "links": [d.view_properties for d in fetch_all("link")],
         }
 
-    def view_filtering(self, obj_type, **kwargs):
-        constraints = self.build_filtering_constraints(obj_type, **kwargs)
-        result = Session.query(models[obj_type]).filter(and_(*constraints))
-        return [d.view_properties for d in result.all()]
+    def view_filtering(self, **kwargs):
+        return {
+            obj_type: [
+                d.view_properties
+                for d in Session.query(models[obj_type])
+                .filter(and_(*self.build_filtering_constraints(obj_type, **form)))
+                .all()
+            ]
+            for obj_type, form in kwargs.items()
+        }

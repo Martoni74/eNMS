@@ -11,7 +11,7 @@ def fetch(model, allow_none=False, all_matches=False, **kwargs):
     if result or allow_none:
         return result
     else:
-        raise Exception(
+        raise LookupError(
             f"There is no {model} in the database "
             f"with the following characteristics: {kwargs}"
         )
@@ -62,11 +62,8 @@ def factory(cls_name, **kwargs):
         instance = fetch(cls_name, id=instance_id)
     elif "name" in kwargs:
         instance = fetch(cls_name, allow_none=True, name=kwargs["name"])
-    if instance:
-        if kwargs.get("must_be_new"):
-            raise Exception(f"There already is a {cls_name} with the same name.")
-        else:
-            instance.update(**kwargs)
+    if instance and not kwargs.get("must_be_new"):
+        instance.update(**kwargs)
     else:
         instance = models[cls_name](**kwargs)
         Session.add(instance)

@@ -1,20 +1,23 @@
+from passlib.hash import argon2
 from copy import deepcopy
-from flask_login import current_user
 from ipaddress import IPv4Network
 from json import loads
 from logging import info
 from ldap3 import Connection, NTLM, SUBTREE
-from os import listdir, makedirs
-from os.path import exists
+from os import listdir, makedirs, remove
+from os.path import exists, getmtime
 from pathlib import Path
 from shutil import rmtree
 from requests import get as http_get
 from ruamel import yaml
 from tarfile import open as open_tar
+from time import ctime
 from traceback import format_exc
+from datetime import datetime
 
 from eNMS.controller.base import BaseController
 from eNMS.database import Session
+from eNMS.models import models
 from eNMS.database.functions import delete_all, export, factory, fetch, fetch_all
 from eNMS.models import relationships
 
@@ -24,54 +27,69 @@ class AdministrationController(BaseController):
         name, password = kwargs["name"], kwargs["password"]
         if kwargs["authentication_method"] == "Local User":
             user = fetch("user", allow_none=True, name=name)
-            return user if user and password == user.password else False
+            hash = self.settings["security"]["hash_user_passwords"]
+            verify = argon2.verify if hash else str.__eq__
+            return user if user and verify(password, user.password) else False
         elif kwargs["authentication_method"] == "LDAP Domain":
             with Connection(
                 self.ldap_client,
-                user=f"{self.config['ldap']['userdn']}\\{name}",
+                user=f"{self.settings['ldap']['userdn']}\\{name}",
                 password=password,
                 auto_bind=True,
                 authentication=NTLM,
             ) as connection:
                 connection.search(
-                    self.config["ldap"]["basedn"],
+                    self.settings["ldap"]["basedn"],
                     f"(&(objectClass=person)(samaccountname={name}))",
                     search_scope=SUBTREE,
                     get_operational_attributes=True,
                     attributes=["cn", "memberOf", "mail"],
                 )
                 json_response = loads(connection.response_to_json())["entries"][0]
-                if json_response and any(
-                    group in s
-                    for group in self.config["ldap"]["admin_group"].split(",")
-                    for s in json_response["attributes"]["memberOf"]
-                ):
-                    user = factory(
-                        "user",
-                        **{
-                            "name": name,
-                            "password": password,
-                            "email": json_response["attributes"].get("mail", ""),
-                            "permissions": ["Admin"],
-                        },
-                    )
+                if not json_response:
+                    return
+                is_admin = any(
+                    admin_group in user_group
+                    for admin_group in self.settings["ldap"]["admin_group"].split(",")
+                    for user_group in json_response["attributes"]["memberOf"]
+                )
+                user = factory(
+                    "user",
+                    **{
+                        "name": name,
+                        "password": password,
+                        "email": json_response["attributes"].get("mail", ""),
+                        "group": "Admin" if is_admin else "Read Only",
+                    },
+                )
         elif kwargs["authentication_method"] == "TACACS":
             if self.tacacs_client.authenticate(name, password).valid:
                 user = factory("user", **{"name": name, "password": password})
         Session.commit()
         return user
 
-    def get_user_credentials(self):
-        return (current_user.name, current_user.password)
-
     def database_deletion(self, **kwargs):
         delete_all(*kwargs["deletion_types"])
 
+    def result_log_deletion(self, **kwargs):
+        date_time_object = datetime.strptime(kwargs["date_time"], "%d/%m/%Y %H:%M:%S")
+        date_time_string = date_time_object.strftime("%Y-%m-%d %H:%M:%S.%f")
+        for model in kwargs["deletion_types"]:
+            if model == "result":
+                field_name = "runtime"
+            elif model == "changelog":
+                field_name = "time"
+            session_query = Session.query(models[model]).filter(
+                getattr(models[model], field_name) < date_time_string
+            )
+            session_query.delete(synchronize_session=False)
+            Session.commit()
+
     def get_cluster_status(self):
-        return {
-            attr: [getattr(server, attr) for server in fetch_all("server")]
-            for attr in ("status", "cpu_load")
-        }
+        return [server.status for server in fetch_all("server")]
+
+    def get_migration_folders(self):
+        return listdir(self.path / "files" / "migrations")
 
     def objectify(self, model, obj):
         for property, relation in relationships[model].items():
@@ -156,7 +174,7 @@ class AdministrationController(BaseController):
                 name=service_name,
                 import_export_types=["service", "workflow_edge"],
             )
-        rmtree(path / service_name)
+        rmtree(path / service_name, ignore_errors=True)
         return status
 
     def migration_export(self, **kwargs):
@@ -188,21 +206,60 @@ class AdministrationController(BaseController):
         rmtree(path, ignore_errors=True)
 
     def get_exported_services(self):
-        return listdir(self.path / "files" / "services")
+        return [f for f in listdir(self.path / "files" / "services") if ".tgz" in f]
 
-    def save_configuration(self, **config):
-        self.config = config
+    def save_settings(self, **settings):
+        self.settings = settings
 
     def scan_cluster(self, **kwargs):
-        protocol = self.config["cluster"]["scan_protocol"]
-        for ip_address in IPv4Network(self.config["cluster"]["scan_subnet"]):
+        protocol = self.settings["cluster"]["scan_protocol"]
+        for ip_address in IPv4Network(self.settings["cluster"]["scan_subnet"]):
             try:
                 server = http_get(
                     f"{protocol}://{ip_address}/rest/is_alive",
-                    timeout=self.config["cluster"]["scan_timeout"],
+                    timeout=self.settings["cluster"]["scan_timeout"],
                 ).json()
-                if self.config["cluster"]["id"] != server.pop("cluster_id"):
+                if self.settings["cluster"]["id"] != server.pop("cluster_id"):
                     continue
                 factory("server", **{**server, **{"ip_address": str(ip_address)}})
             except ConnectionError:
                 continue
+
+    def get_tree_files(self, path):
+        if path == "root":
+            path = self.settings["paths"]["files"] or self.path / "files"
+        else:
+            path = path.replace(">", "/")
+        return [
+            {
+                "a_attr": {"style": "width: 100%"},
+                "data": {
+                    "modified": ctime(getmtime(str(file))),
+                    "path": str(file),
+                    "name": file.name,
+                },
+                "text": file.name,
+                "children": file.is_dir(),
+                "type": "folder" if file.is_dir() else "file",
+            }
+            for file in Path(path).iterdir()
+        ]
+
+    def delete_file(self, filepath):
+        remove(Path(filepath.replace(">", "/")))
+
+    def edit_file(self, filepath):
+        try:
+            with open(Path(filepath.replace(">", "/"))) as file:
+                return file.read()
+        except UnicodeDecodeError:
+            return {"error": f"Cannot read file (unsupported type)."}
+
+    def save_file(self, filepath, **kwargs):
+        if kwargs.get("file_content"):
+            with open(Path(filepath.replace(">", "/")), "w") as file:
+                return file.write(kwargs["file_content"])
+
+    def upload_files(self, **kwargs):
+        file = kwargs["file"]
+        file.save(f"{kwargs['folder']}/{file.filename}")

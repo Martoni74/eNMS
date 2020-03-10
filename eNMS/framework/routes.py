@@ -5,13 +5,12 @@ from flask import (
     redirect,
     render_template,
     request,
-    session,
+    send_file,
     url_for,
 )
 from flask_login import current_user, login_user, logout_user
 from functools import wraps
 from logging import info
-from os import listdir
 from werkzeug.wrappers import Response
 
 from eNMS import app
@@ -19,8 +18,7 @@ from eNMS.database import Session
 from eNMS.database.functions import fetch, handle_exception
 from eNMS.forms import form_actions, form_classes, form_postprocessing, form_templates
 from eNMS.forms.administration import LoginForm
-from eNMS.properties.diagram import type_to_diagram_properties
-from eNMS.properties.table import table_fixed_columns
+from eNMS.setup import properties
 
 
 blueprint = Blueprint("blueprint", __name__, template_folder="../templates")
@@ -41,16 +39,17 @@ def login():
                 return redirect(url_for("blueprint.route", page="dashboard"))
             else:
                 abort(403)
-        except Exception as e:
-            info(f"Authentication failed ({str(e)})")
+        except Exception as exc:
+            info(f"Authentication failed ({str(exc)})")
             abort(403)
     if not current_user.is_authenticated:
         login_form = LoginForm(request.form)
-        authentication_methods = [("Local User",) * 2]
-        if app.config["ldap"]["active"]:
+        authentication_methods = []
+        if app.settings["ldap"]["active"]:
             authentication_methods.append(("LDAP Domain",) * 2)
-        if app.config["tacacs"]["active"]:
+        if app.settings["tacacs"]["active"]:
             authentication_methods.append(("TACACS",) * 2)
+        authentication_methods.append(("Local User",) * 2)
         login_form.authentication_method.choices = authentication_methods
         return render_template("login.html", login_form=login_form)
     return redirect(url_for("blueprint.route", page="dashboard"))
@@ -72,6 +71,9 @@ def monitor_requests(function):
             )
             return redirect(url_for("blueprint.route", page="login"))
         else:
+            forbidden_endpoints = app.rbac["groups"][current_user.group]["GET"]
+            if request.method == "GET" and request.path in forbidden_endpoints:
+                return render_template("error.html", error=403), 403
             return function(*args, **kwargs)
 
     return decorated_function
@@ -84,78 +86,47 @@ def logout():
     return redirect(url_for("blueprint.route", page="login"))
 
 
-@blueprint.route("/administration")
-@monitor_requests
-def administration():
-    return render_template(
-        f"pages/administration.html",
-        **{
-            "endpoint": "administration",
-            "folders": listdir(app.path / "files" / "migrations"),
-        },
-    )
-
-
 @blueprint.route("/dashboard")
 @monitor_requests
 def dashboard():
     return render_template(
-        f"pages/dashboard.html",
-        **{"endpoint": "dashboard", "properties": type_to_diagram_properties},
+        f"dashboard.html",
+        **{"endpoint": "dashboard", "properties": properties["dashboard"]},
     )
 
 
 @blueprint.route("/table/<table_type>")
 @monitor_requests
 def table(table_type):
-    kwargs = {
-        "endpoint": f"table/{table_type}",
-        "fixed_columns": table_fixed_columns[table_type],
-        "type": table_type,
-    }
-    return render_template(f"pages/table.html", **kwargs)
+    return render_template(
+        f"table.html", **{"endpoint": f"table/{table_type}", "type": table_type}
+    )
 
 
 @blueprint.route("/view/<view_type>")
 @monitor_requests
 def view(view_type):
     return render_template(
-        f"pages/view.html", **{"endpoint": "view", "view_type": view_type}
+        f"visualization.html", **{"endpoint": "view", "view_type": view_type}
     )
 
 
 @blueprint.route("/workflow_builder")
 @monitor_requests
 def workflow_builder():
-    workflow, workflow_path = None, session.get("path", None)
-    if workflow_path:
-        workflow = fetch("workflow", allow_none=True, id=workflow_path.split(">")[-1])
-    return render_template(
-        f"pages/workflow_builder.html",
-        **{
-            "endpoint": "workflow_builder",
-            "workflow": workflow.serialized if workflow else None,
-            "path": session.get("path", ""),
-        },
-    )
+    return render_template(f"workflow.html", endpoint="workflow_builder")
 
 
 @blueprint.route("/form/<form_type>")
 @monitor_requests
 def form(form_type):
-    kwargs = (
-        {"fixed_columns": table_fixed_columns[form_type], "type": form_type}
-        if form_type == "result"
-        else {}
-    )
     return render_template(
-        f"forms/{form_templates.get(form_type, 'base')}_form.html",
+        f"forms/{form_templates.get(form_type, 'base')}.html",
         **{
             "endpoint": f"form/{form_type}",
             "action": form_actions.get(form_type),
             "form": form_classes[form_type](request.form),
             "form_type": form_type,
-            **kwargs,
         },
     )
 
@@ -179,6 +150,12 @@ def download_output(id):
     )
 
 
+@blueprint.route("/download_file/<path:path>")
+@monitor_requests
+def download_file(path):
+    return send_file(f"/{path}", as_attachment=True)
+
+
 @blueprint.route("/<path:_>")
 @monitor_requests
 def get_requests_sink(_):
@@ -189,25 +166,29 @@ def get_requests_sink(_):
 @blueprint.route("/<path:page>", methods=["POST"])
 @monitor_requests
 def route(page):
-    f, *args = page.split("/")
-    if f not in app.json_endpoints + app.form_endpoints:
+    endpoint, *args = page.split("/")
+    if f"/{endpoint}" not in app.rbac["endpoints"]["POST"]:
         return jsonify({"alert": "Invalid POST request."})
+    if f"/{endpoint}" in app.rbac["groups"][current_user.group]["POST"]:
+        return jsonify({"alert": "Error 403 Forbidden."})
     form_type = request.form.get("form_type")
-    if f in app.json_endpoints:
-        result = getattr(app, f)(*args, **request.json)
+    if endpoint in app.json_endpoints:
+        result = getattr(app, endpoint)(*args, **request.json)
     elif form_type:
         form = form_classes[form_type](request.form)
         if not form.validate_on_submit():
             return jsonify({"invalid_form": True, **{"errors": form.errors}})
-        result = getattr(app, f)(*args, **form_postprocessing(form, request.form))
+        result = getattr(app, endpoint)(
+            *args, **form_postprocessing(form, request.form)
+        )
     else:
-        result = getattr(app, f)(*args)
+        result = getattr(app, endpoint)(*args)
     try:
         Session.commit()
         return jsonify(result)
     except Exception as exc:
         raise exc
         Session.rollback()
-        if app.config["app"]["config_mode"] == "debug":
+        if app.settings["app"]["config_mode"] == "debug":
             raise
         return jsonify({"alert": handle_exception(str(exc))})

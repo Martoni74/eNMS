@@ -1,0 +1,63 @@
+<div class="modal-body">
+  <div class="x_title">
+    <h4 class="text-center">Miscellaneous</h4>
+  </div>
+  <nav
+    class="navbar navbar-default nav-controls"
+    style="margin-top: 5px"
+    role="navigation"
+  >
+    <button
+      class="btn btn-primary btn-file"
+      onclick="eNMS.administration.getGitContent()"
+    >
+      Fetch Git Configurations
+    </button>
+    <button
+      class="btn btn-primary btn-file"
+      onclick="eNMS.administration.scanCluster()"
+    >
+      Scan Cluster Subnet
+    </button>
+  </nav>
+  <div class="x_title">
+    <h4 class="text-center">Database</h4>
+  </div>
+  <br />
+  <nav
+    class="navbar navbar-default nav-controls"
+    style="margin-top: 5px"
+    role="navigation"
+  >
+    <button
+      class="btn btn-primary btn-file"
+      onclick="eNMS.administration.showMigrationPanel()"
+    >
+      Migration Import / Export
+    </button>
+    <button
+      class="btn btn-primary btn-file"
+      onclick="eNMS.base.openPanel({
+        name: 'database_deletion', title: 'Database Deletion', size: '500 300'
+      })"
+    >
+      Per-type Mass Deletion
+    </button>
+    <button
+      class="btn btn-primary btn-file"
+      onclick="eNMS.administration.showImportServicePanel()"
+    >
+      Import Service
+    </button>
+    <button
+      class="btn btn-primary btn-file"
+      onclick="eNMS.base.openPanel({
+        name: 'result_log_deletion',
+        title: 'Results & Logs Deletion',
+        size: '700 300'
+      })"
+    >
+      Delete Results/Logs
+    </button>
+  </nav>
+</div>

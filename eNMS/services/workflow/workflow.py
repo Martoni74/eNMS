@@ -1,7 +1,6 @@
 from collections import defaultdict
 from sqlalchemy import Boolean, ForeignKey, Integer
 from sqlalchemy.orm import backref, relationship
-from time import sleep
 from wtforms import BooleanField, HiddenField, SelectField
 
 from eNMS.database import Session
@@ -20,7 +19,7 @@ class Workflow(Service):
     parent_type = "service"
     id = Column(Integer, ForeignKey("service.id"), primary_key=True)
     close_connection = Column(Boolean, default=False)
-    labels = Column(MutableDict)
+    labels = Column(MutableDict, info={"dont_track_changes": True})
     services = relationship(
         "Service", secondary=service_workflow_table, back_populates="workflows"
     )
@@ -47,10 +46,10 @@ class Workflow(Service):
         old_name = self.name
         super().set_name(name)
         for service in self.services:
-            if service.shared:
-                continue
-            service.set_name()
-            service.positions[self.name] = service.positions.pop(old_name, (0, 0))
+            if not service.shared:
+                service.set_name()
+            if old_name in service.positions:
+                service.positions[self.name] = service.positions[old_name]
 
     def duplicate(self, workflow=None, clone=None):
         if not clone:
@@ -164,8 +163,6 @@ class Workflow(Service):
                         targets[successor.name] |= set(summary[edge_type])
                         services.append(successor)
                         run.edge_state[edge.id] += len(summary[edge_type])
-            if not results.get("result") == "skipped":
-                sleep(service.waiting_time)
         success_devices = targets[end.name]
         failure_devices = targets[start.name] - success_devices
         success = not failure_devices
@@ -225,8 +222,6 @@ class Workflow(Service):
                     run.edge_state[edge.id] += 1
                 else:
                     run.edge_state[edge.id] = "DONE"
-            if not results.get("result") == "skipped":
-                sleep(service.waiting_time)
         Session.refresh(run)
         run.restart_run = restart_run
         return {"payload": payload, "success": end in visited}

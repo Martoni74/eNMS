@@ -1,0 +1,31 @@
+body {
+  margin: 0;
+  background: #002240;
+  color: #73879c;
+  font-family: "Helvetica Neue", Roboto, Arial, "Droid Sans", sans-serif;
+  background: #f7f7f7;
+}
+
+.login_content {
+  background: #f0efef;
+  border: 1px solid #919191;
+  border-radius: 7%;
+  margin: 5% auto;
+  max-width: 450px;
+  padding: 30px 70px;
+  text-align: center;
+}
+
+.login_content h1 {
+  line-height: 20px;
+  margin: 10px 0 40px;
+}
+
+.login_content form input {
+  margin: 0 0 20px;
+}
+
+.login_content form input:focus {
+  background-color: #ebf4fd;
+  border: 1px solid #99b5d6;
+}

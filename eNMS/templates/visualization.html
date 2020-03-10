@@ -1,0 +1,80 @@
+{% extends "base_site.html" %} {% block title %} Geographical View {% endblock title %}
+{% block stylesheets %} {{ super() }}
+<link
+  href="{{ url_for('static', filename='lib/leaflet/leaflet.min.css') }}"
+  rel="stylesheet"
+/>
+<link
+  href="{{ url_for('static', filename='lib/leaflet-markercluster/leaflet.markercluster.min.css') }}"
+  rel="stylesheet"
+/>
+<link
+  href="{{ url_for('static', filename='css/visualization.css') }}"
+  rel="stylesheet"
+/>
+{% endblock stylesheets %} {% block content %}
+<form id="device-filtering-form" class="overlay"></form>
+<form id="link-filtering-form" class="overlay"></form>
+<ul id="contextMenu" class="dropdown-menu" role="menu">
+  <li class="menu dropdown-submenu geo-menu">
+    <a class="menu-submenu menu-layer" tabindex="-1" href="#"
+      >Type of View<span class="caret-right"></span
+    ></a>
+    <ul class="dropdown-menu">
+      <li><a tabindex="-1" href="#">Normal</a></li>
+      <li><a tabindex="-1" href="#">Clustered</a></li>
+    </ul>
+  </li>
+  <li class="menu dropdown-submenu geo-menu">
+    <a class="menu-submenu menu-layer" tabindex="-1" href="#"
+      >Tile layer<span class="caret-right"></span
+    ></a>
+    <ul class="dropdown-menu">
+      <li><a tabindex="-1" href="#">Open Street Map</a></li>
+      <li><a tabindex="-1" href="#">Google Maps</a></li>
+    </ul>
+  </li>
+  <li class="menu dropdown-submenu geo-menu">
+    <a class="menu-submenu menu-layer" tabindex="-1" href="#"
+      >Type of Marker<span class="caret-right"></span
+    ></a>
+    <ul class="dropdown-menu">
+      <li><a tabindex="-1" href="#">Image</a></li>
+      <li><a tabindex="-1" href="#">Circle</a></li>
+      <li><a tabindex="-1" href="#">Circle Marker</a></li>
+    </ul>
+  </li>
+  <li class="menu rc-device-menu rc-link-menu rc-site-menu">
+    <a tabindex="-1" href="#">Properties</a>
+  </li>
+  <li class="menu rc-device-menu"><a tabindex="-1" href="#">Connect</a></li>
+  <li class="menu rc-device-menu">
+    <a tabindex="-1" href="#">Configuration</a>
+  </li>
+</ul>
+<div id="map"></div>
+{% if view_type == "network" %}
+<nav class="navbar navbar-default controls nav-controls" role="navigation">
+  <button type="button" id="device-filtering" class="btn btn-primary btn-search">
+    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Device
+  </button>
+  <button type="button" id="link-filtering" class="btn btn-primary btn-search">
+    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Link
+  </button>
+  <button
+    type="button"
+    class="btn btn-info"
+    data-tooltip="Refresh"
+    type="button"
+    onclick="eNMS.visualization.filterView()"
+  >
+    <span class="glyphicon glyphicon-refresh"></span>
+  </button>
+</nav>
+{% endif %} {% endblock content %} {% block javascripts %} {{ super()}}
+<script>
+  let viewType = "{{ view_type }}";
+</script>
+<script src="{{ url_for('static', filename='lib/leaflet/leaflet.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/leaflet-markercluster/leaflet.markercluster.min.js') }}"></script>
+{% endblock javascripts %}

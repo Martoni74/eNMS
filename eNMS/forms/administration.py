@@ -8,23 +8,52 @@ from wtforms import (
     SelectMultipleField,
 )
 from wtforms.validators import InputRequired
+from wtforms.widgets import TextArea
 
+from eNMS import app
 from eNMS.forms import BaseForm, configure_relationships
+from eNMS.forms.fields import DateField
 from eNMS.properties.database import import_classes
 
 
-class ConfigurationForm(BaseForm):
-    action = "saveConfiguration"
-    form_type = HiddenField(default="configuration")
+class SettingsForm(BaseForm):
+    action = "eNMS.administration.saveSettings"
+    form_type = HiddenField(default="settings")
+
+
+class AdminForm(BaseForm):
+    template = "administration"
+    form_type = HiddenField(default="administration")
+
+
+class FilesForm(BaseForm):
+    template = "files"
+    form_type = HiddenField(default="files")
+
+
+class UploadFilesForm(BaseForm):
+    template = "upload_files"
+    folder = HiddenField()
+    form_type = HiddenField(default="upload_files")
 
 
 class DatabaseDeletionForm(BaseForm):
-    action = "databaseDeletion"
+    action = "eNMS.administration.databaseDeletion"
     form_type = HiddenField(default="database_deletion")
     deletion_choices = [(p, p) for p in import_classes]
     deletion_types = SelectMultipleField(
         "Instances to delete", choices=deletion_choices
     )
+
+
+class ResultLogDeletionForm(BaseForm):
+    action = "eNMS.administration.resultLogDeletion"
+    form_type = HiddenField(default="result_log_deletion")
+    deletion_types = SelectMultipleField(
+        "Instances do delete",
+        choices=[("result", "result"), ("changelog", "changelog")],
+    )
+    date_time = DateField(label="Delete Records before")
 
 
 class InstanceDeletionForm(BaseForm):
@@ -63,7 +92,7 @@ class DatabaseMigrationsForm(BaseForm):
 
 
 class ImportService(BaseForm):
-    action = "importService"
+    action = "eNMS.administration.importService"
     form_type = HiddenField(default="import_service")
     service = SelectField("Service", choices=())
 
@@ -76,10 +105,21 @@ class UserForm(BaseForm):
     name = StringField("Name", [InputRequired()])
     password = PasswordField("Password")
     email = StringField("Email")
-    permission_choices = [
-        ("Admin", "Admin"),
-        ("Connect to device", "Connect to device"),
-        ("View", "View"),
-        ("Edit", "Edit"),
-    ]
-    permissions = SelectMultipleField("Permissions", choices=permission_choices)
+    group = SelectField("Permissions", choices=[(g, g) for g in app.rbac["groups"]])
+
+
+class ChangelogForm(BaseForm):
+    template = "object"
+    form_type = HiddenField(default="changelog")
+    id = HiddenField()
+    severity = SelectField(
+        "Severity",
+        choices=(
+            ("debug", "Debug"),
+            ("info", "Info"),
+            ("warning", "Warning"),
+            ("error", "Error"),
+            ("critical", "Critical"),
+        ),
+    )
+    content = StringField(widget=TextArea(), render_kw={"rows": 10})

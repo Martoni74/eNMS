@@ -14,7 +14,7 @@ First steps
  cd eNMS
 
  # install the requirements:
- pip install -r requirements.txt
+ pip install -r build/requirements/requirements.txt
 
  # set the FLASK_APP environment variable
  export FLASK_APP=app.py
@@ -28,7 +28,7 @@ First steps
 Production mode
 ---------------
 
-To start eNMS in production mode, you must change the value of the  "config_mode" in the config.json file.
+To start eNMS in production mode, you must change the value of the  "config_mode" in the settings.json file.
 In production mode, the secret key is not automatically set to a default value in case it is missing.
 Therefore, you must configure it yourself:
 
@@ -37,12 +37,12 @@ Therefore, you must configure it yourself:
  # set the SECRET_KEY environment variable
  export SECRET_KEY=value-of-your-secret-key
 
-All credentials should be stored in a Hashicorp Vault: the config variable ``active``
+All credentials should be stored in a Hashicorp Vault: the settings variable ``active``
 tells eNMS that a Vault has been setup and can be used.
 Follow the manufacturer's instructions and options for how to setup a Hashicorp Vault.
 
 You must tell eNMS how to connect to the Vault with
-  - the ``address`` config variable
+  - the ``address`` settings variable
   - the ``VAULT_TOKEN`` environment variable
 
 ::
@@ -52,7 +52,7 @@ You must tell eNMS how to connect to the Vault with
 
 eNMS can also unseal the Vault automatically at start time.
 This mechanism is disabled by default. To activate it, you need to:
-- set the ``unseal`` configuration variable to ``true``
+- set the ``unseal`` settings variable to ``true``
 - set the UNSEAL_VAULT_KEYx (``x`` in [1, 5]) environment variables :
 
 ::
@@ -70,16 +70,16 @@ You also have to tell eNMS the address of your database by setting the "DATABASE
 
 In case this environment variable is not set, eNMS will default to using a SQLite database.
 
-.. _Configuration:
+.. _Settings:
 
-Configuration
+Settings
 -------------
 
-The configuration is divided into:
+The settings is divided into:
 
 - Environment variables for all sensitive data (passwords, tokens, keys). Environment are export
   from Unix with the ``export`` keyword: ``export VARIABLE_NAME=value``.
-- Public variables defined in the ``config.json`` file, and later modifiable from the administration
+- Public variables defined in the ``settings.json`` file, and later modifiable from the administration
   panel.
 
 Section ``app``
@@ -161,7 +161,6 @@ Section ``mail``
   - ``use_tls`` (default: ``true``)
   - ``username`` (default: ``"eNMS-user"``)
   - ``sender`` (default: ``"eNMS@company.com"``)
-  - ``recipients`` (default: ``"eNMS-user@company.com"``)
 
 Section ``mattermost``
 **********************
@@ -170,30 +169,10 @@ Section ``mattermost``
 - ``channel`` (default: ``""``)
 - ``verify_certificate`` (default: ``true``)
 
-Section ``opennms``
-*******************
-
-- ``address`` (default: ``""``) Address of OpenNMS server.
-- ``login`` (default: ``""``) REST login.
-- ``devices`` (default: ``""``) URL of the devices to import. This could be a subset of
-  all available devices in the API, like
-  ``https://demo.opennms.org/opennms/rest/nodes?foreignSource=OpenNMS_ATL``.
-
-Section ``netbox``
-******************
-
-- ``address`` (default: ``""``) Address of Netbox server.
-
-Section ``librenms``
-********************
-
-- ``address`` (default: ``""``) Address of LibreNMS server
-
 Section ``paths``
 *****************
 
 - ``custom_code`` (default: ``""``)
-- ``custom_properties`` (default: ``""``) Path 
 - ``custom_services`` (default: ``""``) Path to a folder that contains :ref:`Custom Services`.
 - ``playbooks`` (default: ``""``)
 
@@ -263,15 +242,12 @@ Section ``View``
 - ``tile_layer`` (default: ``"osm"``)
 - ``marker`` (default: ``"Image"``)
 
-Private configuration
-*********************
+Private settings
+****************
 
 ::
 
 
   - MAIL_PASSWORD=eNMS-user
   - TACACS_PASSWORD=tacacs_password
-  - OPENNMS_PASSWORD=opennms_password
-  - LIBRENMS_TOKEN=librenms_token
-  - NETBOX_TOKEN=netbox_token
   - SLACK_TOKEN=SLACK_TOKEN

@@ -1,0 +1,21 @@
+<div class="modal-body">
+  <form
+    id="file-content-form"
+    class="form-horizontal form-label-left add-id"
+    method="post"
+    autocomplete="off"
+  >
+    {{ form.hidden_tag() }}
+    <center>
+      <button
+        type="button"
+        class="btn btn-success btn-sm add-id btn-id"
+        value="eNMS.administration.saveFile"
+        data-tooltip="Save"
+      >
+        <span class="glyphicon glyphicon-ok"></span>
+      </button>
+    </center>
+    {{ form.file_content(id='file_content', class="form-control add-id") }}
+  </form>
+</div>

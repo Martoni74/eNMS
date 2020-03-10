@@ -30,28 +30,35 @@
   pools: []
   positions:
     Iteration Services Test Workflow: ['-359', '-163']
-    'Regression Workflow 1: Netmiko with validation and retries': [-432, -14]
-    'Regression Workflow 2: Separate Failure - Success paths': [-424, 53]
-    'Regression Workflow 3: Napalm getters (postprocessing)': [-412, 74]
-    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-483, -109]
+    'Regression Workflow 1: Netmiko with validation and retries': [-385, 11]
+    'Regression Workflow 2: Separate Failure - Success paths': [-327, -20]
+    'Regression Workflow 3: Napalm getters (postprocessing)': [-316, 80]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-383, -95]
     'Regression Workflow 5: VRF creation and deletion with Napalm': !!python/tuple [
       0, 0]
-    'Regression Workflow 6: Ansible with Validation': [-651, -26]
+    'Regression Workflow 6: Ansible with Validation': [-557, -5]
     'Regression Workflow 7: Payload Extraction & Validation': !!python/tuple [0, 0]
     'Regression Workflow 8: Payload Extraction with Operations': !!python/tuple [
       0, 0]
-    'Regression Workflow 9: Operational Data Backup': [-712, 159]
-    'Regression Workflow A: get_var, set_var, get_result': [-630, -54]
+    'Regression Workflow 9: Operational Data Backup': [-648, 121]
+    'Regression Workflow A: get_var, set_var, get_result': [-506, -55]
     'Regression Workflow B: Napalm getters validation': !!python/tuple [0, 0]
-    'Regression Workflow C: Advanced multiprocessing': [-638, -8]
-    'Regression Workflow D: Prompts': [-219, 32]
-    'Regression Workflow E: Iteration Targets': [-431, -65]
+    'Regression Workflow C: Advanced multiprocessing': [-492, -39]
+    'Regression Workflow D: Prompts': [-167, 49]
+    'Regression Workflow E: Iteration Targets': [-342, -252]
     'Regression Workflow F S1: Subworkflow of Workflow': !!python/tuple [0, 0]
     'Regression Workflow F S2: Access Variables from Parent Workflow': !!python/tuple [
       0, 0]
-    'Regression Workflow F: Workflow of Workflows': [-882, 246]
-    'Regression Workflow G: run methods (BFS)': [-438, 172]
-    'Regression Workflow H: shared service in multiple subworkflows': [258, 233]
+    'Regression Workflow F: Workflow of Workflows': [-965, 194]
+    'Regression Workflow G: run methods (BFS)': [-404, 147]
+    'Regression Workflow H: shared service in multiple subworkflows': [55, 266]
+    'Regression Workflow I: Iteration Targets Advanced': [-131, -24]
+    'Regression Workflow J: Workflow and Subworkflow Iteration': [0, 0]
+    Subworkflow 1: !!python/tuple [0, 0]
+    Subworkflow 2: !!python/tuple [0, 0]
+    Workflow  in device by device mode: !!python/tuple [0, 0]
+    Workflow in service by service mode (workflow targets): !!python/tuple [0, 0]
+    Workflow in service targets mode: !!python/tuple [0, 0]
     Workflow with device and value iteration: [0, 0]
     Workflow with iteration target subworkflows: [-118, 4]
     Workflow with iteration targets: [0, 0]
@@ -71,6 +78,8 @@
       -118, 0]
     '[Regression Workflow H: shared service in multiple subworkflows] Subworkflow 2': [
       0, 0]
+    '[Regression Workflow J: Workflow and Subworkflow Iteration] Subworkflow Iteration': [
+      0, 0]
     ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
       of Workflow] Regression Workflow 7: Payload Extraction & Validation'
     : [-115, -305]
@@ -89,6 +98,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: swiss_army_knife_service
   validation_method: none
@@ -126,31 +136,38 @@
   pools: []
   positions:
     Iteration Services Test Workflow: ['-9', '294']
-    'Regression Workflow 1: Netmiko with validation and retries': [69, -3]
-    'Regression Workflow 2: Separate Failure - Success paths': [735, 286]
-    'Regression Workflow 3: Napalm getters (postprocessing)': [676, 108]
-    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-530, 107]
+    'Regression Workflow 1: Netmiko with validation and retries': [115, 3]
+    'Regression Workflow 2: Separate Failure - Success paths': [737, 276]
+    'Regression Workflow 3: Napalm getters (postprocessing)': [703, 150]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-383, 167]
     'Regression Workflow 5: VRF creation and deletion with Napalm': !!python/tuple [
       0, 0]
-    'Regression Workflow 6: Ansible with Validation': [600, 4]
+    'Regression Workflow 6: Ansible with Validation': [567, -24]
     'Regression Workflow 7: Payload Extraction & Validation': !!python/tuple [0, 0]
     'Regression Workflow 8: Payload Extraction with Operations': !!python/tuple [
       0, 0]
-    'Regression Workflow 9: Operational Data Backup': [469, 69]
-    'Regression Workflow A: get_var, set_var, get_result': [-609, 21]
+    'Regression Workflow 9: Operational Data Backup': [290, 314]
+    'Regression Workflow A: get_var, set_var, get_result': [-528, 25]
     'Regression Workflow B: Napalm getters validation': !!python/tuple [0, 0]
-    'Regression Workflow C: Advanced multiprocessing': [619, -40]
-    'Regression Workflow D: Prompts': [651, 0]
-    'Regression Workflow E: Iteration Targets': [-432, 24]
+    'Regression Workflow C: Advanced multiprocessing': [505, -10]
+    'Regression Workflow D: Prompts': [608, 90]
+    'Regression Workflow E: Iteration Targets': [-334, 29]
     'Regression Workflow F S1: Subworkflow of Workflow': !!python/tuple [0, 0]
     'Regression Workflow F S2: Access Variables from Parent Workflow': !!python/tuple [
       0, 0]
-    'Regression Workflow F: Workflow of Workflows': [-807, 243]
-    'Regression Workflow G: run methods (BFS)': [649, 182]
-    'Regression Workflow H: shared service in multiple subworkflows': [777, -47]
+    'Regression Workflow F: Workflow of Workflows': [-934, 289]
+    'Regression Workflow G: run methods (BFS)': [638, 130]
+    'Regression Workflow H: shared service in multiple subworkflows': [688, -88]
+    'Regression Workflow I: Iteration Targets Advanced': [350, -6]
+    'Regression Workflow J: Workflow and Subworkflow Iteration': [500, 0]
+    Subworkflow 1: !!python/tuple [0, 0]
+    Subworkflow 2: !!python/tuple [0, 0]
     T: !!python/tuple [500, 0]
     TEST: !!python/tuple [500, 0]
     TEST2: !!python/tuple [500, 0]
+    Workflow  in device by device mode: !!python/tuple [0, 0]
+    Workflow in service by service mode (workflow targets): !!python/tuple [0, 0]
+    Workflow in service targets mode: !!python/tuple [0, 0]
     Workflow with device and value iteration: [500, 0]
     Workflow with iteration target subworkflows: [617, 0]
     Workflow with iteration targets: [500, 0]
@@ -170,6 +187,8 @@
       610, 4]
     '[Regression Workflow H: shared service in multiple subworkflows] Subworkflow 2': [
       500, 0]
+    '[Regression Workflow J: Workflow and Subworkflow Iteration] Subworkflow Iteration': [
+      500, 0]
     ? '[[Regression Workflow F: Workflow of Workflows] Regression Workflow F S1: Subworkflow
       of Workflow] Regression Workflow 7: Payload Extraction & Validation'
     : [279, 262]
@@ -188,6 +207,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: swiss_army_knife_service
   validation_method: none
@@ -232,6 +252,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: swiss_army_knife_service
   validation_method: none
@@ -277,6 +298,7 @@
   shared: false
   skip: true
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: swiss_army_knife_service
   validation_method: none
@@ -336,6 +358,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   string1: cisco
   string2: s2
   time_between_retries: 10
@@ -392,6 +415,7 @@
   shared: false
   skip: true
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   type: configure_bgp_service
@@ -400,6 +424,7 @@
   vrf_name: configure_BGP_test
   waiting_time: 100
 - close_connection: false
+  configuration_getters: []
   content_match: ''
   content_match_regex: false
   conversion_method: none
@@ -432,16 +457,12 @@
   notification_header: ''
   number_of_retries: 0
   operating_system: ''
+  operational_data_getters: []
   optional_args: {}
   pools: []
   positions:
     'Regression Workflow 9: Operational Data Backup': [-259, 351]
-  regex_pattern_1: ''
-  regex_pattern_2: ''
-  regex_pattern_3: ''
-  regex_replace_1: ''
-  regex_replace_2: ''
-  regex_replace_3: ''
+  replacements: []
   result_postprocessing: ''
   run_method: per_device
   scoped_name: Configuration Backup (NAPALM)
@@ -450,6 +471,7 @@
   shared: false
   skip: true
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -462,7 +484,7 @@
   commit_configuration: false
   config_mode: false
   config_mode_command: ''
-  content: vrf definition test
+  content: vrf instance test
   content_match: ''
   content_match_regex: false
   conversion_method: none
@@ -502,7 +524,7 @@
   operating_system: eos
   pools: []
   positions:
-    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-4, -120]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-38, -86]
   result_postprocessing: ''
   run_method: per_device
   scoped_name: netmiko_create_vrf_test
@@ -511,6 +533,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: false
   strip_prompt: false
@@ -578,6 +601,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -585,6 +609,7 @@
   timeout: 3.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: Arista
   waiting_time: 0
@@ -592,7 +617,7 @@
   commit_configuration: false
   config_mode: false
   config_mode_command: ''
-  content: no vrf definition test
+  content: no vrf instance test
   content_match: ''
   content_match_regex: false
   conversion_method: none
@@ -642,6 +667,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: false
   strip_prompt: false
@@ -696,7 +722,7 @@
   pools: []
   positions:
     'Regression Workflow 2: Separate Failure - Success paths': [-194, 225]
-    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-35, 151]
+    'Regression Workflow 4: VRF creation and deletion with Netmiko': [-10, 157]
     'Regression Workflow 5: VRF creation and deletion with Napalm': ['0', '150']
     iteration_devices_workflow: ['337', '-145']
   result_postprocessing: ''
@@ -707,6 +733,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: true
   strip_command: true
   strip_prompt: true
@@ -714,12 +741,13 @@
   timeout: 3.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: Arista
   waiting_time: 0
 - action: load_merge_candidate
   close_connection: false
-  content: "vrf definition napalm\r\n"
+  content: "vrf instance napalm\r\n"
   content_match: ''
   content_match_regex: false
   conversion_method: none
@@ -766,6 +794,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 10
@@ -825,6 +854,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   timeout: 15
   type: rest_call_service
@@ -882,6 +912,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 1
@@ -938,6 +969,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 1
@@ -994,6 +1026,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -1049,6 +1082,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -1098,6 +1132,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: swiss_army_knife_service
   validation_method: none
@@ -1146,6 +1181,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   source_code: "# Interfaces 1\r\ntargets = ['Loopback101', 'Loopback15'] if device.name\
     \ == \"Washington\" else ['Loopback9', 'Loopback1000']\r\nset_var('Interfaces\
     \ 1', targets, device=device.name)\r\n\r\n# Derived Devices\r\nset_var(\"Derived\
@@ -1213,6 +1249,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -1220,6 +1257,7 @@
   timeout: 3.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: Arista
   waiting_time: 0
@@ -1284,6 +1322,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_extraction_service
   validation_method: none
@@ -1338,6 +1377,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_validation_service
   validation_method: dict_included
@@ -1388,6 +1428,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_validation_service
   validation_method: text
@@ -1440,6 +1481,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -1504,6 +1546,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -1511,6 +1554,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -1569,6 +1613,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -1576,6 +1621,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -1635,6 +1681,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 10
@@ -1699,6 +1746,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 10
@@ -1726,7 +1774,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-12-04 08:24:31.142435'
+  last_modified: '2020-02-26 06:48:21.758699'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -1748,9 +1796,9 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   source_code: "set_var(\"global_variable\", value=1050)\r\nset_var(\"variable\",\
-    \ \"variable_in_variables\", section=\"variables\")\r\nsave_result(success=True,\
-    \ result={})"
+    \ \"variable_in_variables\")\r\nsave_result(success=True, result={})"
   time_between_retries: 10
   type: python_snippet_service
   validation_method: none
@@ -1775,7 +1823,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-10-04 00:20:10.984436'
+  last_modified: '2020-02-26 06:51:04.539344'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -1797,12 +1845,12 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   source_code: "set_var(\"variable1\", 999, device=device.name)\r\nset_var(\"variable2\"\
     , \"1000\", device=device.name, section=\"variables\")\r\nset_var(\"iteration_simple\"\
-    , \"192.168.105.5\", section=\"pools\")\r\ndevices = [\"Boston\", \"Cincinnati\"\
-    ] if device.name == \"Chicago\" else [\"Cleveland\", \"Washington\"]\r\nset_var(\"\
-    iteration_device\", devices, section=\"pools\", device=device.name)\r\nsave_result(success=True,\
-    \ result={})"
+    , \"192.168.56.50\")\r\ndevices = [\"Boston\", \"Cincinnati\"] if device.name\
+    \ == \"Chicago\" else [\"Cleveland\", \"Washington\"]\r\nset_var(\"iteration_device\"\
+    , devices, device=device.name)\r\nsave_result(success=True, result={})"
   time_between_retries: 10
   type: python_snippet_service
   validation_method: none
@@ -1810,7 +1858,7 @@
   waiting_time: 0
 - auto_find_prompt: true
   close_connection: false
-  command: show vrf {{get_var("iteration_simple", section="pools")}}
+  command: show vrf {{iteration_simple}}
   config_mode: false
   content_match: ''
   content_match_regex: false
@@ -1835,11 +1883,11 @@
   include_device_results: true
   include_link_in_summary: false
   initial_payload: {}
-  iteration_devices: get_var("iteration_device", section="pools", device=parent_device.name)
+  iteration_devices: get_var("iteration_device", device=parent_device.name)
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-10-21 21:10:14.657271'
+  last_modified: '2020-02-26 06:48:40.762497'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -1861,6 +1909,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -1868,6 +1917,7 @@
   timeout: 1.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -1898,11 +1948,11 @@
   include_device_results: true
   include_link_in_summary: false
   initial_payload: {}
-  iteration_devices: get_var("iteration_simple", section="pools")
+  iteration_devices: '[get_var("iteration_simple")]'
   iteration_devices_property: ip_address
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-07-31 13:25:41.095217'
+  last_modified: '2020-02-26 06:50:26.306070'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -1924,6 +1974,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -1931,12 +1982,13 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
 - auto_find_prompt: true
   close_connection: false
-  command: show vrf {{get_result("Payload editor, with device")["duration"]}}
+  command: show vrf {{get_result("Modify payload (per device)")["duration"]}}
   config_mode: false
   content_match: ''
   content_match_regex: false
@@ -1965,7 +2017,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-10-21 21:55:59.995214'
+  last_modified: '2020-02-26 06:52:17.300164'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -1987,6 +2039,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -1994,6 +2047,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -2048,6 +2102,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 1
@@ -2106,6 +2161,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -2166,6 +2222,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -2224,6 +2281,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -2282,6 +2340,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 60
@@ -2310,7 +2369,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-09-18 18:26:58.293827'
+  last_modified: '2020-02-27 05:38:03.655550'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 2
@@ -2323,10 +2382,10 @@
   operating_system: ''
   options: {}
   pass_device_properties: true
-  playbook_path: /media/sf_VM/eNMS/files/playbooks/arista_show_version.yml
+  playbook_path: /media/sf_shared/eNMS/files/playbooks/arista_show_version.yml
   pools: []
   positions:
-    'Regression Workflow 6: Ansible with Validation': [-466, 154]
+    'Regression Workflow 6: Ansible with Validation': [-107, 153]
     'Regression Workflow B: Napalm getters validation': [-30, 126]
   result_postprocessing: ''
   run_method: per_device
@@ -2336,13 +2395,14 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: ansible_playbook_service
   validation_method: dict_included
   vendor: ''
   waiting_time: 0
 - arguments: ''
-  content_match: ip address\s.*/32
+  content_match: ip address\s.*/24
   content_match_regex: true
   conversion_method: text
   creator: admin
@@ -2361,7 +2421,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-08-10 18:26:51.501557'
+  last_modified: '2020-02-27 05:41:57.831683'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -2374,7 +2434,7 @@
   operating_system: ''
   options: {}
   pass_device_properties: true
-  playbook_path: /media/sf_VM/eNMS/files/playbooks/arista_show_running_config.yml
+  playbook_path: /media/sf_shared/eNMS/files/playbooks/arista_show_running_config.yml
   pools: []
   positions:
     'Regression Workflow 6: Ansible with Validation': [179, -62]
@@ -2386,6 +2446,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: ansible_playbook_service
   validation_method: text
@@ -2411,7 +2472,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-08-10 18:26:36.791826'
+  last_modified: '2020-02-27 05:38:15.786745'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -2424,7 +2485,7 @@
   operating_system: ''
   options: {}
   pass_device_properties: true
-  playbook_path: /media/sf_VM/eNMS/files/playbooks/arista_show_running_config.yml
+  playbook_path: /media/sf_shared/eNMS/files/playbooks/arista_show_running_config.yml
   pools: []
   positions:
     'Regression Workflow 6: Ansible with Validation': [486, 173]
@@ -2436,6 +2497,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: ansible_playbook_service
   validation_method: dict_included
@@ -2494,6 +2556,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -2501,6 +2564,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -2557,6 +2621,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -2564,6 +2629,7 @@
   timeout: 3.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: Arista
   waiting_time: 0
@@ -2620,6 +2686,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -2627,6 +2694,7 @@
   timeout: 3.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: Arista
   waiting_time: 0
@@ -2683,6 +2751,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -2690,6 +2759,7 @@
   timeout: 3.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: Arista
   waiting_time: 0
@@ -2738,6 +2808,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_validation_service
   validation_method: text
@@ -2789,6 +2860,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_validation_service
   validation_method: text
@@ -2838,6 +2910,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   source_code: "set_var(\"list\", [1, 2], device=device.name)\r\nset_var(\"dict\"\
     , {\"a\": [\"o\", True, 4]}, device=device.name)\r\nsave_result(success=True,\
     \ result={})"
@@ -2902,6 +2975,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_extraction_service
   validation_method: none
@@ -2966,6 +3040,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_extraction_service
   validation_method: none
@@ -3019,6 +3094,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_validation_service
   validation_method: text
@@ -3069,6 +3145,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: payload_validation_service
   validation_method: dict_included
@@ -3120,6 +3197,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   timeout: 15
   type: rest_call_service
@@ -3172,6 +3250,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   source_code: "result = {\r\n \"get_var\": get_var(\"Interfaces 2\"),\r\n\"version\
     \ in parent workflow\": get_result(\"Show interfaces with Netmiko\", device=device.name,\
     \ workflow=\"Regression Workflow F: Workflow of Workflows\"),\r\n\"napalm workflow\
@@ -3241,6 +3320,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -3248,6 +3328,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -3276,7 +3357,7 @@
       content: "This workflow calls netmiko and napalm backup services.\r\nThe devices\
         \ must be defined in the service, not in the workflow."
       positions: [-280, 128]
-  last_modified: '2020-01-03 07:39:23.734442'
+  last_modified: '2020-02-23 09:53:09.761384'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -3301,6 +3382,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3343,7 +3425,7 @@
         \ the cache connection should be closed.\r\nExpected log:\r\n- Regression\
         \ Workflow 4: VRF creation and deletion with Netmiko - DEVICE Washington :\
         \ Closed netmiko connection"
-      positions: [-50, 6]
+      positions: [-61, 38]
     a7458a18-4812-498e-857d-b885237a6525:
       alignment: left
       content: "This service is configured with \"Start New Connection\".\r\nIt should\
@@ -3363,8 +3445,8 @@
       content: "Test:\r\n- with and without multiprocessing\r\n- devices defned as\
         \ a combination of devices and pools.\r\nThe workflow is running on \"Austin\"\
         \ as a device and \"Washington\", as a pool."
-      positions: [51, -208]
-  last_modified: '2020-01-03 07:32:57.286420'
+      positions: [39, -176]
+  last_modified: '2020-02-23 09:52:58.936918'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -3390,6 +3472,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3452,6 +3535,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3488,7 +3572,7 @@
         \ of both get_facts\r\nand get_interfaces to compute its success value.\r\n\
         Prerequisite edges are used to ensure the order in which services are run."
       positions: [385, 283]
-  last_modified: '2020-01-03 07:32:09.918913'
+  last_modified: '2020-02-23 09:44:37.562782'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -3513,6 +3597,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3617,6 +3702,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3653,7 +3739,7 @@
       content: "Adds per-device loopbacks and derived devices,\r\nto be used for workflow\
         \ iteration and to check that\r\nvariables can be accessed from within a subworkflow."
       positions: [-822, 25]
-  last_modified: '2019-11-06 07:31:05.526000'
+  last_modified: '2020-02-23 09:54:05.864866'
   mail_recipient: antoine.fourmy@gmail.com
   max_processes: 5
   maximum_runs: 1
@@ -3680,6 +3766,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3712,7 +3799,7 @@
         \nThe router will take the upward path, the dummy devices the downward path.\r\
         \nBoth path rejoin at the end.\r\nTo be tested both with and without multiprocessing."
       positions: [185, 37]
-  last_modified: '2019-10-31 01:14:45.926629'
+  last_modified: '2020-02-23 09:44:33.028494'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -3736,6 +3823,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3767,7 +3855,7 @@
         For Test Netmiko Prompt Service, it is set to 2: it should run\r\nonce more\
         \ after the REST service.\r\n"
       positions: [145, -168]
-  last_modified: '2019-10-24 22:42:28.694641'
+  last_modified: '2020-02-23 09:53:37.837312'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -3790,6 +3878,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3829,7 +3918,7 @@
         \nThis workflow uses \"set_var\" to modify the payload, and get_var to\r\n\
         retrieve a variable.\r\nIt also uses \"get_result\" to retrieve the result\
         \ of a previously run job."
-      positions: ['-92', '-34']
+      positions: [-92, -34]
     d98b7c19-9d7b-4ddf-bada-2c47e492dbef:
       alignment: left
       content: "Set a variable called \"iteration_device\" that we will use in the\
@@ -3837,7 +3926,7 @@
         , \"Cincinnati\"] if device.name == \"Chicago\" else [\"Cleveland\", \"Washington\"\
         ]\r\nset_var(\"iteration_device\", devices, section=\"pools\", device=device.name)"
       positions: [103, -224]
-  last_modified: '2019-12-04 08:26:26.548250'
+  last_modified: '2020-02-23 09:53:20.871760'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -3864,6 +3953,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -3959,6 +4049,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4003,7 +4094,7 @@
         \ dictionary (JSON conversion).\r\nCheck that the results contains the following\
         \ dictionary (dict inclusion):\r\n{\"host\":\"{{device.ip_address}}\",\"unreachable\"\
         :0,\"use_ssl\":true}\r\n"
-      positions: [-393, 247]
+      positions: [-52, 249]
     cb3b0740-411a-4138-a54d-31a133413526:
       alignment: left
       content: "This workflow :\r\n- uses the Ansible Playbook Service to run playbooks\r\
@@ -4011,7 +4102,7 @@
         \ conversion)\r\n- uses the \"Text with regular expression\" and \"dictionary\
         \ inclusion\" mechanisms to validate the result."
       positions: [-438, -117]
-  last_modified: '2019-10-26 11:00:48.098357'
+  last_modified: '2020-02-23 09:53:04.306014'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -4032,10 +4123,12 @@
       Validation] Ansible Workflow: Arista show version', '[Regression Workflow 6:
       Ansible with Validation] Ansible Workflow: Arista show configuration (regex
       match)', '[Regression Workflow 6: Ansible with Validation] Ansible Workflow:
-      Arista show configuration (dict match)']
+      Arista show configuration (dict match)', '[Regression Workflow 6: Ansible with
+      Validation] Simple Playbook']
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4070,11 +4163,11 @@
         \ processes).\r\nWashington is expected to pass the \"show version\" service,\
         \ but will\r\nstill reach the end through the upward path, so all 17 devices\
         \ must\r\nreach the \"End\" service."
-      positions: ['-98', '-39']
+      positions: [-98, -39]
     d36009d8-ce3a-4ce6-8766-5dc3241d777b:
       content: The service "Napalm configure BGP" is configured to be skipped.
       positions: [329, -230]
-  last_modified: '2019-11-18 05:08:47.889395'
+  last_modified: '2020-02-23 09:53:31.596720'
   mail_recipient: ''
   max_processes: 10
   maximum_runs: 1
@@ -4098,6 +4191,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4159,7 +4253,7 @@
         \nwith the iteration set to [\"Washington\", \"Atlanta\"].\r\nCredentials\
         \ must be updated after a database drop."
       positions: [-99, 196]
-  last_modified: '2019-11-04 15:44:41.065109'
+  last_modified: '2020-02-23 09:53:53.573228'
   mail_recipient: ''
   max_processes: 5
   maximum_runs: 1
@@ -4185,6 +4279,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4248,6 +4343,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4301,6 +4397,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4356,6 +4453,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4392,7 +4490,7 @@
         \ to check for the string \"NOVRF\".\r\nThere is no such VRF configured so\
         \ the service is expected to fail.\r\nRetry twice with 2 seconds between retries."
       positions: [-147, -217]
-  last_modified: '2019-12-17 02:59:33.573592'
+  last_modified: '2020-02-23 09:44:26.466126'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -4414,6 +4512,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4472,6 +4571,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -4479,6 +4579,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
   vendor: ''
   waiting_time: 0
@@ -4534,6 +4635,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -4541,12 +4643,13 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: none
   vendor: ''
   waiting_time: 0
 - close_connection: true
   config_mode: false
-  configuration: show run
+  configuration_command: show run
   content_match: ''
   content_match_regex: false
   conversion_method: none
@@ -4557,7 +4660,7 @@
   description: ''
   device_query: ''
   device_query_property: name
-  devices: [Washington]
+  devices: []
   dict_match: {}
   display_only_failed_nodes: false
   driver: a10
@@ -4572,7 +4675,7 @@
   iteration_devices_property: name
   iteration_values: ''
   iteration_variable_name: iteration_value
-  last_modified: '2019-11-19 14:46:05.589808'
+  last_modified: '2019-12-17 09:30:47.573296'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -4582,11 +4685,11 @@
   notification_header: ''
   number_of_retries: 0
   operating_system: ''
-  operational_data:
+  operational_data_command:
   - {command: show users, prefix: shusers}
   - {command: show ip interface brief, prefix: shipintbr}
   - {command: show vrf, prefix: ''}
-  pools: []
+  pools: [Washington]
   positions:
     'Regression Workflow 9: Operational Data Backup': [-284, -43]
   replacements:
@@ -4601,6 +4704,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   time_between_retries: 10
   timeout: 10
@@ -4630,7 +4734,7 @@
   iteration_values: ''
   iteration_variable_name: iteration_value
   labels: {}
-  last_modified: '2019-12-05 04:53:43.995497'
+  last_modified: '2020-02-23 09:55:00.069139'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -4656,6 +4760,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4706,6 +4811,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4756,6 +4862,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   timeout: 15
   type: rest_call_service
@@ -4798,7 +4905,7 @@
   operating_system: ''
   pools: []
   positions:
-    'Regression Workflow G: run methods (BFS)': [126, -207]
+    'Regression Workflow G: run methods (BFS)': [123, -96]
   result_postprocessing: ''
   run_method: per_service_with_workflow_targets
   scoped_name: Workflow in service by service mode (workflow targets)
@@ -4810,6 +4917,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4861,6 +4969,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   timeout: 15
   type: rest_call_service
@@ -4913,6 +5022,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -4972,6 +5082,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -4979,6 +5090,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: none
   vendor: ''
   waiting_time: 0
@@ -5036,6 +5148,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -5043,6 +5156,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: none
   vendor: ''
   waiting_time: 0
@@ -5100,6 +5214,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -5107,6 +5222,7 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: none
   vendor: ''
   waiting_time: 0
@@ -5153,7 +5269,7 @@
         \ still reach end through the failure edge,\r\nso the top-level workflow should\
         \ be a success."
       positions: [580, 192]
-  last_modified: '2019-12-17 03:15:25.040630'
+  last_modified: '2020-02-23 09:54:32.781588'
   mail_recipient: ''
   max_processes: 50
   maximum_runs: 1
@@ -5176,6 +5292,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -5226,6 +5343,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -5276,6 +5394,7 @@
   shared: false
   skip: false
   skip_query: ''
+  skip_value: 'True'
   time_between_retries: 10
   type: workflow
   validation_method: none
@@ -5336,6 +5455,7 @@
   shared: true
   skip: false
   skip_query: ''
+  skip_value: 'True'
   start_new_connection: false
   strip_command: true
   strip_prompt: true
@@ -5343,6 +5463,418 @@
   timeout: 10.0
   type: netmiko_validation_service
   use_device_driver: true
+  use_genie: false
   validation_method: text
+  vendor: ''
+  waiting_time: 0
+- arguments: ''
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2020-02-19 05:09:22.996758'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow 6: Ansible with Validation] Simple Playbook'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  options: {}
+  pass_device_properties: false
+  playbook_path: /media/sf_shared/eNMS/files/playbooks/simple_playbook.yml
+  pools: []
+  positions:
+    'Regression Workflow 6: Ansible with Validation': [-536, 192]
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: Simple Playbook
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  time_between_retries: 10
+  type: ansible_playbook_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  labels: {}
+  last_modified: '2020-02-23 09:54:38.030762'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow I: Iteration Targets Advanced'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: 'Regression Workflow I: Iteration Targets Advanced'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow I: Iteration
+      Targets Advanced] Set Variables for Iteration', '[Regression Workflow I: Iteration
+      Targets Advanced] Show VRF with iteration']
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2020-02-22 09:57:19.634575'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow I: Iteration Targets Advanced] Set Variables for Iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow I: Iteration Targets Advanced': [132, -202]
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: Set Variables for Iteration
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  source_code: "results[\"success\"] = True\r\nresults[\"result\"] = {\r\n  \"dict_iteration\"\
+    : {\r\n    \"variable1\": {\"command\": \"test\"},\r\n    \"variable2\": {\"command\"\
+    : \"test2\"}\r\n  }\r\n}"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- auto_find_prompt: true
+  close_connection: false
+  command: show vrf {{command_dict["command"]}}
+  config_mode: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  credentials: device
+  custom_username: ''
+  delay_factor: 1.0
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  driver: arista_eos
+  enable_mode: true
+  events: []
+  expect_string: ''
+  fast_cli: true
+  global_delay_factor: 1.0
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: get_result("Set Variables for Iteration", device=device.name)["result"]["dict_iteration"]
+  iteration_variable_name: command_dict
+  last_modified: '2020-02-22 10:09:31.770582'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow I: Iteration Targets Advanced] Show VRF with iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow I: Iteration Targets Advanced': [135, 100]
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: Show VRF with iteration
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  start_new_connection: false
+  strip_command: true
+  strip_prompt: true
+  time_between_retries: 10
+  timeout: 10.0
+  type: netmiko_validation_service
+  use_device_driver: true
+  use_genie: false
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: [Washington]
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: '["A", "B", "C"]'
+  iteration_variable_name: top_level_iteration
+  labels: {}
+  last_modified: '2020-02-26 07:04:35.332250'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: 'Regression Workflow J: Workflow and Subworkflow Iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions: {}
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: 'Regression Workflow J: Workflow and Subworkflow Iteration'
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[Regression Workflow J: Workflow and
+      Subworkflow Iteration] Test Iteration', '[Regression Workflow J: Workflow and
+      Subworkflow Iteration] Subworkflow Iteration']
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2020-02-26 07:05:41.355569'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow J: Workflow and Subworkflow Iteration] Test Iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow J: Workflow and Subworkflow Iteration': [226, -76]
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: Test Iteration
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  source_code: "result={\"top_level\": top_level_iteration}\r\nresults[\"result\"\
+    ] = result\r\nresults[\"success\"] = True"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- close_connection: false
+  content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: '[1, 2, 3]'
+  iteration_variable_name: subworkflow_iteration
+  labels: {}
+  last_modified: '2020-02-26 07:05:57.893725'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[Regression Workflow J: Workflow and Subworkflow Iteration] Subworkflow Iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    'Regression Workflow J: Workflow and Subworkflow Iteration': [218, 171]
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: Subworkflow Iteration
+  send_notification: false
+  send_notification_method: mail
+  services: ['[Shared] Start', '[Shared] End', '[[Regression Workflow J: Workflow
+      and Subworkflow Iteration] Subworkflow Iteration] Test Iteration']
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  time_between_retries: 10
+  type: workflow
+  validation_method: none
+  vendor: ''
+  waiting_time: 0
+- content_match: ''
+  content_match_regex: false
+  conversion_method: none
+  creator: admin
+  delete_spaces_before_matching: false
+  description: ''
+  device_query: ''
+  device_query_property: name
+  devices: []
+  dict_match: {}
+  display_only_failed_nodes: false
+  events: []
+  include_device_results: false
+  include_link_in_summary: false
+  initial_payload: {}
+  iteration_devices: ''
+  iteration_devices_property: name
+  iteration_values: ''
+  iteration_variable_name: iteration_value
+  last_modified: '2020-02-26 07:05:54.058757'
+  mail_recipient: ''
+  max_processes: 15
+  maximum_runs: 1
+  multiprocessing: false
+  name: '[[Regression Workflow J: Workflow and Subworkflow Iteration] Subworkflow
+    Iteration] Test Iteration'
+  negative_logic: false
+  notification_header: ''
+  number_of_retries: 0
+  operating_system: ''
+  pools: []
+  positions:
+    '[Regression Workflow J: Workflow and Subworkflow Iteration] Subworkflow Iteration': [
+      231, -87]
+  result_postprocessing: ''
+  run_method: per_device
+  scoped_name: Test Iteration
+  send_notification: false
+  send_notification_method: mail
+  shared: false
+  skip: false
+  skip_query: ''
+  skip_value: 'True'
+  source_code: "result={\"top_level\": top_level_iteration, \"subworkflow\": subworkflow_iteration}\r\
+    \nresults[\"success\"] = True\r\nresults[\"result\"] = result\r\n"
+  time_between_retries: 10
+  type: python_snippet_service
+  validation_method: none
   vendor: ''
   waiting_time: 0

@@ -1,7 +1,8 @@
-from re import search
+from re import search, sub
 from sqlalchemy import Boolean, Float, ForeignKey, Integer
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy.schema import UniqueConstraint
 
 from eNMS import app
 from eNMS.database.dialect import Column, LargeString, SmallString
@@ -9,7 +10,6 @@ from eNMS.database.functions import fetch, fetch_all
 from eNMS.database.associations import (
     pool_device_table,
     pool_link_table,
-    pool_user_table,
     run_pool_table,
     run_device_table,
     service_device_table,
@@ -18,7 +18,7 @@ from eNMS.database.associations import (
     task_pool_table,
 )
 from eNMS.database.base import AbstractBase
-from eNMS.properties.objects import pool_link_properties, pool_device_properties
+from eNMS.setup import properties
 
 
 class Object(AbstractBase):
@@ -27,7 +27,7 @@ class Object(AbstractBase):
     type = Column(SmallString)
     __mapper_args__ = {"polymorphic_identity": "object", "polymorphic_on": type}
     id = Column(Integer, primary_key=True)
-    name = Column(SmallString, unique=True)
+    last_modified = Column(SmallString, info={"dont_track_changes": True})
     subtype = Column(SmallString)
     description = Column(SmallString)
     model = Column(SmallString)
@@ -43,12 +43,17 @@ class Object(AbstractBase):
                 continue
             match = pool.object_match(self)
             relation, number = f"{self.class_type}s", f"{self.class_type}_number"
-            if match and self not in pool.devices:
+            if match and self not in getattr(pool, relation):
                 getattr(pool, relation).append(self)
                 setattr(pool, number, getattr(pool, number) + 1)
-            if self in pool.devices and not match:
+            if self in getattr(pool, relation) and not match:
                 getattr(pool, relation).remove(self)
                 setattr(pool, number, getattr(pool, number) - 1)
+
+    def delete(self):
+        number = f"{self.class_type}_number"
+        for pool in self.pools:
+            setattr(pool, number, getattr(pool, number) - 1)
 
 
 CustomDevice = type(
@@ -69,7 +74,7 @@ CustomDevice = type(
                 }[values["type"]],
                 default=values["default"],
             )
-            for property, values in app.custom_properties.items()
+            for property, values in app.properties["custom"]["device"].items()
         },
     },
 )
@@ -82,6 +87,7 @@ class Device(CustomDevice):
     class_type = "device"
     parent_type = "custom_device"
     id = Column(Integer, ForeignKey(CustomDevice.id), primary_key=True)
+    name = Column(SmallString, unique=True)
     icon = Column(SmallString, default="router")
     operating_system = Column(SmallString)
     os_version = Column(SmallString)
@@ -94,8 +100,8 @@ class Device(CustomDevice):
     enable_password = Column(SmallString)
     netmiko_driver = Column(SmallString, default="cisco_ios")
     napalm_driver = Column(SmallString, default="ios")
-    configuration = Column(LargeString)
-    operational_data = Column(LargeString)
+    configuration = Column(LargeString, info={"dont_track_changes": True})
+    operational_data = Column(LargeString, info={"dont_track_changes": True})
     last_failure = Column(SmallString, default="Never")
     last_status = Column(SmallString, default="Never")
     last_update = Column(SmallString, default="Never")
@@ -112,64 +118,75 @@ class Device(CustomDevice):
     )
     tasks = relationship("Task", secondary=task_device_table, back_populates="devices")
     pools = relationship("Pool", secondary=pool_device_table, back_populates="devices")
+    sessions = relationship(
+        "Session", back_populates="device", cascade="all, delete-orphan"
+    )
+
+    def table_properties(self, **kwargs):
+        columns = [c["data"] for c in kwargs["columns"]]
+        rest_api_request = kwargs.get("rest_api_request")
+        include_properties = columns if rest_api_request else None
+        properties = super().get_properties(include=include_properties)
+        context = int(kwargs["form"].get("context-lines", 0))
+        for property in ("configuration", "operational_data"):
+            if rest_api_request:
+                if property in columns:
+                    properties[property] = getattr(self, property)
+                if f"{property}_matches" not in columns:
+                    continue
+            data = kwargs["form"].get(property)
+            regex_match = kwargs["form"].get(f"{property}_filter") == "regex"
+            if not data:
+                properties[property] = ""
+            else:
+                result = []
+                content, visited = getattr(self, property).splitlines(), set()
+                for (index, line) in enumerate(content):
+                    match_lines, merge = [], index - context - 1 in visited
+                    if not search(data, line) if regex_match else data not in line:
+                        continue
+                    for i in range(-context, context + 1):
+                        if index + i < 0 or index + i > len(content) - 1:
+                            continue
+                        if index + i in visited:
+                            merge = True
+                            continue
+                        visited.add(index + i)
+                        line = content[index + i].strip()
+                        if rest_api_request:
+                            match_lines.append(f"L{index + i + 1}: {line}")
+                            continue
+                        if regex_match:
+                            sub(data, r"<mark>\g<0></mark>", line)
+                        else:
+                            line = line.replace(data, f"<mark>{data}</mark>")
+                        match_lines.append(f"<b>L{index + i + 1}:</b> {line}")
+                    if rest_api_request:
+                        result.extend(match_lines)
+                    else:
+                        if merge:
+                            result[-1] += f"<br>{'<br>'.join(match_lines)}"
+                        else:
+                            result.append("<br>".join(match_lines))
+                if rest_api_request:
+                    properties[f"{property}_matches"] = result
+                else:
+                    properties[property] = "".join(
+                        f"<pre style='text-align: left'>{match}</pre>"
+                        for match in result
+                    )
+        return properties
 
     @property
     def view_properties(self):
         return {
             property: getattr(self, property)
-            for property in ("id", "name", "icon", "latitude", "longitude")
+            for property in ("id", "type", "name", "icon", "latitude", "longitude")
         }
 
     @property
     def ui_name(self):
         return f"{self.name} ({self.model})" if self.model else self.name
-
-    def generate_row(self, **kwargs):
-        return super().generate_row() + [
-            f"""
-            <ul class="pagination pagination-lg" style="margin: 0px; width: 300px">
-          <li>
-            <button type="button" class="btn btn-info"
-            onclick="showDeviceNetworkData({self.row_properties})"
-            data-tooltip="Network Data"
-              ><span class="glyphicon glyphicon-cog"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-info"
-            onclick="showDeviceResultsPanel({self.row_properties})"
-            data-tooltip="Results"
-              ><span class="glyphicon glyphicon-list-alt"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-success"
-            onclick="showPanel('device_connection', '{self.id}')"
-            data-tooltip="Connection"
-              ><span class="glyphicon glyphicon-console"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('device', '{self.id}')" data-tooltip="Edit"
-              ><span class="glyphicon glyphicon-edit"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('device', '{self.id}', 'duplicate')"
-            data-tooltip="Duplicate"
-              ><span class="glyphicon glyphicon-duplicate"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-danger"
-            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
-              ><span class="glyphicon glyphicon-trash"></span
-            ></button>
-          </li>
-        </ul>"""
-        ]
 
     def __repr__(self):
         return f"{self.name} ({self.model})" if self.model else self.name
@@ -182,6 +199,7 @@ class Link(Object):
     class_type = "link"
     parent_type = "object"
     id = Column(Integer, ForeignKey("object.id"), primary_key=True)
+    name = Column(SmallString)
     color = Column(SmallString, default="#000000")
     source_id = Column(Integer, ForeignKey("device.id"))
     destination_id = Column(Integer, ForeignKey("device.id"))
@@ -198,6 +216,7 @@ class Link(Object):
     )
     destination_name = association_proxy("destination", "name")
     pools = relationship("Pool", secondary=pool_link_table, back_populates="links")
+    __table_args__ = (UniqueConstraint(name, source_id, destination_id),)
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
@@ -208,7 +227,7 @@ class Link(Object):
         return {
             **{
                 property: getattr(self, property)
-                for property in ("id", "name", "color")
+                for property in ("id", "type", "name", "color")
             },
             **{
                 f"source_{property}": getattr(self.source, property)
@@ -231,57 +250,31 @@ class Link(Object):
         )
         super().update(**kwargs)
 
-    def generate_row(self, **kwargs):
-        return super().generate_row() + [
-            f"""
-            <ul class="pagination pagination-lg" style="margin: 0px; width: 150px">
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('link', '{self.id}')" data-tooltip="Edit"
-              ><span class="glyphicon glyphicon-edit"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('link', '{self.id}', 'duplicate')"
-            data-tooltip="Duplicate"
-              ><span class="glyphicon glyphicon-duplicate"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-danger"
-            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
-              ><span class="glyphicon glyphicon-trash"></span
-            ></button>
-          </li>
-        </ul>"""
-        ]
-
 
 AbstractPool = type(
     "AbstractPool",
     (AbstractBase,),
     {
         "__tablename__": "abstract_pool",
-        "type": "abstract_pool",
+        "type": "pool",
         "__mapper_args__": {"polymorphic_identity": "abstract_pool"},
         "id": Column(Integer, primary_key=True),
         **{
             **{
                 f"device_{property}": Column(LargeString, default="")
-                for property in pool_device_properties
+                for property in properties["filtering"]["device"]
             },
             **{
                 f"device_{property}_match": Column(SmallString, default="inclusion")
-                for property in pool_device_properties
+                for property in properties["filtering"]["device"]
             },
             **{
                 f"link_{property}": Column(LargeString, default="")
-                for property in pool_link_properties
+                for property in properties["filtering"]["link"]
             },
             **{
                 f"link_{property}_match": Column(SmallString, default="inclusion")
-                for property in pool_link_properties
+                for property in properties["filtering"]["link"]
             },
         },
     },
@@ -290,11 +283,11 @@ AbstractPool = type(
 
 class Pool(AbstractPool):
 
-    __tablename__ = type = "pool"
+    __tablename__ = "pool"
     parent_type = "abstract_pool"
     id = Column(Integer, ForeignKey("abstract_pool.id"), primary_key=True)
     name = Column(SmallString, unique=True)
-    last_modified = Column(SmallString)
+    last_modified = Column(SmallString, info={"dont_track_changes": True})
     description = Column(SmallString)
     operator = Column(SmallString, default="all")
     devices = relationship(
@@ -310,59 +303,11 @@ class Pool(AbstractPool):
     )
     runs = relationship("Run", secondary=run_pool_table, back_populates="pools")
     tasks = relationship("Task", secondary=task_pool_table, back_populates="pools")
-    users = relationship("User", secondary=pool_user_table, back_populates="pools")
     never_update = Column(Boolean, default=False)
 
     def update(self, **kwargs):
         super().update(**kwargs)
         self.compute_pool()
-
-    def generate_row(self, **kwargs):
-        return super().generate_row() + [
-            f"""
-            <ul class="pagination pagination-lg" style="margin: 0px; width: 300px">
-          <li>
-            <button type="button" class="btn btn-info"
-            onclick="showPoolView('{self.id}')" data-tooltip="Internal View"
-              ><span class="glyphicon glyphicon-eye-open"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showPoolObjectsPanel('{self.id}')" data-tooltip="Pool Objects"
-              ><span class="glyphicon glyphicon-wrench"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="updatePools('{self.id}')" data-tooltip="Update"
-              ><span class="glyphicon glyphicon-refresh"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('pool', '{self.id}')" data-tooltip="Edit"
-              ><span class="glyphicon glyphicon-edit"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('pool', '{self.id}', 'duplicate')"
-            data-tooltip="Duplicate"
-              ><span class="glyphicon glyphicon-duplicate"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-danger"
-            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
-              ><span class="glyphicon glyphicon-trash"></span
-            ></button>
-          </li></ul>"""
-        ]
-
-    @property
-    def object_number(self):
-        return f"{self.device_number} devices - {self.link_number} links"
 
     def property_match(self, obj, property):
         pool_value = getattr(self, f"{obj.class_type}_{property}")
@@ -378,13 +323,11 @@ class Pool(AbstractPool):
             return bool(search(pool_value, object_value))
 
     def object_match(self, obj):
-        properties = (
-            pool_device_properties
-            if obj.class_type == "device"
-            else pool_link_properties
-        )
         operator = all if self.operator == "all" else any
-        return operator(self.property_match(obj, property) for property in properties)
+        return operator(
+            self.property_match(obj, property)
+            for property in properties["filtering"][obj.class_type]
+        )
 
     def compute_pool(self):
         if self.never_update:
@@ -393,3 +336,19 @@ class Pool(AbstractPool):
         self.device_number = len(self.devices)
         self.links = list(filter(self.object_match, fetch_all("link")))
         self.link_number = len(self.links)
+
+
+class Session(AbstractBase):
+
+    __tablename__ = type = "session"
+    private = True
+    id = Column(Integer, primary_key=True)
+    name = Column(SmallString, unique=True)
+    timestamp = Column(SmallString)
+    user = Column(SmallString)
+    content = Column(LargeString, info={"dont_track_changes": True})
+    device_id = Column(Integer, ForeignKey("device.id"))
+    device = relationship(
+        "Device", back_populates="sessions", foreign_keys="Session.device_id"
+    )
+    device_name = association_proxy("device", "name")

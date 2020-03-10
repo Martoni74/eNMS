@@ -1,9 +1,8 @@
 from wtforms import BooleanField, HiddenField, IntegerField, SelectField, StringField
 from wtforms.validators import InputRequired
-from wtforms.widgets import TextArea
 
 from eNMS.forms import BaseForm, configure_relationships
-from eNMS.forms.fields import DateField, DictField, MultipleInstanceField
+from eNMS.forms.fields import DateField, DictField
 
 
 def configure_form(cls):
@@ -15,12 +14,12 @@ def configure_form(cls):
 
 
 @configure_form
+@configure_relationships
 class EventForm(BaseForm):
     template = "event"
     form_type = HiddenField(default="event")
     id = HiddenField()
     name = StringField("Name", [InputRequired()])
-    services = MultipleInstanceField("Services")
 
 
 @configure_relationships
@@ -63,20 +62,3 @@ class TaskForm(BaseForm):
         if no_service:
             self.service.errors.append("No service set.")
         return valid_form and not any([no_date, no_cron_expression, no_service])
-
-
-class ChangelogForm(BaseForm):
-    template = "object"
-    form_type = HiddenField(default="changelog")
-    id = HiddenField()
-    severity = SelectField(
-        "Severity",
-        choices=(
-            ("debug", "Debug"),
-            ("info", "Info"),
-            ("warning", "Warning"),
-            ("error", "Error"),
-            ("critical", "Critical"),
-        ),
-    )
-    content = StringField(widget=TextArea(), render_kw={"rows": 8})

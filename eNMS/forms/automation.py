@@ -40,7 +40,9 @@ class ServiceForm(BaseForm):
     devices = MultipleInstanceField("Devices")
     pools = MultipleInstanceField("Pools")
     workflows = MultipleInstanceField("Workflows")
-    waiting_time = IntegerField("Waiting time (in seconds)", default=0)
+    waiting_time = IntegerField(
+        "Time to Wait before next service is started (in seconds)", default=0
+    )
     send_notification = BooleanField("Send a notification")
     send_notification_method = SelectField(
         "Notification Method",
@@ -72,8 +74,13 @@ class ServiceForm(BaseForm):
         choices=(("name", "Name"), ("ip_address", "IP address")),
     )
     result_postprocessing = CodeField(widget=TextArea(), render_kw={"rows": 8})
+    log_level = NoValidationSelectField(
+        "Logging",
+        choices=((0, "Disable logging"), *enumerate(app.log_levels, 1)),
+        default=1,
+    )
     multiprocessing = BooleanField("Multiprocessing")
-    max_processes = IntegerField("Maximum number of processes", default=50)
+    max_processes = IntegerField("Maximum number of processes", default=15)
     conversion_method = SelectField(
         choices=(
             ("none", "No conversion"),
@@ -118,7 +125,6 @@ class ServiceForm(BaseForm):
             self.send_notification.data
             and self.send_notification_method.data == "mail"
             and not self.mail_recipient.data
-            and not app.config["mail"]["recipients"]
         )
         if no_recipient_error:
             self.mail_recipient.errors.append(
@@ -251,23 +257,27 @@ class RunForm(BaseForm):
 
 
 class RestartWorkflowForm(BaseForm):
-    action = "restartWorkflow"
+    action = "eNMS.workflow.restartWorkflow"
     form_type = HiddenField(default="restart_workflow")
     start_services = MultipleInstanceField("Services", model="service")
     restart_runtime = NoValidationSelectField("Restart Runtime", choices=())
     restart_from_top_level_workflow = BooleanField(default=True)
 
 
-class RuntimeForm(BaseForm):
-    template = "runtime"
-    form_type = HiddenField(default="runtime")
-    filter = StringField("Filter")
+class LogsForm(BaseForm):
+    template = "logs"
+    form_type = HiddenField(default="logs")
     runtimes = NoValidationSelectField("Runtime", choices=())
 
 
 class ResultForm(BaseForm):
     template = "result"
     form_type = HiddenField(default="result")
+
+
+class ResultTableForm(BaseForm):
+    template = "table"
+    form_type = HiddenField(default="table")
     runtimes = NoValidationSelectField("Runtime", choices=())
 
 
@@ -295,21 +305,27 @@ class DisplayConfigurationForm(DisplayForm):
     form_type = HiddenField(default="display_configuration")
 
 
+class FileForm(DisplayForm):
+    template = "file"
+    form_type = HiddenField(default="file")
+    file_content = StringField(widget=TextArea(), render_kw={"rows": 8})
+
+
 class AddServiceForm(BaseForm):
     form_type = HiddenField(default="add_services")
     template = "add_services"
     mode = SelectField(
         "Mode",
         choices=(
-            ("deep", "Deep Copy (creates a duplicate from the service"),
-            ("shallow", "Shallow Copy (creates a reference to the service"),
+            ("deep", "Deep Copy (creates a duplicate from the service)"),
+            ("shallow", "Shallow Copy (creates a reference to the service)"),
         ),
     )
 
 
 class WorkflowLabelForm(BaseForm):
     form_type = HiddenField(default="workflow_label")
-    action = "createLabel"
+    action = "eNMS.workflow.createLabel"
     text = StringField(widget=TextArea(), render_kw={"rows": 15})
     alignment = SelectField(
         "Text Alignment",

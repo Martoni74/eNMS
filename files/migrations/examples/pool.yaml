@@ -30,6 +30,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -67,7 +69,7 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool
 - description: Devices only
   device_configuration: ''
   device_configuration_match: inclusion
@@ -100,6 +102,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -135,7 +139,7 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool
 - description: Links only
   device_configuration: ''
   device_configuration_match: inclusion
@@ -168,6 +172,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -202,7 +208,7 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool
 - description: Datacenter San Francisco
   device_configuration: ''
   device_configuration_match: inclusion
@@ -235,6 +241,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -270,7 +278,7 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool
 - description: Datacenter New York
   device_configuration: ''
   device_configuration_match: inclusion
@@ -303,6 +311,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -339,7 +349,7 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool
 - description: Datacenter Chicago
   device_configuration: ''
   device_configuration_match: inclusion
@@ -372,6 +382,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -407,7 +419,7 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool
 - description: ''
   device_configuration: ''
   device_configuration_match: inclusion
@@ -440,6 +452,8 @@
   device_os_version_match: inclusion
   device_port: ''
   device_port_match: inclusion
+  device_property1: ''
+  device_property1_match: inclusion
   device_subtype: ''
   device_subtype_match: inclusion
   device_vendor: ''
@@ -474,4 +488,4 @@
   never_update: false
   operator: all
   tasks: []
-  users: []
+  type: pool

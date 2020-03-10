@@ -1,9 +1,10 @@
+from datetime import datetime
 from flask_login import UserMixin
-from sqlalchemy import Float, Integer
-from sqlalchemy.orm import relationship
+from passlib.hash import argon2
+from sqlalchemy import Boolean, Integer
 
-from eNMS.database.dialect import Column, MutableList, SmallString
-from eNMS.database.associations import pool_user_table
+from eNMS import app
+from eNMS.database.dialect import Column, MutableList, LargeString, SmallString
 from eNMS.database.base import AbstractBase
 
 
@@ -16,70 +17,23 @@ class Server(AbstractBase):
     ip_address = Column(SmallString)
     weight = Column(Integer, default=1)
     status = Column(SmallString, default="down")
-    cpu_load = Column(Float)
-
-    def generate_row(self, **kwargs):
-        return super().generate_row() + [
-            f"""<center>
-            <ul class="pagination pagination-lg" style="margin: 0px;">
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('server', '{self.id}')" data-tooltip="Edit"
-              ><span class="glyphicon glyphicon-edit"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('server', '{self.id}', 'duplicate')"
-            data-tooltip="Duplicate"
-              ><span class="glyphicon glyphicon-duplicate"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-danger"
-            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
-              ><span class="glyphicon glyphicon-trash"></span
-            ></button>
-          </li>
-        </ul></center>"""
-        ]
 
 
 class User(AbstractBase, UserMixin):
 
     __tablename__ = type = "user"
     id = Column(Integer, primary_key=True)
+    name = Column(SmallString, unique=True)
     email = Column(SmallString)
-    name = Column(SmallString)
     permissions = Column(MutableList)
-    pools = relationship("Pool", secondary=pool_user_table, back_populates="users")
     password = Column(SmallString)
+    group = Column(SmallString)
+    small_menu = Column(Boolean, default=False, info={"dont_track_changes": True})
 
-    def generate_row(self, **kwargs):
-        return super().generate_row() + [
-            f"""<center>
-            <ul class="pagination pagination-lg" style="margin: 0px;">
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('user', '{self.id}')" data-tooltip="Edit"
-              ><span class="glyphicon glyphicon-edit"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-primary"
-            onclick="showTypePanel('user', '{self.id}', 'duplicate')"
-            data-tooltip="Duplicate"
-              ><span class="glyphicon glyphicon-duplicate"></span
-            ></button>
-          </li>
-          <li>
-            <button type="button" class="btn btn-danger"
-            onclick="showDeletionPanel({self.row_properties})" data-tooltip="Delete"
-              ><span class="glyphicon glyphicon-trash"></span
-            ></button>
-          </li>
-        </ul></center>"""
-        ]
+    def update(self, **kwargs):
+        if app.settings["security"]["hash_user_passwords"] and "password" in kwargs:
+            kwargs["password"] = argon2.hash(kwargs["password"])
+        super().update(**kwargs)
 
     @property
     def is_admin(self):
@@ -87,3 +41,19 @@ class User(AbstractBase, UserMixin):
 
     def allowed(self, permission):
         return self.is_admin or permission in self.permissions
+
+
+class Changelog(AbstractBase):
+
+    __tablename__ = "changelog"
+    type = Column(SmallString)
+    __mapper_args__ = {"polymorphic_identity": "changelog", "polymorphic_on": type}
+    id = Column(Integer, primary_key=True)
+    time = Column(SmallString)
+    content = Column(LargeString, default="")
+    severity = Column(SmallString, default="debug")
+    user = Column(SmallString, default="admin")
+
+    def update(self, **kwargs):
+        kwargs["time"] = str(datetime.now())
+        super().update(**kwargs)

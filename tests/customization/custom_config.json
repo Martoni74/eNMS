@@ -11,7 +11,7 @@
 	  "create_examples": true,
 	  "documentation_url": "https://enms.readthedocs.io/en/latest/",
 	  "log_level": "debug",
-	  "git_repository": ""
+	  "git_repository": "git@github.com:afourmy/gitpython-test.git"
 	},
 	"cluster": {
 	  "active": false,
@@ -46,8 +46,7 @@
 		"port": 587,
 		"use_tls": true,
 		"username": "antoinefourmy@gmail.com",
-		"sender": "eNMS@company.com",
-		"recipients": "antoinefourmy@gmail.com"
+		"sender": "eNMS@company.com"
 	  },
 	"mattermost": {
 	  "url": "https://mattermost.company.com/hooks/i1phfh6fxjfwpy586bwqq5sk8w",
@@ -61,7 +60,6 @@
 	},
 	"paths": {
 	  "custom_code": "",
-	  "custom_properties": "",
 	  "custom_services": "",
 	  "playbooks": ""
 	},

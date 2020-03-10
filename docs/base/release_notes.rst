@@ -2,6 +2,94 @@
 Release Notes
 =============
 
+Version 3.20.1
+--------------
+
+- Update Generic File Transfer Service
+- Fix runtime display bug in results window
+- Fix file download and parameterized run bugs.
+- Refactor LDAP authentication
+- LDAP as first option if the LDAP authentication is active in settings
+- Fix timing issue in SSH Desktop session mechanism
+- Remove unique constraint for link names.
+- Hash user passwords with argon2 by default. Add option to not hash user passwords in settings.
+- Move linting and requirements in dedicated /build folder.
+- Renamed key "pool" with "filtering" in properties.json
+- Fix Service table filtering
+- Fix object filtering from the network visualization page
+- Fix Ansible service safe command bug and add regression test
+- Remove column ordering for association proxy and all columns where ordering isn't useful
+- Fixed workflow builder display when the path stored in local storage no longer exists
+- Add service column in device results table
+- Add result log deletion endpoint in RBAC
+- Fix bug dictionary displayed in the UI in the results
+- Add all service reference in submenu in workflow builder
+- Add entry to copy service name as reference.
+- Add new feature to accept a dictionary in iteration values. When a dictionary is used, the keys are used as the 
+name of the iteration step in the results.
+- Iteration variable are now referred to as global variable,
+- Catch all exceptions in rest api to return proper error 500 (device not found for get configuration, etc)
+- Fix bug position of shared services resetted after renaming workflow
+- Fix refresh issue in configuration / operational data panel
+- Fix upload of files from file management panel
+- Forbid sets in the initial payload
+- Fix user authentication when running a service
+- Fix filtering tooltip in result table (no target found)
+- Fix filtering per result type (success / failure) in result table
+- Fix retry numbering
+- Add Search REST endpoint
+
+MIGRATION:
+All iteration variable became GLOBAL VARIABLE, which means that you need to use
+{{variable}} instead of {{get_var("variable")}} previously
+All services that use iteration variables must be updated in the migration files.
+
+Version 3.20
+------------
+
+- Add configuration management mechanism
+- New Table properties mechanism: all table properties are displayed in a JSON file: you can configure which ones
+appear in each table by default, whether they are searchable or not, etc, their label in the UI, etc.
+You will need to add your CUSTOM properties to that file if you want them to appear in the table.
+- Same with dashboard properties and pool properties
+- New Column visibility feature
+- New Configuration Management Mechanism
+- RBAC
+- Refactoring of the search system: next to the input, old "Advanced Search" button now dedicated
+to relationship. Everything is now persisted in the DOM.
+
+MIGRATION:
+- In netmiko configuration backup service, rename:
+  * "configuration" -> "configuration_command"
+  * "operational_data" -> "operational_data_command"
+- Moved ansible, pyats to a dedicated file called "requirements_optional.txt":
+
+Version 3.19
+------------
+
+- Add new File Management mechanism: browse, download, upload, delete and rename local files.
+  Mechanism to use local files as part of the automation services.
+- Add new color code for the logs window.
+- Add New Copy to clipboard mechanism:
+
+    - copy from RC on a service in Workflow builder
+    - copy from icon in result tables
+    - copy dict path to result in the json window.
+
+- Full screen workflow builder
+- Remember menu size PER USER
+- Refactoring of all the tables
+- Refactoring of the top-level menu
+- Alerts are saved and displayed in the UI, top menubar.
+- Remove recipients from settings.json. Recipients is now a mandatory field if mail notification is ticked.
+- Add support for netmiko genie / pyATS (`use_genie`) option.
+- New "Desktop session" mechanism to SSH to a device using teraterm / putty / etc.
+
+MIGRATION:
+- Renaming "config" -> "settings". All services that use the "config" global variable must change it to "settings".
+- Session change log: some traceback previously returned as "result" key of service "results" now returned as "error":
+can create backward-compatibility issue when a workflow relies on the content of the traceback.
+
 Version 3.18.2
 --------------
 

@@ -1,7 +1,7 @@
 from apscheduler.jobstores.base import JobLookupError
 from collections import defaultdict
 from datetime import datetime
-from flask import request, session
+from flask import request
 from flask_login import current_user
 from napalm._SUPPORTED_DRIVERS import SUPPORTED_DRIVERS
 from netmiko.ssh_dispatcher import CLASS_MAPPER, FILE_TRANSFER_MAP
@@ -142,7 +142,7 @@ class AutomationController(BaseController):
 
     def get_top_level_workflows(self):
         return [
-            workflow.get_properties()
+            workflow.base_properties
             for workflow in fetch_all("workflow")
             if not workflow.workflows
         ]
@@ -162,7 +162,10 @@ class AutomationController(BaseController):
                     "text": "Standalone services",
                     "children": True,
                     "state": {"disabled": True},
-                    "a_attr": {"class": "no_checkbox", "style": "color: #000000"},
+                    "a_attr": {
+                        "class": "no_checkbox",
+                        "style": "color: #000000; width: 100%",
+                    },
                     "type": "category",
                 }
             ] + sorted(
@@ -175,7 +178,7 @@ class AutomationController(BaseController):
                         "state": {"disabled": workflow in parents},
                         "a_attr": {
                             "class": "no_checkbox" if workflow in parents else "",
-                            "style": "color: #6666FF",
+                            "style": "color: #6666FF; width: 100%",
                         },
                     }
                     for workflow in fetch_all("workflow")
@@ -191,12 +194,14 @@ class AutomationController(BaseController):
                         "text": service.scoped_name,
                         "a_attr": {
                             "style": (
-                                f"color: #{'FF1694' if service.shared else '6666FF'}"
+                                f"color: #{'FF1694' if service.shared else '6666FF'};"
+                                "width: 100%"
                             ),
                         },
                     }
                     for service in fetch_all("service")
-                    if not service.workflows and service.type != "workflow"
+                    if (not service.workflows and service.type != "workflow")
+                    or service.shared
                 ),
                 key=itemgetter("text"),
             )
@@ -212,7 +217,8 @@ class AutomationController(BaseController):
                         "a_attr": {
                             "class": "no_checkbox" if service in parents else "",
                             "style": (
-                                f"color: #{'FF1694' if service.shared else '6666FF'}"
+                                f"color: #{'FF1694' if service.shared else '6666FF'};"
+                                "width: 100%"
                             ),
                         },
                     }
@@ -236,29 +242,23 @@ class AutomationController(BaseController):
             if service.scoped_name in ("Start", "End") or not runs:
                 return
             progress = state["services"][service.id].get("progress")
-            label = (
-                (
-                    f"({progress['device']['success']} passed,"
-                    f" {progress['device']['failure']} failed)</div>"
-                )
-                if progress and progress["device"]["total"]
-                else ""
-            )
+            track_progress = progress and progress["device"]["total"]
+            data = {"progress": progress["device"]} if track_progress else {}
             color = "32CD32" if all(run.success for run in runs) else "FF6666"
             result = {
                 "runtime": min(run.runtime for run in runs),
-                "data": service.get_properties(),
-                "text": f"{service.scoped_name} {label}",
-                "a_attr": {"style": f"color: #{color}"},
+                "data": {"properties": service.base_properties, **data},
+                "text": service.scoped_name,
+                "a_attr": {"style": f"color: #{color};width: 100%"},
             }
             if service.type == "workflow":
                 children = sorted(
                     filter(None, (rec(child) for child in service.services)),
                     key=itemgetter("runtime"),
                 )
-                return {"children": children, "type": "workflow", **result}
+                return {"children": children, **result}
             else:
-                return {"type": "service", **result}
+                return result
 
         return rec(fetch("workflow", id=workflow))
 
@@ -331,11 +331,16 @@ class AutomationController(BaseController):
 
     def skip_services(self, workflow_id, service_ids):
         services = [fetch("service", id=id) for id in service_ids.split("-")]
+        workflow = fetch("workflow", id=workflow_id)
         skip = not all(service.skip for service in services)
         for service in services:
             service.skip = skip
-        fetch("workflow", id=workflow_id).last_modified = self.get_time()
-        return "skip" if skip else "unskip"
+
+        workflow.last_modified = self.get_time()
+        return {
+            "skip": "skip" if skip else "unskip",
+            "update_time": workflow.last_modified,
+        }
 
     def get_service_state(self, path, runtime=None):
         service_id = path.split(">")[-1]
@@ -343,8 +348,6 @@ class AutomationController(BaseController):
         runs = fetch_all("run", service_id=service_id)
         if not runtime:
             runtime = "latest"
-        else:
-            session["path"] = path
         if runs and runtime != "normal":
             if runtime == "latest":
                 runtime = runs[-1].parent_runtime
@@ -390,7 +393,7 @@ class AutomationController(BaseController):
 
     def scan_playbook_folder(self):
         path = Path(
-            self.config["paths"]["playbooks"] or self.path / "files" / "playbooks"
+            self.settings["paths"]["playbooks"] or self.path / "files" / "playbooks"
         )
         playbooks = [[str(f) for f in path.glob(e)] for e in ("*.yaml", "*.yml")]
         return sorted(sum(playbooks, []))
